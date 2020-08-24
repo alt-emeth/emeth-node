@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 
+// import { getDashboard } from '../services/dashboard.service';
+
 export const index = async (req: Request, res: Response) => {
   res.render('index', {
     title: 'Antiblocks',
@@ -10,10 +12,19 @@ export const index = async (req: Request, res: Response) => {
 export const dashboard = async (req: Request, res: Response) => {
   const transactions = [];
   const blocks = [];
-
-  res.render('dashboard', {
-    title: 'Antiblocks | Dashboard',
-    transactions,
-    blocks,
-  });
+  try {
+    // const dataDashboard = await getDashboard();
+    // console.log(dataDashboard);
+    res.render('dashboard', {
+      title: 'Antiblocks | Dashboard',
+      transactions,
+      blocks,
+    });
+  } catch (error) {
+    res.render('dashboard', {
+      title: 'Antiblocks | Dashboard',
+      transactions,
+      blocks,
+    });
+  }
 };
