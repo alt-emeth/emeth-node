@@ -1,0 +1,62 @@
+extends layout
+block content
+  h1= title
+  h1(class="mx-auto" style={width:"200px"}) Transactions
+  div(class="container-fluid border").p-3
+    table(id="transactionsTable", class="display nowrap dataTable dtr-inline collapsed")
+      thead 
+        tr 
+          th(class="sorting_asc") Tx ID
+          th(class="sorting_asc") Nonce
+          th(class="sorting_asc") Token ID 
+          th(class="sorting_asc") Source 
+          th(class="sorting_asc") Target 
+          th(class="sorting_asc") Amount 
+          th(class="sorting_asc") Fee 
+          th(class="sorting_asc") Signature 
+          th(class="sorting_asc") Created at 
+          th(class="sorting_asc") Block number
+  h1(class="mx-auto" style={width:"200px"}) Blocks
+  div(class="container-fluid border").p-3
+    table(id="blocksTable", class="display nowrap dataTable dtr-inline collapsed")
+      thead 
+        tr 
+          th(class="sorting_asc") Block number
+          th(class="sorting_asc") Parent hash
+          th(class="sorting_asc") Tx root hash
+          th(class="sorting_asc") Block hash
+          th(class="sorting_asc") Created at
+  script.
+    $(document).ready(function() {
+      const transactions = !{JSON.stringify(transactions)}
+      const blocks = !{JSON.stringify(blocks)}
+
+      console.log(blocks)
+      $('#transactionsTable').DataTable({
+        data: transactions,
+        columns: [
+          {data:'txId'},
+          {data:'nonce'},
+          {data:'tokenId'},
+          {data:'source'},
+          {data:'target'},
+          {data:'amount'},
+          {data:'fee'},
+          {data:'signature'},
+          {data:'createdAt'},
+          {data:'blockNumber'},
+        ],
+        responsive: true,
+      });
+      $('#blocksTable').DataTable({
+        data: blocks,
+        columns: [
+          {data:'blockNumber'},
+          {data:'parentHash'},
+          {data:'txRootHash'},
+          {data:'blockHash'},
+          {data:'createdAt'},
+        ],
+        responsive: true,
+      });
+    } );
