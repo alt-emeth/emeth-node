@@ -47,9 +47,11 @@ block content
                   td #{transactions[i].createdAt}
                   td #{transactions[i].blockNumber}
               -}
-        
+          .box-pagination
+            include pagination
+
       div.col-md-6.col-12
-        div.border-table
+        div.border-table.table-blocks
           h3(style={"font-weight": "bold", "margin-bottom": "35px"}) Blocks
           div.row 
             div.col-auto
@@ -78,6 +80,9 @@ block content
                   td #{blocks[i].createdAt}
                 
               -}
+          .box-pagination
+            include pagination
+
   script.
     $(document).ready(function() {
       $('#tbTransactions').DataTable({
@@ -91,6 +96,7 @@ block content
 
       $('#tbBlocks').DataTable({
         scrollX: true,
+        scrollY: true,
         searching: false,
         paging: false,
         bFilter: false,

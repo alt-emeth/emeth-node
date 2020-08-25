@@ -101,3 +101,72 @@ td {
   background-color: rgba(0, 150, 136, 0.8);
   cursor: pointer;
 }
+
+.table-blocks .dataTables_scrollBody{
+  overflow-x: scroll !important;
+  height: 430px;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pagination a{
+  border-radius: 10px;
+}
+
+a.pagination-button {
+  margin: 4px;
+  width: 40px;
+  height: 40px;
+  box-shadow: none;
+  font-size: 14px;
+  background-color: white;
+  border: 1px solid #DCDCE0;
+  display: flex;
+  justify-content: center;
+  color: black;
+  line-height: 40px;
+}
+
+a.pagination-button:hover {
+  background-color: #d5d5d5;
+}
+
+a.pagination-button:disabled {
+  opacity: 0.5;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+a.pagination-button img {
+  width: 16;
+}
+
+a.pagination-button.selected {
+  background-color: #222C3C;
+  color: white;
+  pointer-events: none;
+}
+
+.box-pagination{
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.border-table{
+  height: 700px;
+  position: relative;
+}
+
+@media (max-width: 768px){
+  .border-table{
+    height: auto;
+  }
+  .box-pagination{
+    margin-top: 10px;
+    position: unset;
+  }
+}
