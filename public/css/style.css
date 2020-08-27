@@ -24,7 +24,7 @@ li.sign-in{
   title
 */
 .title{
-  background-color: #f5f5f5;
+  background-color: #dddddd;
   padding: 20px;
   border-bottom: 1px solid black;
   height: 260px;
@@ -325,4 +325,13 @@ a.pagination-button.selected {
   .box-show-more{
     margin-top: 10px;
   }
+}
+
+/*
+  footer
+*/
+footer{
+  background-color: #dddddd !important; 
+  padding: 10px;
+  border-top: 1px solid black;
 }
