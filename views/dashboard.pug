@@ -1,25 +1,53 @@
 extends layout
 block content
-  h1.container-fluid.mt-3.mb-5.text-center #{title}
-  div.container-fluid
+  include navbar
+  .title
+    h1.container-fluid.mb-5.text-center #{title}
     div.row
       div.d-flex.justify-content-center.box-search
         div.form-search
           input.textbox(type='text' placeholder='Search')
           input.button(title='Search' value='' type="submit")
-    div.row 
+  .container-fluid
+    .block-title
+      .block1
+        .row1
+          h5 LATEST BLOCK
+          label.number 1,272,845
+        .row2
+          h5 LATEST CHECKPOINT
+          label.number 1,272,845
+        .row3
+          h5 TOKENS
+          label.number 16
+      //- .block-line
+      .block2
+        .row1
+          h5 TRANSACTIONS
+          label.number 1,272,845
+        .row2
+          h5 ACCOUNTS
+          label.number 16,002
+        .row3
+          h5 STORES
+          label.number 165
+      //- .block-line.bl3
+      .block3
+        .row1
+          h5 TOKENS
+          label.number 16
+        .row2
+          h5 STORES
+          label.number 165
+  .container-fluid
+    div.row.dashboard 
       div.col-md-6.col-12
-        div.border-table
+        div.border-table.table-transactions
           h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Transactions
           div.row 
             div.col-lg-6.col-12
               div
-                label(for="custom-select").status Show:
-                  select#select-status.custom-select(onchange="handleChangeStatus()")
-                    option(value='0') 10
-                    option(value='1') 25
-                    option(value='2') 50
-                label(for="custom-select" style={'margin-left':"5px"}).status entries
+                label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
           table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
             thead.head-table
               tr
@@ -47,8 +75,10 @@ block content
                   td #{transactions[i].createdAt}
                   td #{transactions[i].blockNumber}
               -}
-          .box-pagination
-            include pagination
+          -if(totalTransactions > 10){
+            .box-show-more
+              a(href='/transactions') Show more ...
+          -}
 
       div.col-md-6.col-12
         div.border-table.table-blocks
@@ -56,12 +86,7 @@ block content
           div.row 
             div.col-auto
               div
-                label(for="custom-select").status Show:
-                  select#select-status.custom-select(onchange="handleChangeStatus()")
-                    option(value='0') 10
-                    option(value='1') 25
-                    option(value='2') 50
-                label(for="custom-select" style={'margin-left':"5px"}).status entries
+                label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
           table#tbBlocks.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
             thead.head-table
               tr
@@ -80,8 +105,10 @@ block content
                   td #{blocks[i].createdAt}
                 
               -}
-          .box-pagination
-            include pagination
+          -if(totalBlocks > 15){
+            .box-show-more
+              a(href='/blocks') Show more ...
+          -}
 
   script.
     $(document).ready(function() {

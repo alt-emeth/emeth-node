@@ -21,4 +21,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/', routes);
 
+app.use((err, req, res, next) => {
+  console.log("error");
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: err,
+  });
+});
+
 module.exports = app;

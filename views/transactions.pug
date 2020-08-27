@@ -1,0 +1,90 @@
+extends layout
+block content
+  h1.container-fluid.mt-3.mb-5.text-center #{title}
+  div.container-fluid
+    div.transactions 
+      div.border-table.table-transactions
+        h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Transactions
+        div.row 
+          div.col-lg-6.col-12
+            div
+              label(for="custom-select").limit Show:
+                select#select-limit.custom-select(onchange="handleChangeShowLimit()")
+                  option(value='0') 15
+                  option(value='1') 30
+                  option(value='2') 50
+              label(for="custom-select" style={'margin-left':"5px"}).limit entries
+        table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
+          thead.head-table
+            tr
+              th.th_sm Tx ID
+              th.th_sm Nonce
+              th.th_sm Token ID
+              th.th_sm Source
+              th.th_sm Target
+              th.th_sm Amount
+              th.th_sm Fee
+              th.th_sm Signature
+              th.th_sm Created at
+              th.th_sm Block number
+          tbody
+            -for(let i=0; i<transactions.length; i++){
+              tr.tr-link
+                td(title=transactions[i].txId) #{transactions[i].txId}
+                td #{transactions[i].nonce}
+                td #{transactions[i].tokenId}
+                td #{transactions[i].source}
+                td #{transactions[i].target}
+                td #{transactions[i].amount}
+                td #{transactions[i].fee}
+                td #{transactions[i].signature}
+                td #{transactions[i].createdAt}
+                td #{transactions[i].blockNumber}
+            -}
+        .box-pagination
+          include pagination
+
+  script.
+    $(document).ready(function() {
+      $('#tbTransactions').DataTable({
+        scrollX: true,
+        searching: false,
+        paging: false,
+        bFilter: false,
+        bInfo: false,
+        sort: false
+      });
+
+      $('#tbBlocks').DataTable({
+        scrollX: true,
+        scrollY: true,
+        searching: false,
+        paging: false,
+        bFilter: false,
+        bInfo: false,
+        sort: false
+      });
+
+      //- function handleChangeShowLimit(){
+      //-   const key = $('#select-limit').val();
+      //-   switch(Number(key)){
+      //-     case 0:
+      //-       const url0 = new URL(window.location.href);
+      //-       url0.searchParams.delete('limit', 15);
+      //-       window.location.assign(url0.toString());
+      //-       break;
+      //-     case 1:
+      //-       const url1 = new URL(window.location.href);
+      //-       url1.searchParams.set('limit', 30);
+      //-       window.location.assign(url1.toString());
+      //-       break;
+      //-     case 2:
+      //-       const url2 = new URL(window.location.href);
+      //-       url2.searchParams.set('limit', 50);
+      //-       window.location.assign(url2.toString());
+      //-       break;
+      //-     default:
+      //-       break;
+      //-   }
+      //- }
+    });
