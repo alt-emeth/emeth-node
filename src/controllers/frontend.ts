@@ -3,10 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getDashboard, getTransactions, getBlocks } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
-  res.render('index', {
-    title: 'Antiblocks',
-    text: 'Welcome to Antiblocks',
-  });
+  res.redirect('/dashboard');
 };
 
 export const dashboard = async (req: Request, res: Response) => {
@@ -16,7 +13,7 @@ export const dashboard = async (req: Request, res: Response) => {
     const { blocks, totalBlocks } = dataDashboard.blocks;
 
     res.render('dashboard', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       transactions,
       blocks,
       totalTransactions,
@@ -24,7 +21,7 @@ export const dashboard = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.render('dashboard', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       transactions,
       blocks,
       totalTransactions: 0,
@@ -40,7 +37,7 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
     const { transactions, total } = await getTransactions(+offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('transactions', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       transactions,
       pages,
       currentPage: +page,
@@ -49,7 +46,7 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
     return res;
   } catch (error) {
     res.render('transactions', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       transactions: [],
       pages: [],
       totalPage: 0,
@@ -65,7 +62,7 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
     const { blocks, total } = await getBlocks(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('blocks', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       blocks,
       pages,
       currentPage: +page,
@@ -74,7 +71,7 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
     return res;
   } catch (error) {
     res.render('blocks', {
-      title: 'The BURN Blockchain Exlorer',
+      title: 'The BURN Blockchain Explorer',
       blocks: [],
       pages: [],
       totalPage: 0,
