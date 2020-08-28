@@ -10,14 +10,10 @@ export const index = async (req: Request, res: Response) => {
 };
 
 export const dashboard = async (req: Request, res: Response) => {
-  let transactions = [];
-  let blocks = [];
   try {
     const dataDashboard = await getDashboard();
-    transactions = dataDashboard.transactions[0];
-    blocks = dataDashboard.blocks[0];
-    const totalTransactions = dataDashboard.transactions[1];
-    const totalBlocks = dataDashboard.transactions[1];
+    const { transactions, totalTransactions } = dataDashboard.transactions;
+    const { blocks, totalBlocks } = dataDashboard.blocks;
 
     res.render('dashboard', {
       title: 'Antiblocks | Dashboard',
@@ -41,22 +37,19 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const dataTransactions = await getTransactions(+offset, +limit);
-    const transactions = dataTransactions[0];
-    const total = dataTransactions[1];
+    const { transactions, total } = await getTransactions(+offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('transactions', {
-      title: 'Antiblocks | Dashboard',
+      title: 'Antiblocks | Transactions',
       transactions,
       pages,
       currentPage: +page,
       totalPage,
-      // totalTransactions: total,
     });
     return res;
   } catch (error) {
     res.render('transactions', {
-      title: 'Antiblocks | Dashboard',
+      title: 'Antiblocks | Transactions',
       transactions: [],
       pages: [],
       totalPage: 0,
@@ -69,12 +62,10 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const dataBlocks = await getBlocks(offset, +limit);
-    const blocks = dataBlocks[0];
-    const total = dataBlocks[1];
+    const { blocks, total } = await getBlocks(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('blocks', {
-      title: 'Antiblocks | Dashboard',
+      title: 'Antiblocks | Blocks',
       blocks,
       pages,
       currentPage: +page,
@@ -83,7 +74,7 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
     return res;
   } catch (error) {
     res.render('blocks', {
-      title: 'Antiblocks | Dashboard',
+      title: 'Antiblocks | Blocks',
       blocks: [],
       pages: [],
       totalPage: 0,

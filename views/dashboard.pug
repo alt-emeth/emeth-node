@@ -20,7 +20,6 @@ block content
         .row3
           h5 TOKENS
           label.number 16
-      //- .block-line
       .block2
         .row1
           h5 TRANSACTIONS
@@ -31,7 +30,6 @@ block content
         .row3
           h5 STORES
           label.number 165
-      //- .block-line.bl3
       .block3
         .row1
           h5 TOKENS
@@ -41,40 +39,14 @@ block content
           label.number 165
   .container-fluid
     div.row.dashboard 
-      div.col-md-6.col-12
+      div.col-md-6.col-12.table-up
         div.border-table.table-transactions
           h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Transactions
           div.row 
             div.col-lg-6.col-12
               div
                 label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
-          table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
-            thead.head-table
-              tr
-                th.th_sm Tx ID
-                th.th_sm Nonce
-                th.th_sm Token ID
-                th.th_sm Source
-                th.th_sm Target
-                th.th_sm Amount
-                th.th_sm Fee
-                th.th_sm Signature
-                th.th_sm Created at
-                th.th_sm Block number
-            tbody
-              -for(let i=0; i<transactions.length; i++){
-                tr.tr-link
-                  td(title=transactions[i].txId) #{transactions[i].txId}
-                  td #{transactions[i].nonce}
-                  td #{transactions[i].tokenId}
-                  td #{transactions[i].source}
-                  td #{transactions[i].target}
-                  td #{transactions[i].amount}
-                  td #{transactions[i].fee}
-                  td #{transactions[i].signature}
-                  td #{transactions[i].createdAt}
-                  td #{transactions[i].blockNumber}
-              -}
+          include tables/table-transactions
           -if(totalTransactions > 10){
             .box-show-more
               a(href='/transactions') Show more ...
@@ -87,50 +59,10 @@ block content
             div.col-auto
               div
                 label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
-          table#tbBlocks.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
-            thead.head-table
-              tr
-                th.th_sm Block number
-                th.th_sm Parent hash
-                th.th_sm Tx root hash
-                th.th_sm Block hash
-                th.th_sm Created at
-            tbody
-              -for(let i=0; i<blocks.length; i++){
-                tr.tr-link
-                  td #{blocks[i].blockNumber}
-                  td #{blocks[i].parentHash}
-                  td #{blocks[i].txRootHash}
-                  td #{blocks[i].blockHash}
-                  td #{blocks[i].createdAt}
-                
-              -}
-          -if(totalBlocks > 15){
+          include tables/table-blocks
+          -if(totalBlocks > 10){
             .box-show-more
               a(href='/blocks') Show more ...
           -}
 
   include footer
-
-  script.
-    $(document).ready(function() {
-      $('#tbTransactions').DataTable({
-        scrollX: true,
-        searching: false,
-        paging: false,
-        bFilter: false,
-        bInfo: false,
-        sort: false
-      });
-
-      $('#tbBlocks').DataTable({
-        scrollX: true,
-        scrollY: true,
-        searching: false,
-        paging: false,
-        bFilter: false,
-        bInfo: false,
-        sort: false
-      });
-      
-    } );

@@ -1,0 +1,19 @@
+block content
+  table#tbBlocks.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
+    thead.head-table
+      tr
+        th.th_sm Block number
+        th.th_sm Parent hash
+        th.th_sm Tx root hash
+        th.th_sm Block hash
+        th.th_sm Created at
+    tbody
+      -for(let i=0; i<blocks.length; i++){
+        tr.tr-link
+          td #{blocks[i].blockNumber}
+          td(title=blocks[i].parentHash) #{blocks[i].parentHash}
+          td(title=blocks[i].txRootHash) #{blocks[i].txRootHash}
+          td(title=blocks[i].blockHash) #{blocks[i].blockHash}
+          td #{blocks[i].createdAt}
+      -}
+  

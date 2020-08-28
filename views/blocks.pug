@@ -1,59 +1,23 @@
 extends layout
 block content
+  include navbar
   h1.container-fluid.mt-3.mb-5.text-center #{title}
   div.container-fluid
-    div.blocks 
-      div.border-table.table-blocks
-        h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Blocks
-        div.row 
-          div.col-lg-6.col-12
-            div
-              label(for="custom-select").status Show:
-                select#select-status.custom-select(onchange="handleChangeStatus()")
-                  option(value='0') 10
-                  option(value='1') 25
-                  option(value='2') 50
-              label(for="custom-select" style={'margin-left':"5px"}).status entries
-        table#tbBlocks.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
-            thead.head-table
-              tr
-                th.th_sm Block number
-                th.th_sm Parent hash
-                th.th_sm Tx root hash
-                th.th_sm Block hash
-                th.th_sm Created at
-            tbody
-              -for(let i=0; i<blocks.length; i++){
-                tr.tr-link
-                  td #{blocks[i].blockNumber}
-                  td #{blocks[i].parentHash}
-                  td #{blocks[i].txRootHash}
-                  td #{blocks[i].blockHash}
-                  td #{blocks[i].createdAt}
-                
-              -}
-        .box-pagination
-          include pagination
+    div.row.blocks 
+      div.col-12
+        div.border-table.table-blocks
+          h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Blocks
+          div.row 
+            div.col-lg-6.col-12
+              div
+                label(for="custom-select").status Show:
+                  select#select-limit.custom-select(onchange="handleChangeLimit()")
+                    option(value='0') 15
+                    option(value='1') 30
+                    option(value='2') 50
+                label(for="custom-select" style={'margin-left':"5px"}).status entries
+          include tables/table-blocks
+          .box-pagination
+            include pagination
 
-  script.
-    $(document).ready(function() {
-      $('#tbTransactions').DataTable({
-        scrollX: true,
-        searching: false,
-        paging: false,
-        bFilter: false,
-        bInfo: false,
-        sort: false
-      });
-
-      $('#tbBlocks').DataTable({
-        scrollX: true,
-        scrollY: true,
-        searching: false,
-        paging: false,
-        bFilter: false,
-        bInfo: false,
-        sort: false
-      });
-      
-    } );
+  include footer

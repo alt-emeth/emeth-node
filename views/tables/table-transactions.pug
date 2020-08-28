@@ -1,0 +1,27 @@
+table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
+  thead.head-table
+    tr
+      th.th_sm Tx ID
+      th.th_sm Nonce
+      th.th_sm Token ID
+      th.th_sm Source
+      th.th_sm Target
+      th.th_sm Amount
+      th.th_sm Fee
+      th.th_sm Signature
+      th.th_sm Created at
+      th.th_sm Block number
+  tbody
+    -for(let i=0; i<transactions.length; i++){
+      tr.tr-link
+        td(title=transactions[i].txId) #{transactions[i].txId}
+        td #{transactions[i].nonce}
+        td(title=transactions[i].tokenId) #{transactions[i].tokenId}
+        td(title=transactions[i].source) #{transactions[i].source}
+        td(title=transactions[i].target) #{transactions[i].target}
+        td #{transactions[i].amount}
+        td #{transactions[i].fee}
+        td(title=transactions[i].signature) #{transactions[i].signature}
+        td #{transactions[i].createdAt}
+        td #{transactions[i].blockNumber}
+    -}
