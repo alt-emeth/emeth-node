@@ -1,23 +1,24 @@
 extends layout
 block content
-  include navbar
-  h1.container-fluid.mt-3.mb-5.text-center #{title}
-  div.container-fluid
-    div.row.blocks 
-      div.col-12
-        div.border-table.table-blocks
-          h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Blocks
-          div.row 
-            div.col-lg-6.col-12
-              div
-                label(for="custom-select").status Show:
-                  select#select-limit.custom-select(onchange="handleChangeLimit()")
-                    option(value='0') 15
-                    option(value='1') 30
-                    option(value='2') 50
-                label(for="custom-select" style={'margin-left':"5px"}).status entries
-          include tables/table-blocks
-          .box-pagination
-            include pagination
+  div.content-blocks(style="background-color: #f5f5f5")
+    include navbar
+    h1.container-fluid.mt-3.mb-5.text-center #{title}
+    div.container-fluid
+      div.row.blocks 
+        div.col-12
+          div.border-table.table-blocks
+            h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Blocks
+            div.row 
+              div.col-lg-6.col-12
+                div
+                  label(for="custom-select").status Show:
+                    select#select-limit.custom-select(onchange="handleChangeLimit()")
+                      option(value='0') 15
+                      option(value='1') 30
+                      option(value='2') 50
+                  label(for="custom-select" style={'margin-left':"5px"}).status entries
+            include tables/table-blocks
+            .box-pagination
+              include pagination
 
-  include footer
+    include footer
