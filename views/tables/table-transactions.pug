@@ -14,11 +14,15 @@ table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing=
   tbody
     -for(let i=0; i<transactions.length; i++){
       tr.tr-link
-        td(title=transactions[i].txId) #{transactions[i].txId}
+        td(title=transactions[i].txId)
+          a(href='#') #{transactions[i].txId}
         td #{transactions[i].nonce}
-        td(title=transactions[i].tokenId) #{transactions[i].tokenId}
-        td(title=transactions[i].source) #{transactions[i].source}
-        td(title=transactions[i].target) #{transactions[i].target}
+        td(title=transactions[i].tokenId) 
+          a(href='#') #{transactions[i].tokenId}
+        td(title=transactions[i].source)
+          a(href='#') #{transactions[i].source}
+        td(title=transactions[i].target)
+          a(href='#') #{transactions[i].target}
         td #{transactions[i].amount}
         td #{transactions[i].fee}
         td(title=transactions[i].signature) #{transactions[i].signature}

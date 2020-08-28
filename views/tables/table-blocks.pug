@@ -10,10 +10,14 @@ block content
     tbody
       -for(let i=0; i<blocks.length; i++){
         tr.tr-link
-          td #{blocks[i].blockNumber}
-          td(title=blocks[i].parentHash) #{blocks[i].parentHash}
-          td(title=blocks[i].txRootHash) #{blocks[i].txRootHash}
-          td(title=blocks[i].blockHash) #{blocks[i].blockHash}
+          td 
+            a(href='#') #{blocks[i].blockNumber}
+          td(title=blocks[i].parentHash)
+            a(href='#') #{blocks[i].parentHash}
+          td(title=blocks[i].txRootHash)
+            a(href='#') #{blocks[i].txRootHash}
+          td(title=blocks[i].blockHash)
+            a(href='#') #{blocks[i].blockHash}
           td #{blocks[i].createdAt}
       -}
   

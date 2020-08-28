@@ -16,7 +16,7 @@ export const dashboard = async (req: Request, res: Response) => {
     const { blocks, totalBlocks } = dataDashboard.blocks;
 
     res.render('dashboard', {
-      title: 'Antiblocks | Dashboard',
+      title: 'The BURN Blockchain Exlorer',
       transactions,
       blocks,
       totalTransactions,
@@ -24,7 +24,7 @@ export const dashboard = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.render('dashboard', {
-      title: 'Antiblocks | Dashboard',
+      title: 'The BURN Blockchain Exlorer',
       transactions,
       blocks,
       totalTransactions: 0,
@@ -40,7 +40,7 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
     const { transactions, total } = await getTransactions(+offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('transactions', {
-      title: 'Antiblocks | Transactions',
+      title: 'The BURN Blockchain Exlorer',
       transactions,
       pages,
       currentPage: +page,
@@ -49,7 +49,7 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
     return res;
   } catch (error) {
     res.render('transactions', {
-      title: 'Antiblocks | Transactions',
+      title: 'The BURN Blockchain Exlorer',
       transactions: [],
       pages: [],
       totalPage: 0,
@@ -65,7 +65,7 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
     const { blocks, total } = await getBlocks(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('blocks', {
-      title: 'Antiblocks | Blocks',
+      title: 'The BURN Blockchain Exlorer',
       blocks,
       pages,
       currentPage: +page,
@@ -74,7 +74,7 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
     return res;
   } catch (error) {
     res.render('blocks', {
-      title: 'Antiblocks | Blocks',
+      title: 'The BURN Blockchain Exlorer',
       blocks: [],
       pages: [],
       totalPage: 0,
