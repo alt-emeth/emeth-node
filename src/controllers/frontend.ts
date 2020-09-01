@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 
-import { getDashboard, getTransactions, getBlocks, getBlockDetail } from '../services/dashboard.service';
+import {
+  getDashboard,
+  getTransactions,
+  getBlocks,
+  getTransactionDetail,
+  getBlockDetail,
+} from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -76,26 +82,13 @@ export const blocks = async (req: Request, res: Response) => {
   }
 };
 
-// export const handleSearch = async (req: Request, res: Response) => {
-//   const { key } = req.query;
-//   if (/^[+,-]?\d+$/.test(`${key}`)) {
-//     return searchBlock(Number(key), res);
-//   } else if (/^0x[a-fA-F0-9]+$/.test(`${key}`)) {
-//     console.log('this is digital');
-//     res.render('error');
-//   } else {
-//     console.log("ngu ");
-//     res.render('error');
-//   }
-// };
-
 export const getTransaction = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
     if (!/^0x[a-fA-F0-9]+$/.test(`${key}`)) {
       throw new Error('url invalid!');
     }
-    const { blockData } = await getBlockDetail(Number(key));
+    const { blockData } = await getTransactionDetail(Number(key));
     blockData.createdAt = new Date(blockData.createdAt);
     res.render('transaction/transaction', {
       title: 'Transaction Details',
