@@ -11,7 +11,7 @@ block content
       -for(let i=0; i<blocks.length; i++){
         tr.tr-link
           td 
-            a(href='#') #{blocks[i].blockNumber}
+            a(href=`blocks/${blocks[i].blockNumber}`) #{blocks[i].blockNumber}
           td(title=blocks[i].parentHash)
             a(href='#') #{blocks[i].parentHash}
           td(title=blocks[i].txRootHash)

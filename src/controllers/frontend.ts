@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
-import { getDashboard, getTransactions, getBlocks } from '../services/dashboard.service';
+import { getDashboard, getTransactions, getBlocks, getBlockDetail } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -9,8 +9,8 @@ export const index = async (req: Request, res: Response) => {
 export const dashboard = async (req: Request, res: Response) => {
   try {
     const dataDashboard = await getDashboard();
-    const { transactions, totalTransactions } = dataDashboard.transactions;
-    const { blocks, totalBlocks } = dataDashboard.blocks;
+    const { transactions = [], totalTransactions = 0 } = dataDashboard.transactions;
+    const { blocks = [], totalBlocks = 0 } = dataDashboard.blocks;
 
     res.render('dashboard', {
       title: 'The BURN Blockchain Explorer',
@@ -22,19 +22,19 @@ export const dashboard = async (req: Request, res: Response) => {
   } catch (error) {
     res.render('dashboard', {
       title: 'The BURN Blockchain Explorer',
-      transactions,
-      blocks,
+      transactions: [],
+      blocks: [],
       totalTransactions: 0,
       totalBlocks: 0,
     });
   }
 };
 
-export const transactions = async (req: Request, res: Response, next: NextFunction) => {
+export const transactions = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const { transactions, total } = await getTransactions(+offset, +limit);
+    const { transactions = [], total = 0 } = await getTransactions(+offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('transactions', {
       title: 'The BURN Blockchain Explorer',
@@ -43,7 +43,6 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
       currentPage: +page,
       totalPage,
     });
-    return res;
   } catch (error) {
     res.render('transactions', {
       title: 'The BURN Blockchain Explorer',
@@ -51,15 +50,14 @@ export const transactions = async (req: Request, res: Response, next: NextFuncti
       pages: [],
       totalPage: 0,
     });
-    next(error);
   }
 };
 
-export const blocks = async (req: Request, res: Response, next: NextFunction) => {
+export const blocks = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const { blocks, total } = await getBlocks(offset, +limit);
+    const { blocks = [], total = 0 } = await getBlocks(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
     res.render('blocks', {
       title: 'The BURN Blockchain Explorer',
@@ -68,7 +66,6 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
       currentPage: +page,
       totalPage,
     });
-    return res;
   } catch (error) {
     res.render('blocks', {
       title: 'The BURN Blockchain Explorer',
@@ -76,7 +73,65 @@ export const blocks = async (req: Request, res: Response, next: NextFunction) =>
       pages: [],
       totalPage: 0,
     });
-    next(error);
+  }
+};
+
+// export const handleSearch = async (req: Request, res: Response) => {
+//   const { key } = req.query;
+//   if (/^[+,-]?\d+$/.test(`${key}`)) {
+//     return searchBlock(Number(key), res);
+//   } else if (/^0x[a-fA-F0-9]+$/.test(`${key}`)) {
+//     console.log('this is digital');
+//     res.render('error');
+//   } else {
+//     console.log("ngu ");
+//     res.render('error');
+//   }
+// };
+
+export const getTransaction = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    if (!/^0x[a-fA-F0-9]+$/.test(`${key}`)) {
+      throw new Error('url invalid!');
+    }
+    const { blockData } = await getBlockDetail(Number(key));
+    blockData.createdAt = new Date(blockData.createdAt);
+    res.render('transaction/transaction', {
+      title: 'Transaction Details',
+      transactionData: [],
+    });
+  } catch (error) {
+    res.render('transaction/transaction', {
+      title: 'Transaction Details',
+      transactionData: null,
+    });
+  }
+};
+
+export const getBlock = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    if (!/^[+,-]?\d+$/.test(`${key}`)) {
+      throw new Error('url invalid!');
+    }
+    const { blockData, preBlockNumber, nextBlockNumber } = await getBlockDetail(Number(key));
+    blockData.createdAt = new Date(blockData.createdAt);
+    res.render('block/block', {
+      title: 'Blocks',
+      code: blockData.blockNumber,
+      preBlockNumber,
+      nextBlockNumber,
+      blockData,
+    });
+  } catch (error) {
+    res.render('block/block', {
+      title: 'Blocks',
+      code: req.params.id,
+      preBlockNumber: null,
+      nextBlockNumber: null,
+      blockData: null,
+    });
   }
 };
 

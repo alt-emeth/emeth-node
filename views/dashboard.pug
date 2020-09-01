@@ -2,13 +2,14 @@ extends layout
 block content
   include navbar
   .title
-    h1.container-fluid.mb-5.text-center #{title}
-    div.row
-      div.d-flex.justify-content-center.box-search
-        div.form-search
-          input.textbox(type='text' placeholder='Search')
-          input.button(title='Search' value='' type="submit")
-  .container
+    .container.p-sm-0
+      h3.mb-5.text-center #{title}
+      div.row
+        div.d-flex.justify-content-center.box-search
+          div.form-search
+            input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
+            input.button(title='Search' value='' type="submit" onclick='handleSearch()')
+  .container.p-sm-0
     .block-title
       .block1
         .row1
@@ -37,7 +38,7 @@ block content
         .row2
           h5 STORES
           label.number 165
-  .container
+  .container.p-sm-0
     div.row.dashboard 
       div.col-md-6.col-12.table-up
         div.border-table.table-transactions
@@ -66,3 +67,24 @@ block content
           -}
 
   include footer
+  script.
+    function handleSearch(){
+      const text = $('.search-input').val();
+      const originUrl = window.location.origin;
+      let url = ''
+      if (/^[+,-]?\d+$/.test(`${text}`)) {
+        url = `${originUrl}/blocks/${text}` 
+      } else if (/^0x[a-fA-F0-9]+$/.test(`${text}`)) {
+        url = `${originUrl}/transactions/${text}` 
+      } else {
+        url = `${originUrl}/dashboard` 
+      }
+
+      window.location.assign(new URL(url).toString());
+    }
+
+    function handleKeyPress(e){
+      if (e.keyCode == 13) {
+        this.handleSearch();
+      }
+    }

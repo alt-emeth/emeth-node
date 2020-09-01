@@ -1,0 +1,68 @@
+extends ../layout
+block content
+  include ../navbar
+  div.container.p-sm-0.block-detail
+    span.h4.content.font-weight-bold #{title}
+    span.code-block 
+      | ##{code}
+    
+    -if(!blockData){
+      h3.text-center Data empty
+    -} else {
+      .box-detail
+        form
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Block Number:
+            .col-sm-8
+              .form-control 
+                span #{blockData.blockNumber}
+                a.btn-back(href=`${preBlockNumber.length === 0 ? '#' : `blocks/${preBlockNumber[0].blockNumber}`}`)
+                  i.fas.fa-angle-left
+                a.btn-next(href=`${nextBlockNumber.length === 0 ? '#' : `blocks/${nextBlockNumber[0].blockNumber}`}`)
+                  i.fas.fa-angle-right
+          hr.my-2
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Checkpoint Number:
+            .col-sm-8
+              .form-control #{blockData.checkpointNumber}
+          hr.my-2
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Parent Hash:
+            .col-sm-8
+              a.form-control #{blockData.parentHash}
+          hr.my-2
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Tx Root Hash:
+            .col-sm-8
+              a.form-control #{blockData.txRootHash}
+          hr.my-2
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Block Hash:
+            .col-sm-8
+              a.form-control #{blockData.blockHash}
+          hr.my-2
+          .form-group.row
+            .col-sm-4
+              i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+              label.col-form-label Created At:
+            .col-sm-8
+              .form-control #{blockData.createdAt}
+          hr.my-2
+    -}
+    
+     
+  style.
+    body {
+      background-color: #f5f5f5;
+    }
+    

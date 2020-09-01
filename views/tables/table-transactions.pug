@@ -15,7 +15,7 @@ table#tbTransactions.table.table-striped.table-bordered.text-center(cellspacing=
     -for(let i=0; i<transactions.length; i++){
       tr.tr-link
         td(title=transactions[i].txId)
-          a(href='#') #{transactions[i].txId}
+          a(href=`transactions/${transactions[i].txId}`) #{transactions[i].txId}
         td #{transactions[i].nonce}
         td(title=transactions[i].tokenId) 
           a(href='#') #{transactions[i].tokenId}
