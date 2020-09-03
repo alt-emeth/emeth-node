@@ -88,11 +88,11 @@ export const getTransaction = async (req: Request, res: Response) => {
     if (!/^0x[a-fA-F0-9]+$/.test(`${key}`)) {
       throw new Error('url invalid!');
     }
-    const { blockData } = await getTransactionDetail(Number(key));
-    blockData.createdAt = new Date(blockData.createdAt);
+    const { transactionData } = await getTransactionDetail(key);
+    transactionData.createdAt = new Date(transactionData.createdAt);
     res.render('transaction/transaction', {
       title: 'Transaction Details',
-      transactionData: [],
+      transactionData,
     });
   } catch (error) {
     res.render('transaction/transaction', {

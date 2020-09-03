@@ -18,9 +18,9 @@ block content
             .col-sm-8
               .form-control 
                 span #{blockData.blockNumber}
-                a.btn-back(href=`${preBlockNumber.length === 0 ? '#' : `blocks/${preBlockNumber[0].blockNumber}`}`)
+                a.btn-back(href=`${preBlockNumber.length === 0 ? '#' : `${preBlockNumber[0].blockNumber}`}`)
                   i.fas.fa-angle-left
-                a.btn-next(href=`${nextBlockNumber.length === 0 ? '#' : `blocks/${nextBlockNumber[0].blockNumber}`}`)
+                a.btn-next(href=`${nextBlockNumber.length === 0 ? '#' : `${nextBlockNumber[0].blockNumber}`}`)
                   i.fas.fa-angle-right
           hr.my-2
           .form-group.row
@@ -42,7 +42,7 @@ block content
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Tx Root Hash:
             .col-sm-8
-              a.form-control #{blockData.txRootHash}
+              a(href=`/transactions/${blockData.txRootHash}`).form-control #{blockData.txRootHash}
           hr.my-2
           .form-group.row
             .col-sm-4
