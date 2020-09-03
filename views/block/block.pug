@@ -11,6 +11,7 @@ block content
     -} else {
       .box-detail
         form
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
@@ -22,45 +23,46 @@ block content
                   i.fas.fa-angle-left
                 a.btn-next(href=`${nextBlockNumber.length === 0 ? '#' : `${nextBlockNumber[0].blockNumber}`}`)
                   i.fas.fa-angle-right
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Checkpoint Number:
             .col-sm-8
               .form-control #{blockData.checkpointNumber}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Parent Hash:
             .col-sm-8
               a.form-control #{blockData.parentHash}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Tx Root Hash:
             .col-sm-8
               a(href=`/transactions/${blockData.txRootHash}`).form-control #{blockData.txRootHash}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Block Hash:
             .col-sm-8
               a.form-control #{blockData.blockHash}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Created At:
             .col-sm-8
               .form-control #{blockData.createdAt}
-          hr.my-2
+          hr
     -}
-    
-     
+  
+  div(style={"margin-top": "50px"})
+    include ../footer
   style.
     body {
       background-color: #f5f5f5;

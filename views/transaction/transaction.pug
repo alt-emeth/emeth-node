@@ -8,79 +8,81 @@ block content
     -} else {
       .box-detail
         form
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Tx ID:
             .col-sm-8
               a(href="#").form-control #{transactionData.txId}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Nonce:
             .col-sm-8
               .form-control #{transactionData.nonce}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Token ID:
             .col-sm-8
               a.form-control #{transactionData.tokenId}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Source:
             .col-sm-8
               a.form-control #{transactionData.source}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Target:
             .col-sm-8
               a.form-control #{transactionData.target}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Amount:
             .col-sm-8
               .form-control #{transactionData.amount}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Fee:
             .col-sm-8
               .form-control #{transactionData.fee}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Signature:
             .col-sm-8
               .form-control #{transactionData.signature}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Block Number:
             .col-sm-8
               a(href=`/blocks/${transactionData.blockNumber}`).form-control #{transactionData.blockNumber}
-          hr.my-2
+          hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Created At:
             .col-sm-8
               .form-control #{transactionData.createdAt}
-          hr.my-2
+          hr
     -}
-    
-     
+  
+  div(style={"margin-top": "50px"})
+    include ../footer
   style.
     body {
       background-color: #f5f5f5;
