@@ -14,7 +14,7 @@ block content
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Tx ID:
             .col-sm-8
-              a(href="#").form-control #{transactionData.txId}
+              a(href="#") #{transactionData.txId}
           hr
           .form-group.row
             .col-sm-4
@@ -28,21 +28,21 @@ block content
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Token ID:
             .col-sm-8
-              a.form-control #{transactionData.tokenId}
+              a #{transactionData.tokenId}
           hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Source:
             .col-sm-8
-              a.form-control #{transactionData.source}
+              a #{transactionData.source}
           hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Target:
             .col-sm-8
-              a.form-control #{transactionData.target}
+              a #{transactionData.target}
           hr
           .form-group.row
             .col-sm-4
@@ -70,7 +70,7 @@ block content
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Block Number:
             .col-sm-8
-              a(href=`/blocks/${transactionData.blockNumber}`).form-control #{transactionData.blockNumber}
+              a(href=`/blocks/${transactionData.blockNumber}`) #{transactionData.blockNumber}
           hr
           .form-group.row
             .col-sm-4

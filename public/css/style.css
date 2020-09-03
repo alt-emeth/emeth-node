@@ -384,6 +384,14 @@ footer a:hover{
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
 }
 
+.box-detail .form-group{
+  margin-bottom: 0;
+}
+
+.box-detail form{
+  margin-bottom: 0;
+}
+
 .box-detail .form-control{
   border: none;
   padding-left: 0px;
@@ -397,12 +405,27 @@ footer a:hover{
   position: absolute;
 }
 
+.box-detail hr{
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .box-detail label{
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   max-width: 70%;
   transform: translateX(25px);
+}
+
+.box-detail a {
+  display: inline-block;
+  padding-top: calc(.375rem + 1px);
+  padding-bottom: calc(.375rem + 1px);
+  margin-bottom: 0;
+  font-size: inherit;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 

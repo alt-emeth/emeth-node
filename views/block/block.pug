@@ -36,21 +36,21 @@ block content
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Parent Hash:
             .col-sm-8
-              a.form-control #{blockData.parentHash}
+              a #{blockData.parentHash}
           hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Tx Root Hash:
             .col-sm-8
-              a(href=`/transactions/${blockData.txRootHash}`).form-control #{blockData.txRootHash}
+              a(href=`/transactions/${blockData.txRootHash}`) #{blockData.txRootHash}
           hr
           .form-group.row
             .col-sm-4
               i.icon-question.fas.fa-question-circle.col-form-label.mr-1
               label.col-form-label Block Hash:
             .col-sm-8
-              a.form-control #{blockData.blockHash}
+              a #{blockData.blockHash}
           hr
           .form-group.row
             .col-sm-4
