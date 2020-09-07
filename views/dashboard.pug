@@ -8,7 +8,8 @@ block content
         div.d-flex.justify-content-center.box-search
           div.form-search
             input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
-            input.button(title='Search' value='' type="submit" onclick='handleSearch()')
+            button.button(title='Search' onclick='handleSearch()')
+              i.fas.fa-search
   .container.p-sm-0
     .block-title
       .block1
