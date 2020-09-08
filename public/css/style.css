@@ -1,8 +1,11 @@
 body {
   -webkit-font-smoothing: antialiased;
   margin: 0px;
-  /* background-color: #f5f5f5; */
-  font-size: 16px;
+  background-color: #ffffff;
+  font-size: .85rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #1e2022;
 }
 
 /*
@@ -23,6 +26,75 @@ li.sign-in{
   color: #007bff !important;
 }
 
+.toggler-box {
+  width: 1.26953rem;
+  height: .875rem;
+  display: inline-block;
+  position: relative;
+}
+.toggler-box:hover .toggler-inner, .toggler-box:hover .toggler-inner::after, .toggler-box:hover .toggler-inner::before{
+  background-color: #666;
+}
+.navbar-toggler[aria-expanded=true] .toggler-inner {
+  transform: translate3d(0,.375rem,0) rotate(45deg);
+}
+.toggler-inner, .toggler-inner:after, .toggler-inner:before {
+  width: 1.26953rem;
+  height: .125rem;
+  background-color: #8c98a4;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: .3s;
+  transition-timing-function: ease;
+}
+.toggler-inner {
+  display: block;
+  top: .0625rem;
+  margin: top,-.0625rem;
+}
+.toggler-inner:before {
+  top: .375rem;
+  transition-property: transform,opacity;
+  transition-duration: .3s;
+  transition-timing-function: ease;
+}
+.toggler-inner:after, .toggler-inner:before {
+  content: "";
+  display: block;
+}
+.toggler-inner, .toggler-inner:after, .toggler-inner:before {
+  width: 1.26953rem;
+  height: .125rem;
+  background-color: #8c98a4;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: .3s;
+  transition-timing-function: ease;
+}
+.toggler-inner:after {
+  top: .75rem;
+}
+.toggler-inner:after, .toggler-inner:before {
+  content: "";
+  display: block;
+}
+.toggler-inner {
+  width: 1.26953rem;
+  height: .125rem;
+  background-color: #8c98a4;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: .3s;
+  transition-timing-function: ease;
+}
+.navbar-toggler[aria-expanded=true] .toggler-inner:before {
+  transform: rotate(-45deg) translate3d(-.18136rem,-.25rem,0);
+  opacity: 0;
+}
+.navbar-toggler[aria-expanded=true] .toggler-inner:after {
+  transform: translate3d(0,-.75rem,0) rotate(-90deg);
+}
+
 @media(max-width: 992px){
   .navbar .nav-item .nav-link {
     padding-left: 0;
@@ -37,10 +109,11 @@ li.sign-in{
   title
 */
 .title{
-  background-color: #dddddd;
+  background-color: #21325b;
   padding: 20px 0 20px 0;
   border-bottom: 1px solid black;
   height: 260px;
+  color: #fff;
 }
 
 @media(max-width: 480px){
@@ -54,19 +127,30 @@ li.sign-in{
 */
 .block-title{
   height: 200px;
-  border: 1px solid black;
-  border-radius: 15px;
+  border-radius: 0.5rem;
   transform: translateY(-50px);
   background-color: #ffffff;
   width: 100%;
   padding: 15px;
   display: flex;
+  border: 1px solid #e7eaf3;
+  box-shadow: 0 0.5rem 1.2rem rgba(189,197,209,.2);
 }
+
+.block-title h5{
+  font-size: .85rem;
+  color: #77838f;
+}
+
+.block-title .nav-link:hover{
+  color: #007bff !important;
+}
+
 .block1, .block2{
   width: 33%;
   height: 100%;
   padding-top: 15px;
-  border-right: 1px solid black;
+  border-right: 1px solid #d6d9e0;
 }
 
 .block3 {
@@ -99,11 +183,12 @@ li.sign-in{
   width: 90%;
   height: 1px;
   left: 5%;
-  background-color: black;
+  background-color: #d6d9e0;
 }
 
 .number{
   font-weight: bold;
+  font-size: 1rem;
 }
 
 @media(max-width: 992px){
@@ -136,7 +221,7 @@ li.sign-in{
     width: 90%;
     height: 1px;
     left: 5%;
-    background-color: black;
+    background-color: #d6d9e0;
   }
 
   .row1, .row2, .row3{
@@ -177,6 +262,13 @@ label.entries {
   margin-bottom: 50px;
 }
 
+/*
+  table
+*/
+/* table th, table td {
+ font-size: 0.85rem;
+} */
+
 table.table a{
   color: #007bff;
 }
@@ -186,11 +278,11 @@ table.table a:hover{
 }
 
 .border-table{
-  border: 1px solid #d5d5d5;
-  border-radius: 10px;
+  border: 1px solid #e7eaf3;
+  border-radius: 0.5rem;
   background-color: #ffffff;
   padding: 10px 18px 10px 18px ;
-  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
+  box-shadow: 0 0.5rem 1.2rem rgba(189,197,209,.2);
   height: 100%;
 }
 
@@ -217,9 +309,7 @@ td {
 .form-search {
   outline: 0;
   float: left;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  -webkit-border-radius: 4px;
   border-radius: 4px;
   width: 60%;
 }
@@ -247,17 +337,16 @@ td {
   width: calc(100% - 42px);
   line-height: 42px;
   padding: 0 16px;
-  background-color: rgba(255, 255, 255, 0.8);
   color: #212121;
   border: 0;
   float: left;
-  -webkit-border-radius: 4px 0 0 4px;
   border-radius: 4px 0 0 4px;
 }
 
 .form-search > .textbox:focus {
   outline: 0;
   background-color: #ffffff;
+  box-shadow: 0 4px 11px rgba(52,152,219,.35);
 }
 
 .form-search > .button {
@@ -275,16 +364,18 @@ td {
   font-size: 16px;
   text-rendering: auto;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  -webkit-transition: background-color .4s ease;
   transition: background-color .4s ease;
-  -webkit-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
 }
 
 .form-search > .button:hover {
-  background-color: rgba(0, 150, 136, 0.8);
+  box-shadow: 0 4px 11px rgba(52,152,219,.35);
   cursor: pointer;
 }
+
+/*
+  table css
+*/
 
 .table-blocks .dataTables_scrollBody{
   overflow-x: scroll !important;
@@ -362,13 +453,23 @@ a.pagination-button.selected {
   footer
 */
 footer{
-  background-color: #dddddd !important; 
+  background-color: #21325b !important; 
   padding: 10px;
   border-top: 1px solid black;
 }
 
-footer a:hover{
+footer.page-footer h6{
   font-weight: 400;
+  font-size: inherit;
+}
+
+footer.page-footer a:hover{
+  font-weight: 400;
+  color: #fff;
+}
+
+footer.page-footer a{
+  color: hsla(0,0%,100%,.7);
 }
 
 /*
@@ -469,4 +570,33 @@ footer a:hover{
   color: #fff !important;
   background: #3498db;
   box-shadow: 0 4px 11px rgba(52,152,219,.35);
+}
+
+/*
+  style scroll
+*/
+.dataTables_scrollBody::-webkit-scrollbar-track{
+	border-radius: 5px;
+	background-color: #F5F5F5;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar{
+	height: 8px;
+	background-color: #F5F5F5;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb{
+	border-radius: 5px;
+	background-color: #c1c1c1;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover{
+	border-radius: 5px;
+	background-color: #777;
+}
+
+@media (min-width: 1400px){
+  .container {
+      max-width: 1270px;
+  }
 }

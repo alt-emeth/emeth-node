@@ -3,47 +3,49 @@ block content
   include navbar
   .title
     .container.p-sm-0
-      h3.mb-5.text-center #{title}
+      h1.h4.text-white.mb-4.text-center(style={'font-weight': '400'}) #{title}
       div.row
         div.d-flex.justify-content-center.box-search
           div.form-search
             input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
-            button.button(title='Search' onclick='handleSearch()')
+            button.button.btn-primary(title='Search' onclick='handleSearch()')
               i.fas.fa-search
   .container.p-sm-0
     .block-title
       .block1
         .row1
+          //- img(src="/images/icons/block.png", style={'width': '25px', 'height': '25px'})
           h5 LATEST BLOCK
-          label.number 1,272,845
+          a.nav-link.p-0.number 1,272,845
+            
         .row2
           h5 LATEST CHECKPOINT
-          label.number 1,272,845
+          a.nav-link.p-0.number 1,272,845
         .row3
           h5 TOKENS
-          label.number 16
+          a.nav-link.p-0.number 16
       .block2
         .row1
           h5 TRANSACTIONS
-          label.number 1,272,845
+          a.nav-link.p-0.number 1,272,845
         .row2
           h5 ACCOUNTS
-          label.number 16,002
+          a.nav-link.p-0.number 16,002
         .row3
           h5 STORES
-          label.number 165
+          a.nav-link.p-0.number 165
       .block3
         .row1
           h5 TOKENS
-          label.number 16
+          a.nav-link.p-0.number 16
         .row2
           h5 STORES
-          label.number 165
+          a.nav-link.p-0.number 165
   .container.p-sm-0
     div.row.dashboard 
       div.col-md-6.col-12.table-up
         div.border-table.table-transactions
-          h3(style={"font-weight": "bold", "margin-bottom": "35px", }) Transactions
+          h5(style={"font-weight": "bold", "margin-bottom": "35px", }) Transactions
           div.row 
             div.col-lg-6.col-12
               div
@@ -56,7 +58,7 @@ block content
 
       div.col-md-6.col-12
         div.border-table.table-blocks
-          h3(style={"font-weight": "bold", "margin-bottom": "35px"}) Blocks
+          h5(style={"font-weight": "bold", "margin-bottom": "35px"}) Blocks
           div.row 
             div.col-auto
               div

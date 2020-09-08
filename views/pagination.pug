@@ -1,10 +1,10 @@
 div.pagination
   if pages.length === 0 || pages[0] === 1
     a.btn-floating.waves-effect.waves-light.pagination-button.disabled(onclick="goToPage(1)")
-      img.material-icons(src="/images/double_arrow_left.svg")
+      img(src="/images/double_arrow_left.svg")
   else
     a.btn-floating.waves-effect.waves-light.pagination-button(onclick="goToPage(1)")
-      img.material-icons(src="/images/double_arrow_left.svg")
+      img(src="/images/double_arrow_left.svg")
 
   each page in pages
     if currentPage === page
@@ -14,10 +14,10 @@ div.pagination
 
   if pages.length === 0 || pages[pages.length - 1] === totalPage
     a.btn-floating.waves-effect.waves-light.pagination-button.disabled(onclick="goToPage(" + totalPage + ")")
-      img.material-icons(src="/images/double_arrow_right.svg")
+      img(src="/images/double_arrow_right.svg")
   else
     a.btn-floating.waves-effect.waves-light.pagination-button(onclick="goToPage(" + totalPage + ")")
-      img.material-icons(src="/images/double_arrow_right.svg")
+      img(src="/images/double_arrow_right.svg")
 
 script.
   function goToPage(page){
