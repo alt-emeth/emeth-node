@@ -392,13 +392,18 @@ a.pagination-button.selected {
 }
 
 .box-show-more{
-  padding: 5px;
-  margin-top: 20px;
   text-align: center;
 }
 
-.box-show-more:hover{
-  background-color: #dddddd;
+.box-show-more a{
+  width: 100%;
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+}
+.box-show-more a:hover{
+  color: #fff;
+  background-color: #3498db;
   cursor: pointer;
 }
 
