@@ -1,0 +1,19 @@
+mixin my-transaction(txId, time, addrFrom, addrTo)
+  .row
+    .col-sm-4
+      .d-flex.align-items-sm-center
+        .d-none.d-sm-flex
+          div.mr-1.circle Tx
+        
+        .d-flex.d-sm-block
+          span(style={'white-space': 'nowrap'}).d-inline-block.d-sm-none TX#&nbsp;
+          a(href=`transactions/${txId}` title='transaction id').nav-link.mb-0.mb-0.p-0.tag-transaction #{txId}
+          span.d-none.d-sm-block.time #{time}
+    .col-sm-8
+      .d-flex.justify-content-between
+        div
+          span(style={'white-space': 'nowrap'}) From 
+            a(href='#').transaction-addr #{addrFrom?addrFrom:'...'}
+          span(style={'white-space': 'nowrap'}).d-sm-block To 
+            a(href='#').transaction-addr #{addrTo?addrTo:'...'}
+  hr

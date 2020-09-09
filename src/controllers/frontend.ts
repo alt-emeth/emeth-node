@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import moment from 'moment';
 
 import {
-  getDashboard,
+  getListTableDashboard,
+  getSummaryDashboard,
   getTransactions,
   getBlocks,
   getTransactionDetail,
@@ -14,9 +16,31 @@ export const index = async (req: Request, res: Response) => {
 
 export const dashboard = async (req: Request, res: Response) => {
   try {
-    const dataDashboard = await getDashboard();
-    const { transactions = [], totalTransactions = 0 } = dataDashboard.transactions;
-    const { blocks = [], totalBlocks = 0 } = dataDashboard.blocks;
+    const listTableDashboard = await getListTableDashboard();
+    const summaryDashboardData = await getSummaryDashboard();
+    let { transactions = [], blocks = [] } = listTableDashboard;
+    const {
+      totalTransactions = 0,
+      totalBlocks = 0,
+      latestBlock = 0,
+      totalTokens = 0,
+      latestCheckPoint = 0,
+      totalStores = 0,
+      totalBalances = 0,
+    } = summaryDashboardData;
+
+    transactions = transactions.map((item) => {
+      return {
+        ...item,
+        createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
+    blocks = blocks.map((item) => {
+      return {
+        ...item,
+        createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
 
     res.render('dashboard', {
       title: 'The BURN Blockchain Explorer',
@@ -24,6 +48,11 @@ export const dashboard = async (req: Request, res: Response) => {
       blocks,
       totalTransactions,
       totalBlocks,
+      latestBlock,
+      totalTokens,
+      latestCheckPoint,
+      totalStores,
+      totalBalances,
     });
   } catch (error) {
     res.render('dashboard', {
