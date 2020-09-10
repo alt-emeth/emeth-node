@@ -69,10 +69,17 @@ export const transactions = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const { transactions = [], total = 0 } = await getTransactions(+offset, +limit);
+    const dataRes = await getTransactions(+offset, +limit);
+    let { transactions = [] } = dataRes;
+    const { total = 0 } = dataRes;
     const { pages, totalPage } = pagination(+page, total, +limit);
+    transactions = transactions.map((item) => {
+      return {
+        ...item,
+        createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
     res.render('transactions', {
-      title: 'The BURN Blockchain Explorer',
       transactions,
       pages,
       currentPage: +page,
@@ -80,7 +87,6 @@ export const transactions = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.render('transactions', {
-      title: 'The BURN Blockchain Explorer',
       transactions: [],
       pages: [],
       totalPage: 0,
@@ -92,10 +98,17 @@ export const blocks = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const { blocks = [], total = 0 } = await getBlocks(offset, +limit);
+    const dataRes = await getBlocks(offset, +limit);
+    let { blocks = [] } = dataRes;
+    const { total = 0 } = dataRes;
     const { pages, totalPage } = pagination(+page, total, +limit);
+    blocks = blocks.map((item) => {
+      return {
+        ...item,
+        createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
     res.render('blocks', {
-      title: 'The BURN Blockchain Explorer',
       blocks,
       pages,
       currentPage: +page,
@@ -103,7 +116,6 @@ export const blocks = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.render('blocks', {
-      title: 'The BURN Blockchain Explorer',
       blocks: [],
       pages: [],
       totalPage: 0,
@@ -119,12 +131,12 @@ export const getTransaction = async (req: Request, res: Response) => {
     }
     const { transactionData } = await getTransactionDetail(key);
     transactionData.createdAt = new Date(transactionData.createdAt);
-    res.render('transaction/transaction', {
+    res.render('detail/transaction', {
       title: 'Transaction Details',
       transactionData,
     });
   } catch (error) {
-    res.render('transaction/transaction', {
+    res.render('detail/transaction', {
       title: 'Transaction Details',
       transactionData: null,
     });
@@ -139,7 +151,7 @@ export const getBlock = async (req: Request, res: Response) => {
     }
     const { blockData, preBlockNumber, nextBlockNumber } = await getBlockDetail(Number(key));
     blockData.createdAt = new Date(blockData.createdAt);
-    res.render('block/block', {
+    res.render('detail/block', {
       title: 'Blocks',
       code: blockData.blockNumber,
       preBlockNumber,
@@ -147,7 +159,7 @@ export const getBlock = async (req: Request, res: Response) => {
       blockData,
     });
   } catch (error) {
-    res.render('block/block', {
+    res.render('detail/block', {
       title: 'Blocks',
       code: req.params.id,
       preBlockNumber: null,

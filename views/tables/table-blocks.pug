@@ -1,23 +1,26 @@
 block content
-  table#tbBlocks.table.table-striped.table-bordered.text-center(cellspacing='0' width='100%')
+  table#tbBlocks.table.table-striped.mb-0(cellspacing='0' width='100%')
     thead.head-table
       tr
-        th.th_sm Block number
-        th.th_sm Parent hash
-        th.th_sm Tx root hash
-        th.th_sm Block hash
-        th.th_sm Created at
+        th.th_sm.font-weight-bold Block
+        th.th_sm.font-weight-bold Parent hash
+        th.th_sm.font-weight-bold Tx root hash
+        th.th_sm.font-weight-bold Block hash
+        th.th_sm.font-weight-bold Created at
     tbody
       -for(let i=0; i<blocks.length; i++){
         tr.tr-link
           td 
             a(href=`blocks/${blocks[i].blockNumber}`) #{blocks[i].blockNumber}
           td(title=blocks[i].parentHash)
-            a(href='#') #{blocks[i].parentHash}
+            span.text-truncate.hash-tag
+              a(href='#') #{blocks[i].parentHash}
           td(title=blocks[i].txRootHash)
-            a(href='#') #{blocks[i].txRootHash}
+            span.text-truncate.hash-tag
+              a(href='#') #{blocks[i].txRootHash}
           td(title=blocks[i].blockHash)
-            a(href='#') #{blocks[i].blockHash}
+            span.text-truncate.hash-tag
+              a(href='#') #{blocks[i].blockHash}
           td #{blocks[i].createdAt}
       -}
   

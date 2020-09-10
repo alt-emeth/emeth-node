@@ -7,7 +7,7 @@ mixin my-block(blockNumber, time, blockHash, txsTotal)
            
         .d-flex.d-sm-block
           span(style={'white-space': 'nowrap'}).d-sm-none Block&nbsp;
-          a(href=`blocks/${blockNumber}`).nav-link.mb-0.mb-0.p-0.tag-transaction #{blockNumber}
+          a(href=`blocks/${blockNumber}` title='block number').nav-link.mb-0.mb-0.p-0.tag-transaction #{blockNumber}
           span.d-sm-block.ml-1.ml-sm-0.time #{time}
     .col-sm-8
       .d-flex.justify-content-between
