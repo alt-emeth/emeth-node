@@ -1,8 +1,8 @@
 extends ../layout
 block content
-  div.page-block-detail
+  div#wrapper
     include ../navbar
-    div.container.p-sm-0.block-detail
+    div.container#content.p-sm-0.block-detail
       span.h4.content.font-weight-bold #{title}
       span.code-block 
         | ##{code}

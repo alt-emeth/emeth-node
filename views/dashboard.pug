@@ -1,101 +1,102 @@
 extends layout
 block content
-  div.page-dashboard
+  div#wrapper
     include navbar
-    .title
+    div#content
+      .title
+        .container.p-sm-0
+          h1.h4.text-white.mb-4.text-center(style={'font-weight': '400'}) #{title}
+          div.row
+            div.d-flex.justify-content-center.box-search
+              div.form-search
+                input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
+                button.button.btn-primary(title='Search' onclick='handleSearch()')
+                  i.fas.fa-search
       .container.p-sm-0
-        h1.h4.text-white.mb-4.text-center(style={'font-weight': '400'}) #{title}
-        div.row
-          div.d-flex.justify-content-center.box-search
-            div.form-search
-              input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
-              button.button.btn-primary(title='Search' onclick='handleSearch()')
-                i.fas.fa-search
-    .container.p-sm-0
-      .block-title
-        .block1
-          .row1.d-flex.align-items-center
-            img(src="/images/icons/block.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0.mb-0 LATEST BLOCK
-              a.nav-link.p-0.number #{latestBlock?latestBlock:'...'}
-          hr.my-4.my-4
-          .row2.d-flex.align-items-center
-            img(src="/images/icons/checkpoint.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 LATEST CHECKPOINT
-              a.nav-link.p-0.number #{latestCheckPoint?latestCheckPoint:'...'}
-          hr.my-4.d-md-none
-          .row3.align-items-center
-            img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 TOKENS
-              a.nav-link.p-0.number #{totalTokens?totalTokens:'...'}
-        .block2
-          .row1.d-flex.align-items-center
-            img(src="/images/icons/transaction.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 TRANSACTIONS
-              a.nav-link.p-0.number #{totalTransactions?totalTransactions:'..'}
-          hr.my-4
-          .row2.d-flex.align-items-center
-            img(src="/images/icons/account.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 ACCOUNTS
-              a.nav-link.p-0.number #{totalBalances?totalBalances:'...'}
-          hr.my-4.d-md-none
-          .row3.align-items-center
-            img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 STORES
-              a.nav-link.p-0.number #{totalStores?totalStores:'...'}
-        .block3
-          .row1.d-flex.align-items-center
-            img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 TOKENS
-              a.nav-link.p-0.number #{totalTokens?totalTokens:'...'}
-          hr.my-4
-          .row2.d-flex.align-items-center
-            img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
-            div(style={'margin-left': '10px'})
-              h5.mb-0 STORES
-              a.nav-link.p-0.number #{totalStores?totalStores:'...'}
-    .container.p-sm-0
-      div.row.dashboard 
-        .col-12.col-lg-6
-          div.border-table.table-blocks
-            h5(style={"font-weight": "bold", "margin-bottom": "25px"}) Blocks
-            div.row 
-              div.col-auto
-                div
-                  label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
-            hr
-            include lists/list-block
-            -for(i = 0; i < blocks.length ;i++){
-              +my-block(blocks[i].blockNumber, blocks[i].createdAt, blocks[i].blockHash, blocks[i].total)
-            -}
-            -if(totalBlocks > 10){
-              .box-show-more
-                a(href='/blocks') Show more ...
-            -}
-        .col-12.col-lg-6.table-up
-          div.border-table.table-transactions
-            h5(style={"font-weight": "bold", "margin-bottom": "25px", }) Transactions
-            div.row 
-              div.col-lg-6.col-12
-                div
-                  label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
-            hr
-            include lists/list-transaction
-            -for(i = 0; i < transactions.length ;i++){
-              +my-transaction(transactions[i].txId, transactions[i].createdAt, transactions[i].source, transactions[i].target)
-            -}
+        .block-title
+          .block1
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/block.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0.mb-0 LATEST BLOCK
+                a.nav-link.p-0.number #{latestBlock?latestBlock:'...'}
+            hr.my-4.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/checkpoint.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 LATEST CHECKPOINT
+                a.nav-link.p-0.number #{latestCheckPoint?latestCheckPoint:'...'}
+            hr.my-4.d-md-none
+            .row3.align-items-center
+              img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TOKENS
+                a.nav-link.p-0.number #{totalTokens?totalTokens:'...'}
+          .block2
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/transaction.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TRANSACTIONS
+                a.nav-link.p-0.number #{totalTransactions?totalTransactions:'..'}
+            hr.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/account.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 ACCOUNTS
+                a.nav-link.p-0.number #{totalBalances?totalBalances:'...'}
+            hr.my-4.d-md-none
+            .row3.align-items-center
+              img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 STORES
+                a.nav-link.p-0.number #{totalStores?totalStores:'...'}
+          .block3
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TOKENS
+                a.nav-link.p-0.number #{totalTokens?totalTokens:'...'}
+            hr.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 STORES
+                a.nav-link.p-0.number #{totalStores?totalStores:'...'}
+      .container.p-sm-0
+        div.row.dashboard 
+          .col-12.col-lg-6
+            div.border-table.table-blocks
+              h5(style={"font-weight": "bold", "margin-bottom": "25px"}) Blocks
+              div.row 
+                div.col-auto
+                  div
+                    label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
+              hr
+              include lists/list-block
+              -for(i = 0; i < blocks.length ;i++){
+                +my-block(blocks[i].blockNumber, blocks[i].createdAt, blocks[i].blockHash, blocks[i].total)
+              -}
+              -if(totalBlocks > 10){
+                .box-show-more
+                  a(href='/blocks') Show more ...
+              -}
+          .col-12.col-lg-6.table-up
+            div.border-table.table-transactions
+              h5(style={"font-weight": "bold", "margin-bottom": "25px", }) Transactions
+              div.row 
+                div.col-lg-6.col-12
+                  div
+                    label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
+              hr
+              include lists/list-transaction
+              -for(i = 0; i < transactions.length ;i++){
+                +my-transaction(transactions[i].txId, transactions[i].createdAt, transactions[i].source, transactions[i].target)
+              -}
 
-            -if(totalTransactions > 10){
-              .box-show-more
-                a(href='/transactions') Show more ...
-            -}
+              -if(totalTransactions > 10){
+                .box-show-more
+                  a(href='/transactions') Show more ...
+              -}
     include footer
   script.
     function handleSearch(){
