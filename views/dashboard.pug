@@ -102,10 +102,12 @@ block content
       const text = $('.search-input').val();
       const originUrl = window.location.origin;
       let url = ''
-      if (/^[+,-]?\d+$/.test(`${text}`)) {
+      if (/(^[+,-]?\d{1,})+$/.test(`${text}`)) {
         url = `${originUrl}/blocks/${text}` 
-      } else if (/^0x[a-fA-F0-9]+$/.test(`${text}`)) {
+      } else if (/(^0x[a-fA-F0-9]{64})+$/.test(`${text}`)) {
         url = `${originUrl}/transactions/${text}` 
+      } else if (/(^0x[a-fA-F0-9]{40})+$/.test(`${text}`)) {
+        url = `${originUrl}/tokens/${text}` 
       } else {
         url = `${originUrl}/dashboard` 
       }
