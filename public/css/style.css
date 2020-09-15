@@ -554,6 +554,10 @@ footer.page-footer a{
   box-shadow: 0 4px 11px rgba(52,152,219,.35);
 }
 
+.block-detail .btn-back[href^='#']:hover, .block-detail .btn-next[href^='#']:hover{
+  cursor: unset;
+}
+
 /*
   style scroll
 */
