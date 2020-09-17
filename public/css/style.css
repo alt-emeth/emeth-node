@@ -483,9 +483,6 @@ footer.page-footer a{
   font-size: inherit;
 }
 
-.box-detail i.icon-question {
-  position: absolute;
-}
 
 .box-detail hr{
   margin-top: 0.5rem;
@@ -497,7 +494,6 @@ footer.page-footer a{
   white-space: nowrap;
   overflow: hidden;
   max-width: 70%;
-  transform: translateX(25px);
 }
 
 .box-detail .hash-tag {
