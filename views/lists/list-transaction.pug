@@ -11,11 +11,9 @@ mixin my-transaction(txId, time, addrFrom, addrTo)
           span.d-none.d-sm-block.time #{time}
     .col-sm-8
       .d-flex.justify-content-between
-        div(style={'max-width': '100%'})
-          .transaction-addr
-            span(style={'white-space': 'nowrap'}) From 
-              a(href='#') #{addrFrom?addrFrom:'...'}
-          .transaction-addr
-            span(style={'white-space': 'nowrap'}) To 
-              a(href='#') #{addrTo?addrTo:'...'}
+        div
+          span(style={'white-space': 'nowrap'}) From 
+            a(href='#').transaction-addr #{addrFrom?addrFrom:'...'}
+          span(style={'white-space': 'nowrap'}).d-sm-block To 
+            a(href='#').transaction-addr #{addrTo?addrTo:'...'}
   hr
