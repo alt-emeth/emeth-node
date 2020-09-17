@@ -1,0 +1,25 @@
+extends layout
+block content
+  div#wrapper(style="background-color: #f5f5f5")
+    include navbar
+    div#content
+      div.container.mt-5.p-sm-0
+        div.row.blocks 
+          div.col-12
+            div.border-table.table-blocks
+              h4.mb-4(style={"font-weight": "bold"}) Blocks
+              div.mb-4.row 
+                div.col-lg-6.col-12
+                  div
+                    label(for="custom-select").status Show:
+                      select#select-limit.custom-select(onchange="handleChangeLimit()")
+                        option(value='0') 15
+                        option(value='1') 30
+                        option(value='2') 50
+                    label(for="custom-select" style={'margin-left':"5px"}).status entries
+              hr.mb-0
+              include tables/table-blocks
+              .box-pagination
+                include pagination
+
+    include footer

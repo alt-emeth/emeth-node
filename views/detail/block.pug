@@ -1,0 +1,75 @@
+extends ../layout
+block content
+  div#wrapper
+    include ../navbar
+    div.container#content.p-sm-0.block-detail
+      span.h4.content.font-weight-bold #{title}
+      span.code-block 
+        | ##{code}
+      
+      -if(!blockData){
+        h3.text-center Data empty
+      -} else {
+        .box-detail
+          form
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Block Number:
+              .col-sm-8
+                .form-control 
+                  span.font-weight-bold #{blockData.blockNumber}
+                  a.btn-back(href=`${preBlockNumber.length === 0 ? '' : `${preBlockNumber[0].blockNumber}`}`)
+                    i.fas.fa-angle-left
+                  a.btn-next(href=`${nextBlockNumber.length === 0 ? '#' : `${nextBlockNumber[0].blockNumber}`}`)
+                    i.fas.fa-angle-right
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Checkpoint Number:
+              .col-sm-8
+                .form-control 
+                  span.text-truncate.hash-tag #{blockData.checkpointNumber}
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Parent Hash:
+              .col-sm-8
+                span.text-truncate.hash-tag
+                  a #{blockData.parentHash}
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Tx Root Hash:
+              .col-sm-8
+                span.text-truncate.hash-tag
+                  a(href=`/transactions/${blockData.txRootHash}`) #{blockData.txRootHash}
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Block Hash:
+              .col-sm-8
+                span.text-truncate.hash-tag
+                  a #{blockData.blockHash}
+            hr
+            .form-group.row
+              .col-sm-4
+                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
+                label.col-form-label Created At:
+              .col-sm-8
+                .form-control 
+                  span.text-truncate.hash-tag #{blockData.createdAt}
+            hr
+      -}
+    
+    div.w-100(style={"margin-top": "50px"})
+      include ../footer
+  style.
+    body {
+      background-color: #f5f5f5;
+    }

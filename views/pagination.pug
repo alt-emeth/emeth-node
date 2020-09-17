@@ -1,0 +1,27 @@
+div.pagination
+  if pages.length === 0 || pages[0] === 1
+    a.btn-floating.waves-effect.waves-light.pagination-button.disabled(onclick="goToPage(1)")
+      img(src="/images/double_arrow_left.svg")
+  else
+    a.btn-floating.waves-effect.waves-light.pagination-button(onclick="goToPage(1)")
+      img(src="/images/double_arrow_left.svg")
+
+  each page in pages
+    if currentPage === page
+      a.btn-floating.waves-effect.waves-light.pagination-button.selected(onclick="goToPage(" + page + ")")= page
+    else
+      a.btn-floating.waves-effect.waves-light.pagination-button(onclick="goToPage(" + page + ")")= page
+
+  if pages.length === 0 || pages[pages.length - 1] === totalPage
+    a.btn-floating.waves-effect.waves-light.pagination-button.disabled(onclick="goToPage(" + totalPage + ")")
+      img(src="/images/double_arrow_right.svg")
+  else
+    a.btn-floating.waves-effect.waves-light.pagination-button(onclick="goToPage(" + totalPage + ")")
+      img(src="/images/double_arrow_right.svg")
+
+script.
+  function goToPage(page){
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.location.assign(url.toString());
+  }

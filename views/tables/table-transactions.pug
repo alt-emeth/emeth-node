@@ -1,0 +1,32 @@
+table#tbTransactions.table.table-striped.mb-0(width='100%')
+  thead.head-table
+    tr
+      th.th_sm.font-weight-bold Tx ID
+      th.th_sm.font-weight-bold Block
+      th.th_sm.font-weight-bold From
+      th.th_sm.font-weight-bold
+      th.th_sm.font-weight-bold To
+      th.th_sm.font-weight-bold Amount
+      th.th_sm.font-weight-bold Fee
+      th.th_sm.font-weight-bold Age
+  tbody
+    -for(let i=0; i<transactions.length; i++){
+      tr.tr-link
+        td(title=transactions[i].txId)
+          span.text-truncate.hash-tag
+            a(href=`transactions/${transactions[i].txId}`) #{transactions[i].txId}
+        td
+          a(href=`blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
+        td(title=transactions[i].source)
+          span.text-truncate.hash-tag
+            a(href='#') #{transactions[i].source}
+        td
+          .circle 
+            i.fas.fa-long-arrow-alt-right
+        td(title=transactions[i].target)
+          span.text-truncate.hash-tag
+            a(href='#') #{transactions[i].target}
+        td #{transactions[i].amount}
+        td #{transactions[i].fee}
+        td #{transactions[i].createdAt}
+    -}

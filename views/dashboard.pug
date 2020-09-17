@@ -1,62 +1,123 @@
 extends layout
 block content
-  h1= title
-  h1(class="mx-auto" style={width:"200px"}) Transactions
-  div(class="container-fluid border").p-3
-    table(id="transactionsTable", class="display nowrap dataTable dtr-inline collapsed")
-      thead 
-        tr 
-          th(class="sorting_asc") Tx ID
-          th(class="sorting_asc") Nonce
-          th(class="sorting_asc") Token ID 
-          th(class="sorting_asc") Source 
-          th(class="sorting_asc") Target 
-          th(class="sorting_asc") Amount 
-          th(class="sorting_asc") Fee 
-          th(class="sorting_asc") Signature 
-          th(class="sorting_asc") Created at 
-          th(class="sorting_asc") Block number
-  h1(class="mx-auto" style={width:"200px"}) Blocks
-  div(class="container-fluid border").p-3
-    table(id="blocksTable", class="display nowrap dataTable dtr-inline collapsed")
-      thead 
-        tr 
-          th(class="sorting_asc") Block number
-          th(class="sorting_asc") Parent hash
-          th(class="sorting_asc") Tx root hash
-          th(class="sorting_asc") Block hash
-          th(class="sorting_asc") Created at
-  script.
-    $(document).ready(function() {
-      const transactions = !{JSON.stringify(transactions)}
-      const blocks = !{JSON.stringify(blocks)}
+  div#wrapper
+    include navbar
+    div#content
+      .title
+        .container.p-sm-0
+          h1.h4.text-white.mb-4.text-center(style={'font-weight': '400'}) #{title}
+          div.row
+            div.d-flex.justify-content-center.box-search
+              div.form-search
+                input.textbox.search-input(type='text' placeholder='Search' onkeypress='handleKeyPress(event)')
+                button.button.btn-primary(title='Search' onclick='handleSearch()')
+                  i.fas.fa-search
+      .container.p-sm-0
+        .block-title
+          .block1
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/block.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0.mb-0 LATEST BLOCK
+                a.nav-link.p-0.number #{latestBlock?latestBlock:'0'}
+            hr.my-4.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/checkpoint.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 LATEST CHECKPOINT
+                a.nav-link.p-0.number #{latestCheckPoint?latestCheckPoint:'0'}
+            hr.my-4.d-md-none
+            .row3.align-items-center
+              img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TOKENS
+                a.nav-link.p-0.number #{totalTokens?totalTokens:'0'}
+          .block2
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/transaction.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TRANSACTIONS
+                a.nav-link.p-0.number #{totalTransactions?totalTransactions:'0'}
+            hr.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/account.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 ACCOUNTS
+                a.nav-link.p-0.number #{totalBalances?totalBalances:'0'}
+            hr.my-4.d-md-none
+            .row3.align-items-center
+              img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 STORES
+                a.nav-link.p-0.number #{totalStores?totalStores:'0'}
+          .block3
+            .row1.d-flex.align-items-center
+              img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 TOKENS
+                a.nav-link.p-0.number #{totalTokens?totalTokens:'0'}
+            hr.my-4
+            .row2.d-flex.align-items-center
+              img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
+              div(style={'margin-left': '10px'})
+                h5.mb-0 STORES
+                a.nav-link.p-0.number #{totalStores?totalStores:'0'}
+      .container.p-sm-0
+        div.row.dashboard 
+          .col-12.col-lg-6
+            div.border-table.table-blocks
+              h5(style={"font-weight": "bold", "margin-bottom": "25px"}) Blocks
+              div.row 
+                div.col-auto
+                  div
+                    label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
+              hr
+              include lists/list-block
+              -for(i = 0; i < blocks.length ;i++){
+                +my-block(blocks[i].blockNumber, blocks[i].createdAt, blocks[i].blockHash, blocks[i].total)
+              -}
+              -if(totalBlocks > blocks.length){
+                .box-show-more
+                  a(href='/blocks') Show more ...
+              -}
+          .col-12.col-lg-6.table-up
+            div.border-table.table-transactions
+              h5(style={"font-weight": "bold", "margin-bottom": "25px", }) Transactions
+              div.row 
+                div.col-lg-6.col-12
+                  div
+                    label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
+              hr
+              include lists/list-transaction
+              -for(i = 0; i < transactions.length ;i++){
+                +my-transaction(transactions[i].txId, transactions[i].createdAt, transactions[i].source, transactions[i].target)
+              -}
 
-      console.log(blocks)
-      $('#transactionsTable').DataTable({
-        data: transactions,
-        columns: [
-          {data:'txId'},
-          {data:'nonce'},
-          {data:'tokenId'},
-          {data:'source'},
-          {data:'target'},
-          {data:'amount'},
-          {data:'fee'},
-          {data:'signature'},
-          {data:'createdAt'},
-          {data:'blockNumber'},
-        ],
-        responsive: true,
-      });
-      $('#blocksTable').DataTable({
-        data: blocks,
-        columns: [
-          {data:'blockNumber'},
-          {data:'parentHash'},
-          {data:'txRootHash'},
-          {data:'blockHash'},
-          {data:'createdAt'},
-        ],
-        responsive: true,
-      });
-    } );
+              -if(totalTransactions > transactions.length){
+                .box-show-more
+                  a(href='/transactions') Show more ...
+              -}
+    include footer
+  script.
+    function handleSearch(){
+      const text = $('.search-input').val();
+      const originUrl = window.location.origin;
+      let url = ''
+      if (/(^[+,-]?\d{1,})+$/.test(`${text}`)) {
+        url = `${originUrl}/blocks/${text}` 
+      } else if (/(^0x[a-fA-F0-9]{64})+$/.test(`${text}`)) {
+        url = `${originUrl}/transactions/${text}` 
+      } else if (/(^0x[a-fA-F0-9]{40})+$/.test(`${text}`)) {
+        url = `${originUrl}/tokens/${text}` 
+      } else {
+        url = `${originUrl}/dashboard` 
+      }
+
+      window.location.assign(new URL(url).toString());
+    }
+
+    function handleKeyPress(e){
+      if (e.keyCode == 13) {
+        this.handleSearch();
+      }
+    }
