@@ -11,7 +11,7 @@ mixin my-transaction(txId, time, addrFrom, addrTo)
           span.d-none.d-sm-block.time #{time}
     .col-sm-8
       .d-flex.justify-content-between
-        div
+        div(style={'max-width': '95%'})
           span(style={'white-space': 'nowrap'}) From 
             a(href='#').transaction-addr #{addrFrom?addrFrom:'...'}
           span(style={'white-space': 'nowrap'}).d-sm-block To 
