@@ -15,7 +15,6 @@ block content
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Block Number:
               .col-sm-8
                 .form-control 
@@ -27,43 +26,33 @@ block content
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Checkpoint Number:
               .col-sm-8
-                .form-control 
-                  span.text-truncate.hash-tag #{blockData.checkpointNumber}
+                span.text-truncate.hash-tag #{blockData.checkpointNumber}
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Parent Hash:
               .col-sm-8
-                span.text-truncate.hash-tag
-                  a #{blockData.parentHash}
+                span.text-truncate.hash-tag #{blockData.parentHash}
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Tx Root Hash:
               .col-sm-8
-                span.text-truncate.hash-tag
-                  a(href=`/transactions/${blockData.txRootHash}`) #{blockData.txRootHash}
+                span.text-truncate.hash-tag #{blockData.txRootHash}
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Block Hash:
               .col-sm-8
-                span.text-truncate.hash-tag
-                  a #{blockData.blockHash}
+                span.text-truncate.hash-tag #{blockData.blockHash}
             hr
             .form-group.row
               .col-sm-4
-                i.icon-question.fas.fa-question-circle.col-form-label.mr-1
                 label.col-form-label Created At:
               .col-sm-8
-                .form-control 
-                  span.text-truncate.hash-tag #{blockData.createdAt}
+                span.text-truncate.hash-tag #{blockData.createdAt}
             hr
       -}
     
