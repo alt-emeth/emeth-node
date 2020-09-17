@@ -594,7 +594,7 @@ footer.page-footer a{
   white-space: nowrap;
 }
 .transaction-addr{
-  max-width: 150px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
