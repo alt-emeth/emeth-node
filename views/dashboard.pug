@@ -106,7 +106,7 @@ block content
       if (/(^[+,-]?\d{1,})+$/.test(`${text}`)) {
         url = `${originUrl}/blocks/${text}` 
       } else if (/(^0x[a-fA-F0-9]{64})+$/.test(`${text}`)) {
-        url = `${originUrl}/transactions/${text}` 
+        url = `${originUrl}/tx/${text}` 
       } else if (/(^0x[a-fA-F0-9]{40})+$/.test(`${text}`)) {
         url = `${originUrl}/tokens/${text}` 
       } else {

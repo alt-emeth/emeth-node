@@ -14,7 +14,7 @@ table#tbTransactions.table.table-striped.mb-0(width='100%')
       tr.tr-link
         td(title=transactions[i].txId)
           span.text-truncate.hash-tag
-            a(href=`transactions/${transactions[i].txId}`) #{transactions[i].txId}
+            a(href=`tx/${transactions[i].txId}`) #{transactions[i].txId}
         td
           a(href=`blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
         td(title=transactions[i].source)

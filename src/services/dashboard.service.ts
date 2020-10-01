@@ -65,7 +65,7 @@ export const getTransactionDetail = async (txId: string) => {
   if (!url) {
     throw new Error('URL does not exist!');
   }
-  const dataRes = await Axios.get(`${url}/transactions/${txId}`);
+  const dataRes = await Axios.get(`${url}/tx/${txId}`);
   if (!dataRes) {
     throw new Error('Respone is error!');
   }
