@@ -150,7 +150,6 @@ export const getBlock = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { blockData, preBlockNumber, nextBlockNumber } = await getBlockDetail(Number(key));
-    blockData.createdAt = new Date(blockData.createdAt);
     res.render('detail/block', {
       title: 'Blocks',
       code: blockData.blockNumber,
