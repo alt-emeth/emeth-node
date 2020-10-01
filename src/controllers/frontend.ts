@@ -130,14 +130,13 @@ export const getTransaction = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { transactionData } = await getTransactionDetail(key);
-    transactionData.createdAt = new Date(transactionData.createdAt);
     res.render('detail/transaction', {
-      title: 'Transaction Details',
+      title: 'Transaction',
       transactionData,
     });
   } catch (error) {
     res.render('detail/transaction', {
-      title: 'Transaction Details',
+      title: 'Transaction',
       transactionData: null,
     });
   }
