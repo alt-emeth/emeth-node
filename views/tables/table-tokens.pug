@@ -11,18 +11,13 @@ table#tbTokens.table.table-striped.mb-0(width='100%')
       tr.tr-link
         td #{i}
         td
-          .d-flex
+          .d-flex(style={"align-items": "center"})
             div 
-              img(src= `${tokens[i].token.img}`, style={'width': '25px', 'height': '25px'})
+              img(src= `${tokens[i].img || '/images/icons/token.png'}`, style={'width': '25px', 'height': '25px'})
             div.ml-2
-              div
-                span
-                  a(href="#").text-truncate.hash-tag.token-name #{tokens[i].token.name} (#{tokens[i].token.symbol})
-              div
-                span(style= "max-width: 300px;").hash-tag.token-content #{tokens[i].token.content}
-                
+              a(href="#").text-truncate.hash-tag.token-name #{tokens[i].name} (#{tokens[i].symbol})
         td 
-          span #{tokens[i].transfer}
+          span #{tokens[i].transfers}
         td
           span #{tokens[i].totalSupply}
         td

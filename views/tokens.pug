@@ -19,7 +19,7 @@ block content
                         i.fas.fa-search
               hr.mt-0
               div.mb-2
-                label(for="custom-select").status A total of #{totalTokens} Token found
+                label(for="custom-select").status A total of #{total} Token found
               div.mb-4.row 
                 div.col-lg-6.col-12
                   div
@@ -51,5 +51,6 @@ block content
     }
 
     function handleSearch(){
-      //TODO search token
+      const value = document.querySelector('.tokens .search-input').value;
+      
     }
