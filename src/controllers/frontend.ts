@@ -167,6 +167,31 @@ export const getBlock = async (req: Request, res: Response) => {
   }
 };
 
+export const getToken = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    if (!/^[+,-]?\d+$/.test(`${key}`)) {
+      throw new Error('url invalid!');
+    }
+    const token = {
+      symbol: 'BNB',
+      id: '0x12345678910112121211111111111111111111111111111111',
+      decimals: 10,
+      holders: 10000,
+      transfers: 123456,
+      totalSupply: 212121111111111111121212212122,
+    };
+    res.render('detail/token', {
+      title: 'Token',
+      token,
+    });
+  } catch (error) {
+    res.render('detail/token', {
+      title: 'Token',
+    });
+  }
+};
+
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
   const totalPage = Math.ceil(total / totalPerPage);
   const totalShow = Math.min(page > totalPage ? 0 : totalPage, totalPageShow);

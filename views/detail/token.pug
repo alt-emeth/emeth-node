@@ -1,0 +1,64 @@
+extends ../layout
+block content
+  div#wrapper
+    include ../navbar
+    div.container#content.p-sm-0.block-detail
+      span.h4.content.font-weight-bold #{title} #{token.symbol}
+      -if(!token){
+        h3.text-center Data empty
+      -} else {
+        .box-detail
+          .row
+            .col-6
+              form
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Total Supply:
+                  .col-sm-8
+                    .form-control 
+                      span.text-truncate.hash-tag #{token.totalSupply}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Holders:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{token.holders}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Transfers:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{token.transfers}
+                hr
+            .col-6
+              form
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Total Supply:
+                  .col-sm-8
+                    .form-control 
+                      span.text-truncate.hash-tag #{token.totalSupply}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Holders:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{token.holders}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Transfers:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{token.transfers}
+                hr
+            
+      -}
+    
+    div.w-100(style={"margin-top": "50px"})
+      include ../footer
+  style.
+    body {
+      background-color: #f5f5f5;
+    }
