@@ -498,7 +498,7 @@ footer.page-footer a{
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  max-width: 70%;
+  max-width: 100%;
 }
 
 .box-detail .hash-tag {
@@ -559,6 +559,37 @@ footer.page-footer a{
   cursor: unset;
 }
 
+.block-detail .tx-status-success{
+  color: #00c9a7;
+  background-color: rgba(0,201,167,.1);
+  font-size: .71094rem;
+  padding: .4rem .7rem;
+  border-radius: .35rem;
+}
+
+.block-detail .tx-status-fail{
+  color: #de4437;
+  background-color: rgba(222,68,55,.1);
+  font-size: .71094rem;
+  padding: .4rem .7rem;
+  border-radius: .35rem;
+}
+.block-detail .tx-copy{
+  position: absolute;
+  cursor: pointer;
+  top: 15%;
+  transform: translateX(5px);
+}
+
+.block-detail .tx-copy:hover{
+  color: #007bff;
+}
+
+.block-detail .tx-data{
+  background-color: #dddddd;
+  padding: 10px;
+  border-radius: 10px;
+}
 /*
   style scroll
 */

@@ -26,9 +26,9 @@ block content
             hr
             .form-group.row
               .col-sm-4
-                label.col-form-label Checkpoint Number:
+                label.col-form-label Block Hash:
               .col-sm-8
-                span.text-truncate.hash-tag #{blockData.checkpointNumber}
+                span.text-truncate.hash-tag #{blockData.blockHash}
             hr
             .form-group.row
               .col-sm-4
@@ -44,13 +44,13 @@ block content
             hr
             .form-group.row
               .col-sm-4
-                label.col-form-label Block Hash:
+                label.col-form-label Checkpoint:
               .col-sm-8
-                span.text-truncate.hash-tag #{blockData.blockHash}
+                span.text-truncate.hash-tag #{blockData.checkpointNumber}
             hr
             .form-group.row
               .col-sm-4
-                label.col-form-label Created At:
+                label.col-form-label Created:
               .col-sm-8
                 span.text-truncate.hash-tag #{blockData.createdAt}
             hr
