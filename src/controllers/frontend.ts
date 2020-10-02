@@ -169,6 +169,62 @@ export const getBlock = async (req: Request, res: Response) => {
   }
 };
 
+export const tokens = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 15 } = req.query;
+    const total = 0;
+    const tokens = [
+      {
+        token: {
+          img: '/images/icons/block.png',
+          symbol: 'USDT',
+          name: 'Tether USD',
+          content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
+        },
+        transfer: 123456789,
+        totalSupply: 123456789,
+        holders: 456789,
+      },
+      {
+        token: {
+          img: '/images/icons/block.png',
+          symbol: 'USDT',
+          name: 'Tether USD',
+          content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
+        },
+        transfer: 123456789,
+        totalSupply: 123456789,
+        holders: 456789,
+      },
+      {
+        token: {
+          img: '/images/icons/block.png',
+          symbol: 'USDT',
+          name: 'Tether USD',
+          content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
+        },
+        transfer: 123456789,
+        totalSupply: 123456789,
+        holders: 456789,
+      },
+    ];
+    const { pages, totalPage } = pagination(+page, total, +limit);
+    res.render('tokens', {
+      tokens,
+      totalTokens: 50,
+      pages,
+      currentPage: +page,
+      totalPage,
+    });
+  } catch (error) {
+    res.render('tokens', {
+      tokens: [],
+      pages: [],
+      totalPage: 0,
+    });
+  }
+};
+
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
   const totalPage = Math.ceil(total / totalPerPage);
   const totalShow = Math.min(page > totalPage ? 0 : totalPage, totalPageShow);

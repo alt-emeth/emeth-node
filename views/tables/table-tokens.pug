@@ -1,0 +1,30 @@
+table#tbTokens.table.table-striped.mb-0(width='100%')
+  thead.head-table
+    tr
+      th.th_sm.font-weight-bold #
+      th.th_sm.font-weight-bold Token
+      th.th_sm.font-weight-bold Transfers(24H)
+      th.th_sm.font-weight-bold Total Supply
+      th.th_sm.font-weight-bold Holders
+  tbody
+    -for(let i=0; i<tokens.length; i++){
+      tr.tr-link
+        td #{i}
+        td
+          .d-flex
+            div 
+              img(src= `${tokens[i].token.img}`, style={'width': '25px', 'height': '25px'})
+            div.ml-2
+              div
+                span
+                  a(href="#").text-truncate.hash-tag.token-name #{tokens[i].token.name} (#{tokens[i].token.symbol})
+              div
+                span(style= "max-width: 300px;").hash-tag.token-content #{tokens[i].token.content}
+                
+        td 
+          span #{tokens[i].transfer}
+        td
+          span #{tokens[i].totalSupply}
+        td
+          span #{tokens[i].holders}
+    -}
