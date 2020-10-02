@@ -174,7 +174,7 @@ export const tokens = async (req: Request, res: Response) => {
     const tokens = [
       {
         token: {
-          img: '/images/icons/block.png',
+          img: '/images/icons/token.png',
           symbol: 'USDT',
           name: 'Tether USD',
           content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
@@ -185,7 +185,7 @@ export const tokens = async (req: Request, res: Response) => {
       },
       {
         token: {
-          img: '/images/icons/block.png',
+          img: '/images/icons/token.png',
           symbol: 'USDT',
           name: 'Tether USD',
           content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
@@ -196,7 +196,7 @@ export const tokens = async (req: Request, res: Response) => {
       },
       {
         token: {
-          img: '/images/icons/block.png',
+          img: '/images/icons/token.png',
           symbol: 'USDT',
           name: 'Tether USD',
           content: 'tether has dahd daw da d ad a d ad w dawdad  dawdad dawdad dawdawdad dawdawd',
