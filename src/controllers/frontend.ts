@@ -177,6 +177,7 @@ export const getBlock = async (req: Request, res: Response) => {
     res.render('detail/block', {
       title: 'Blocks',
       code: blockData.blockNumber,
+      url: process.env.ETHERSCAN_URL,
       preBlockNumber,
       nextBlockNumber,
       blockData,

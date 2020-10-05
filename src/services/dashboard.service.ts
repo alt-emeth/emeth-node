@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 export const getListTableDashboard = async () => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -16,7 +16,7 @@ export const getListTableDashboard = async () => {
 };
 
 export const getSummaryDashboard = async () => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -31,7 +31,7 @@ export const getSummaryDashboard = async () => {
 };
 
 export const getTransactions = async (offset: number, limit: number) => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -46,7 +46,7 @@ export const getTransactions = async (offset: number, limit: number) => {
 };
 
 export const getBlocks = async (offset: number, limit: number) => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -61,7 +61,7 @@ export const getBlocks = async (offset: number, limit: number) => {
 };
 
 export const getTokens = async (offset: number, limit: number) => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -76,7 +76,7 @@ export const getTokens = async (offset: number, limit: number) => {
 };
 
 export const getTransactionDetail = async (txId: string) => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
@@ -91,7 +91,7 @@ export const getTransactionDetail = async (txId: string) => {
 };
 
 export const getBlockDetail = async (blockNumber: number) => {
-  const url = process.env.ANTI_BLOCK_API_URL;
+  const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }

@@ -46,7 +46,7 @@ block content
               .col-sm-4
                 label.col-form-label Checkpoint:
               .col-sm-8
-                span.text-truncate.hash-tag #{blockData.checkpointNumber}
+                a(href=`${url}/tx/${blockData.publicTxHash}`).text-truncate.hash-tag #{blockData.checkpointNumber}
             hr
             .form-group.row
               .col-sm-4
