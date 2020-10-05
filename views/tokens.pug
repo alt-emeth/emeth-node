@@ -1,0 +1,56 @@
+extends layout
+block content
+  div#wrapper(style="background-color: #f5f5f5")
+    include navbar
+    div#content  
+      div.container.mt-5.p-sm-0
+        div.row.tokens
+          div.col-12
+            div.border-table.table-tokens
+              div.mb-2.d-flex.position-relative
+                h4(style={"font-weight": "bold"}).mb-0 Tokens
+                button#tk-search.button.btn-primary.ml-auto.tk-search(onclick="showInputSearch()")
+                  i.fas.fa-search
+                div#tk-input-search(style={"display": "none"}).row.input-search
+                  div.d-flex.justify-content-center.box-search
+                    div.form-search
+                      input.textbox.search-input(type='text' placeholder='Search')
+                      button.button.btn-primary(title='Search' onclick='handleSearch()')
+                        i.fas.fa-search
+              hr.mt-0
+              div.mb-2
+                label(for="custom-select").status A total of #{total} Token found
+              div.mb-4.row 
+                div.col-lg-6.col-12
+                  div
+                    label(for="custom-select").limit Show:
+                      select#select-limit.custom-select(onchange="handleChangeLimit()")
+                        option(value='0') 15
+                        option(value='1') 30
+                        option(value='2') 50
+                    label(for="custom-select" style={'margin-left':"5px"}).limit entries
+              hr.mb-0
+              include tables/table-tokens
+              .box-pagination
+                include pagination
+
+    include footer
+  script.
+    $(document).click((event) => {
+      if (!$(event.target).closest('#tk-input-search').length && !$(event.target).closest('#tk-search').length) {
+        const element = document.querySelector('.tokens .input-search');
+        if(element.style.display === 'block'){
+          element.style.display = 'none';
+        }
+      }        
+    });
+
+    function showInputSearch(){
+      const element = document.querySelector('.tokens .input-search');
+      element.style.display = element.style.display === 'block'? 'none': 'block';
+    }
+
+    function handleSearch(){
+      const value = document.querySelector('.tokens .search-input').value;
+      
+    }
