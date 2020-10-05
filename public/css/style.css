@@ -230,7 +230,7 @@ label.entries {
   margin-left: 5px;
 }
 
-.dashboard, .transactions, .blocks{
+.dashboard, .transactions, .blocks, .tokens{
   margin-bottom: 50px;
 }
 
@@ -263,7 +263,7 @@ table.table a:hover{
   border: 1px solid #e7eaf3;
   border-radius: 0.5rem;
   background-color: #ffffff;
-  padding: 10px 18px 10px 18px ;
+  padding: 10px;
   box-shadow: 0 0.5rem 1.2rem rgba(189,197,209,.2);
   height: 100%;
 }
@@ -360,6 +360,11 @@ table td .hash-tag {
 .table-transactions .dataTables_scrollBody{
   overflow-x: scroll !important;
 }
+
+.table-tokens .dataTables_scrollBody{
+  overflow-x: scroll !important;
+}
+
 
 .pagination {
   display: flex;
@@ -646,3 +651,54 @@ footer.page-footer a{
   color: #77838f;
   font-size: 85%;
 }
+
+/*
+  Token
+*/
+#tbTokens .token-name{
+  color: #3498db;
+}
+
+#tbTokens .token-name:hover{
+  color: #1d6fa5;
+}
+
+#tbTokens .token-content{
+  font-size: 0.85rem;
+}
+
+.tokens .tk-search{
+  border: 0;
+  border-radius: 5px;
+  outline: 0;
+  height: 30px;
+  width: 30px;
+}
+
+.tokens .input-search{
+  top: 35px;
+  position: absolute;
+  right: 10px;
+  padding: 5px;
+  background-color: #dddddd;
+  border-radius: 5px;
+  animation: mymove;
+  animation-duration: 0.5s;
+}
+
+@keyframes mymove {
+  from {top: 45px;}
+  to {top: 35px;}
+}
+
+.tokens .box-search{
+  margin-bottom: 0px;
+}
+
+.tokens .form-search{
+  width: 100%;
+}
+
+/* .tokens .tk-search:focus .tokens .input-search{
+  display: block;
+} */
