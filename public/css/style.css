@@ -118,18 +118,12 @@ li.sign-in{
 /*
   title
 */
-.title{
+.dashboard .title{
   background-color: #21325b;
   padding: 20px 0 20px 0;
   border-bottom: 1px solid black;
   height: 260px;
   color: #fff;
-}
-
-@media(max-width: 480px){
-  .title h3{
-    font-size: 1.5rem;
-  }
 }
 
 /*
@@ -458,7 +452,7 @@ footer.page-footer a{
   Detail
 */
 .box-detail{
-  margin-top: 25px;
+  transform: translateY(25px);
   border: 1px solid black;
   border: 1px solid #d5d5d5;
   border-radius: 10px;
@@ -585,6 +579,44 @@ footer.page-footer a{
   padding: 10px;
   border-radius: 10px;
 }
+
+/*
+  token detail
+*/
+.token-detail{
+  margin-top: 20px;
+}
+.token-detail .overview .box-detail .title{
+  font-weight: bold;
+  font-size: initial;
+}
+.token-detail .overview .box-detail{
+  height: 100%;
+}
+
+.token-detail .content-tab .nav-tabs .nav-link{
+  font-size: .8125rem;
+  font-weight: 600;
+  padding: .75rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  transition: .3s;
+  margin-bottom: -1px;
+  margin-top: -1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.token-detail .content-tab .nav-tabs .nav-link.active{
+  border-bottom-color: #3498db;
+  color: #3498db;
+}
+.token-detail table td .hash-tag {
+  max-width: 200px;
+  display: inline-block;
+}
+
 /*
   style scroll
 */

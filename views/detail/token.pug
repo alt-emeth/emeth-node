@@ -2,28 +2,32 @@ extends ../layout
 block content
   div#wrapper
     include ../navbar
-    div.container#content.p-sm-0.block-detail
+    div.container#content.p-sm-0.token-detail
       span.h4.content.font-weight-bold #{title} #{token.symbol}
       -if(!token){
         h3.text-center Data empty
       -} else {
-        .box-detail
-          .row
-            .col-6
+        .row.overview
+          .col-12.col-lg-6
+            .box-detail
               form
+                div.title Overview
                 hr
                 .form-group.row
                   .col-sm-4
                     label.col-form-label Total Supply:
                   .col-sm-8
                     .form-control 
-                      span.text-truncate.hash-tag #{token.totalSupply}
+                      span.font-weight-bold.text-truncate.hash-tag #{token.totalSupply}
+                      span.font-weight-bold.ml-1 BNB
                 hr
                 .form-group.row
                   .col-sm-4
                     label.col-form-label Holders:
                   .col-sm-8
-                    span.text-truncate.hash-tag #{token.holders}
+                    .form-control
+                      span.text-truncate.hash-tag #{token.holders}
+                      span.ml-1 addresses
                 hr
                 .form-group.row
                   .col-sm-4
@@ -31,34 +35,109 @@ block content
                   .col-sm-8
                     span.text-truncate.hash-tag #{token.transfers}
                 hr
-            .col-6
+          .col-12.col-lg-6
+            .box-detail
               form
+                div.title Profile Summary
                 hr
                 .form-group.row
                   .col-sm-4
-                    label.col-form-label Total Supply:
+                    label.col-form-label Token ID:
                   .col-sm-8
                     .form-control 
-                      span.text-truncate.hash-tag #{token.totalSupply}
+                      a(href='#').text-truncate.hash-tag #{token.id}
                 hr
                 .form-group.row
                   .col-sm-4
-                    label.col-form-label Holders:
+                    label.col-form-label Decimals:
                   .col-sm-8
-                    span.text-truncate.hash-tag #{token.holders}
+                    span.text-truncate.hash-tag #{token.decimals}
                 hr
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Transfers:
-                  .col-sm-8
-                    span.text-truncate.hash-tag #{token.transfers}
-                hr
-            
+        .row.content-tab.mt-5
+          .col
+            .box-detail
+              ul.nav.nav-tabs
+                li
+                  a.nav-link.active(href='#transfers' data-toggle='tab') Transfers
+                li
+                  a.nav-link(href='#holders' data-toggle='tab') Holders
+              div.tab-content
+                div.active.tab-pane#transfers
+                  div.text-center.mt-3
+                    .spinner-border.text-primary(role='status')
+                       span.sr-only Loading...
+                  div.mt-2 A total of 3,000,000 transaction found
+                  small (Showing the lastest 100k records)
+                  table#tbTransactions.table.table-striped.mb-0(width='100%')
+                    thead.head-table
+                      tr
+                        th.th_sm.font-weight-bold Txn Hash
+                        th.th_sm.font-weight-bold Age
+                        th.th_sm.font-weight-bold From
+                        th.th_sm.font-weight-bold
+                        th.th_sm.font-weight-bold To
+                        th.th_sm.font-weight-bold Quanlity
+                    tbody
+                      -for(let i=0; i<transactions.length; i++){
+                        tr.tr-link
+                          td(title=transactions[i].txId)
+                            span.text-truncate.hash-tag
+                              a(href=`tx/${transactions[i].txId}`) #{transactions[i].txId}
+                          td 
+                            span.text-truncate.hash-tag #{transactions[i].createdAt}
+                          td(title=transactions[i].source)
+                            span.text-truncate.hash-tag
+                              a(href='#') #{transactions[i].source}
+                          td
+                            span.text-truncate.hash-tag
+                              .circle 
+                                i.fas.fa-long-arrow-alt-right
+                          td(title=transactions[i].target)
+                            span.text-truncate.hash-tag
+                              a(href='#') #{transactions[i].target}
+                          td 
+                            span.text-truncate.hash-tag #{transactions[i].quanlity}
+                      -}
+                  .box-pagination
+                    include ../pagination
+                div.tab-pane#holders
+                  div.mt-2 Top 1,000 holders (From a total of 314,003 holders)
+                    table#tbTransactions.table.table-striped.mb-0(width='100%')
+                      thead.head-table
+                        tr
+                          th.th_sm.font-weight-bold Rank
+                          th.th_sm.font-weight-bold Adress
+                          th.th_sm.font-weight-bold Quanlity
+                          th.th_sm.font-weight-bold Percentage
+                      tbody
+                        -for(let i=0; i<balances.length; i++){
+                          tr.tr-link
+                            td
+                              span.text-truncate.hash-tag #{i+1}
+                            td 
+                              span.text-truncate.hash-tag
+                                a(href='#') #{balances[i].address}
+                            td
+                              span.text-truncate.hash-tag #{balances[i].quanlity}
+                            td
+                              span.text-truncate.hash-tag #{balances[i].percentage}
+                        -}
+                  .box-pagination
+                    include ../pagination
       -}
-    
     div.w-100(style={"margin-top": "50px"})
       include ../footer
   style.
     body {
       background-color: #f5f5f5;
     }
+  script. 
+    $(document).ready(function(){
+      $.ajax({
+        method: "GET",
+        url: `#{url}tokens/transfers/#{token.id}`,
+      })
+      .done(function( msg ) {
+        alert( "Data Saved: " + msg );
+      });
+    })

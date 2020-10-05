@@ -173,17 +173,63 @@ export const getToken = async (req: Request, res: Response) => {
     if (!/^[+,-]?\d+$/.test(`${key}`)) {
       throw new Error('url invalid!');
     }
+    const transactions = [
+      {
+        txId: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        createdAt: 'a month ago',
+        source: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        target: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        quanlity: '0.45d4aw4d5a45dw455',
+      },
+      {
+        txId: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        createdAt: 'a month ago',
+        source: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        target: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        quanlity: '0.45d4aw4d5a45dw455',
+      },
+      {
+        txId: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        createdAt: 'a month ago',
+        source: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        target: '0x12345678awqdadada1212da12d2a121d2a121d21a21d21ad',
+        quanlity: '0.45d4aw4d5a45dw455',
+      },
+    ];
+    const balances = [
+      {
+        address: '0x12dad21a2d2a2d12a2d21a21d21ad12ad2a2d12a12d',
+        quanlity: '8,123,123,12,12,122,12,12',
+        percentage: '25.10150',
+      },
+      {
+        address: '0x12dad21a2d2a2d12a2d21a21d21ad12ad2a2d12a12d',
+        quanlity: '8,123,123,12,12,122,12,12',
+        percentage: '25.10150',
+      },
+      {
+        address: '0x12dad21a2d2a2d12a2d21a21d21ad12ad2a2d12a12d',
+        quanlity: '8,123,123,12,12,122,12,12',
+        percentage: '25.10150',
+      },
+    ];
     const token = {
       symbol: 'BNB',
       id: '0x12345678910112121211111111111111111111111111111111',
       decimals: 10,
       holders: 10000,
       transfers: 123456,
-      totalSupply: 212121111111111111121212212122,
+      totalSupply: '21212111111111111121212212122'.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
     };
     res.render('detail/token', {
       title: 'Token',
       token,
+      transactions,
+      balances,
+      url: process.env.ANTI_BLOCK_API_URL,
+      pages: [1, 2, 3],
+      currentPage: 2,
+      totalPage: 3,
     });
   } catch (error) {
     res.render('detail/token', {
@@ -191,6 +237,10 @@ export const getToken = async (req: Request, res: Response) => {
     });
   }
 };
+
+// export const getTransfers = async (req: Request, res: Response) => {
+
+// }
 
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
   const totalPage = Math.ceil(total / totalPerPage);
