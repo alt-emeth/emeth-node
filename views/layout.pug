@@ -39,6 +39,15 @@ html
           sort: false
         });
 
+        $('#tbTokens').DataTable({
+          scrollX: true,
+          searching: false,
+          paging: false,
+          bFilter: false,
+          bInfo: false,
+          sort: false
+        });
+
         const url = window.location.href;
         if(url.indexOf('limit=30') > -1){
           $('#select-limit').val('1');

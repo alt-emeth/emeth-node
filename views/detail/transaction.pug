@@ -21,15 +21,9 @@ block content
               .col-sm-4
                 label.col-form-label Status:
               .col-sm-8
-                -if(transactionData.status){
-                  span.text-truncate.hash-tag.tx-status-success
-                    i.fa.fa-check-circle.mr-1 
-                    | Success
-                -} else {
-                  span.text-truncate.hash-tag.tx-status-fail
-                    i.fa.fa-times-circle.mr-1 
-                    | Fail
-                -}
+                span.text-truncate.hash-tag.tx-status-success
+                  i.fa.fa-check-circle.mr-1 
+                  | Success
             hr
             .form-group.row
               .col-sm-4
@@ -45,13 +39,13 @@ block content
                   span.text-truncate.hash-tag #{transactionData.createdAt}
             hr
             .form-group.row
-              -if(transactionData.status){
+              -if(transactionData.token){
                 .col-sm-4
                   label.col-form-label Token:
                 .col-sm-8
                   span.text-truncate.hash-tag
                     a(href=`/tokens/${transactionData.token}`) #{transactionData.token}
-              -} else {
+              -} else{
                 .col-sm-4
                   label.col-form-label Store:
                 .col-sm-8

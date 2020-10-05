@@ -6,6 +6,7 @@ import {
   getSummaryDashboard,
   getTransactions,
   getBlocks,
+  getTokens,
   getTransactionDetail,
   getBlockDetail,
 } from '../services/dashboard.service';
@@ -123,6 +124,30 @@ export const blocks = async (req: Request, res: Response) => {
   }
 };
 
+export const tokens = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 15 } = req.query;
+    const offset = (+page - 1) * +limit;
+    const dataRes = await getTokens(offset, +limit);
+    const { tokens = [] } = dataRes;
+    const { total = 0 } = dataRes;
+    const { pages, totalPage } = pagination(+page, total, +limit);
+    res.render('tokens', {
+      tokens,
+      total,
+      pages,
+      currentPage: +page,
+      totalPage,
+    });
+  } catch (error) {
+    res.render('tokens', {
+      tokens: [],
+      pages: [],
+      totalPage: 0,
+    });
+  }
+};
+
 export const getTransaction = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
@@ -152,6 +177,7 @@ export const getBlock = async (req: Request, res: Response) => {
     res.render('detail/block', {
       title: 'Blocks',
       code: blockData.blockNumber,
+      url: process.env.ETHERSCAN_URL,
       preBlockNumber,
       nextBlockNumber,
       blockData,
