@@ -11,5 +11,8 @@ router.get('/blocks', frontendController.blocks);
 router.get('/tx/:id', frontendController.getTransaction);
 router.get('/blocks/:id', frontendController.getBlock);
 router.get('/tokens', frontendController.tokens);
+router.get('/tokens/:id', frontendController.getToken);
+router.get('/tokens/transfers/:id', frontendController.getToken);
+router.get('/tokens/transfers/:id', frontendController.getToken);
 
 export default router;

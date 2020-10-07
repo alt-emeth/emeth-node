@@ -15,7 +15,7 @@ table#tbTokens.table.table-striped.mb-0(width='100%')
             div 
               img(src= `${tokens[i].img || '/images/icons/token.png'}`, style={'width': '25px', 'height': '25px'})
             div.ml-2
-              a(href="#").text-truncate.hash-tag.token-name #{tokens[i].name} (#{tokens[i].symbol})
+              a(href=`/tokens/${tokens[i].tokenId}`).text-truncate.hash-tag.token-name #{tokens[i].name} (#{tokens[i].symbol})
         td 
           span #{tokens[i].transfers}
         td

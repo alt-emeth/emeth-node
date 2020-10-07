@@ -9,6 +9,7 @@ import {
   getTokens,
   getTransactionDetail,
   getBlockDetail,
+  getTokenDetail,
 } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
@@ -129,9 +130,17 @@ export const tokens = async (req: Request, res: Response) => {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
     const dataRes = await getTokens(offset, +limit);
-    const { tokens = [] } = dataRes;
+    let { tokens = [] } = dataRes;
     const { total = 0 } = dataRes;
     const { pages, totalPage } = pagination(+page, total, +limit);
+    tokens = tokens.map((ele) => {
+      return {
+        ...ele,
+        totalSupply: ele.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        holders: ele.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        transfers: ele.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+      };
+    });
     res.render('tokens', {
       tokens,
       total,
@@ -189,6 +198,30 @@ export const getBlock = async (req: Request, res: Response) => {
       preBlockNumber: null,
       nextBlockNumber: null,
       blockData: null,
+    });
+  }
+};
+
+export const getToken = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    if (!/(^0x[a-fA-F0-9]{40})+$/.test(`${key}`)) {
+      throw new Error('url invalid!');
+    }
+    const { token } = await getTokenDetail(key);
+    Object.assign(token, {
+      totalSupply: token.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+      holders: token.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+      transfers: token.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+    });
+    res.render('detail/token', {
+      title: 'Token',
+      token,
+      url: process.env.BURN_API_URL,
+    });
+  } catch (error) {
+    res.render('error', {
+      error,
     });
   }
 };
