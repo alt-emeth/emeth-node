@@ -69,7 +69,6 @@ block content
                   
                   div.my-3
                     div#title-transfers A total of ... transactions found
-                    small (Showing the lastest ... records)
                   hr.mb-0
                   table#tbTransactions.table.table-striped.mb-0(width='100%')
                     thead.head-table
@@ -84,7 +83,7 @@ block content
                   .box-pagination
                     div.pagination
                 div.tab-pane#holders
-                  div.my-3#title-holders Top ... holders (From a total of ... holders)
+                  div.my-3#title-holders A total of ... holders
                   hr
                   table#tbTransactions.table.table-striped.mb-0(width='100%')
                     thead.head-table
@@ -115,15 +114,16 @@ block content
             renderViewTransfers(transfers, pagesTransfers, 1, totalPageTransfers);
             renderViewHolders(holders, pagesHolders, 1, totalPageHolders);
             $('#transfers #title-transfers').text(`A total of ${totalTransfers} transactions found`);
-            $('#transfers small').text(`(Showing the lastest ${totalTransfers} records)`);
-            $('#holders #title-holders').text(`Top ${totalHolders} holders (From a total of ${totalHolders} holders)`);
+            $('#holders #title-holders').text(`A total of ${totalHolders} holders`);
             $('#tbTransactions_wrapper').trigger('resize');
             $('#transfers-loading').hide();
           },
           error: function( error ) {
-            console.log(error)
+            $('#transfers-loading').hide();
           }
         })
+      } else {
+        $('#transfers-loading').hide();
       }
     });
 
@@ -173,14 +173,17 @@ block content
       $.ajax({
           method: "GET",
           url: `#{url}/tokens/transfers/#{token.tokenId}?page=${page}&limit=${25}`,
-        })
-        .done(function( msg ){
-          const {transfers, pages, currentPage, totalPage} = msg.data;
-          $('#tbody-transfers').children('tr').remove();
-           $('#transfers .pagination').children('a').remove();
-          renderViewTransfers(transfers, pages, currentPage, totalPage);
-          $('#transfers-loading').hide();
-        });
+          success: function( msg ){
+            const {transfers, pages, currentPage, totalPage} = msg.data;
+            $('#tbody-transfers').children('tr').remove();
+            $('#transfers .pagination').children('a').remove();
+            renderViewTransfers(transfers, pages, currentPage, totalPage);
+            $('#transfers-loading').hide();
+          },
+          error: function( error ) {
+            $('#transfers-loading').hide();
+          }
+      })
     }
 
     function customGoToPageHolders(page){
@@ -188,14 +191,17 @@ block content
       $.ajax({
           method: "GET",
           url: `#{url}/tokens/holders/#{token.tokenId}?page=${page}&limit=${50}`,
-        })
-        .done(function( msg ){
-          const {holders, pages, currentPage, totalPage} = msg.data;
-          $('#tbody-holders').children('tr').remove();
-           $('#holders .pagination').children('a').remove();
-          renderViewTransfers(holders, pages, currentPage, totalPage);
-          $('#transfers-loading').hide();
-        });
+          success: function( msg ){
+            const {holders, pages, currentPage, totalPage} = msg.data;
+            $('#tbody-holders').children('tr').remove();
+            $('#holders .pagination').children('a').remove();
+            renderViewTransfers(holders, pages, currentPage, totalPage);
+            $('#transfers-loading').hide();
+          },
+          error: function( error ) {
+            $('#transfers-loading').hide();
+          }
+      })
     }
 
     function renderViewTransfers(transfers, pages, currentPage, totalPage){
