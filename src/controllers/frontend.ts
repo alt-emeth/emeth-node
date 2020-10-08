@@ -205,9 +205,6 @@ export const getBlock = async (req: Request, res: Response) => {
 export const getToken = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
-    if (!/(^0x[a-fA-F0-9]{40})+$/.test(`${key}`)) {
-      throw new Error('url invalid!');
-    }
     const { token } = await getTokenDetail(key);
     Object.assign(token, {
       totalSupply: token.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
