@@ -635,6 +635,106 @@ footer.page-footer a{
 }
 
 /*
+  Address detail
+*/
+.addr-detail .addr-copy{
+  position: relative;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: .66422rem;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  color: #1e2022;
+  line-height: 2.5rem;
+  text-align: center;
+  background: rgba(119,131,143,.1);
+}
+
+.addr-detail .addr-copy i{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.addr-detail .addr-copy:hover{
+  color: #fff;
+  background: #77838f;
+  box-shadow: 0 4px 11px rgba(119,131,143,.35);
+}
+
+.addr-detail .address{
+  font-size: 70%;
+  color: #77838f;
+  font-weight: 400 !important;
+}
+
+.addr-detail .btn-group{
+  cursor: pointer;
+  width: 80%;
+  height: 30px;
+  border: 1px solid #d5dae2;
+  background-color: transparent;
+  color: #1e2022;
+  font-size: .8125rem;
+  display: flex;
+  align-items: center;
+  border-radius: .25rem;
+  
+}
+
+.addr-detail .menu-token{
+  font-size: 0.9rem;
+  padding-right: .75rem;
+  padding-left: 0.5rem;
+}
+
+.addr-detail .dropdown-token{
+  width: 100%;
+  padding: .3rem .6rem;
+}
+
+.addr-detail .dropdown-toggle::after{
+  position: absolute;
+  right: .6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #77838f;
+}
+
+.addr-detail .menu-token{
+  width: 100%;
+}
+
+.addr-detail .line-token{
+  border-bottom: 1px solid #e7eaf3;
+  padding-bottom: .25rem;
+  margin-bottom: .25rem;
+}
+
+.addr-detail .menu-token .line-token:hover{
+  color: #fff;
+  background-color: #3498db;
+  border-radius: .25rem;
+}
+
+.addr-detail .menu-token .token-name{
+  font-size: 0.75rem;
+}
+
+.addr-detail .menu-token .icon-token{
+  width: 28px;
+  height: 28px;
+}
+
+.addr-detail table td .hash-tag {
+  max-width: 200px;
+  display: inline-block;
+  padding: 0;
+}
+
+/*
   style scroll
 */
 .dataTables_scrollBody::-webkit-scrollbar-track{
@@ -699,15 +799,15 @@ footer.page-footer a{
 /*
   Token
 */
-#tbTokens .token-name{
+.tb-tokens .token-name{
   color: #3498db;
 }
 
-#tbTokens .token-name:hover{
+.tb-tokens .token-name:hover{
   color: #1d6fa5;
 }
 
-#tbTokens .token-content{
+.tb-tokens .token-content{
   font-size: 0.85rem;
 }
 
@@ -742,7 +842,3 @@ footer.page-footer a{
 .tokens .form-search{
   width: 100%;
 }
-
-/* .tokens .tk-search:focus .tokens .input-search{
-  display: block;
-} */

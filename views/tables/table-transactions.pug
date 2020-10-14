@@ -1,4 +1,4 @@
-table#tbTransactions.table.table-striped.mb-0(width='100%')
+table#tbCustom.table.table-striped.mb-0(width='100%')
   thead.head-table
     tr
       th.th_sm.font-weight-bold Tx ID
@@ -17,15 +17,23 @@ table#tbTransactions.table.table-striped.mb-0(width='100%')
             a(href=`tx/${transactions[i].txId}`) #{transactions[i].txId}
         td
           a(href=`blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
-        td(title=transactions[i].source)
-          span.text-truncate.hash-tag
-            a(href='#') #{transactions[i].source}
-        td
-          .circle 
-            i.fas.fa-long-arrow-alt-right
-        td(title=transactions[i].target)
-          span.text-truncate.hash-tag
-            a(href='#') #{transactions[i].target}
+          td(title=transactions[i].source)
+            -if(address == transactions[i].source){
+              span.text-truncate.hash-tag.font-italic #{transactions[i].source}
+            -} else {
+              span.text-truncate.hash-tag
+                a(href=`/address/${transactions[i].source}`) #{transactions[i].source}
+            -}
+          td
+            .circle 
+              i.fas.fa-long-arrow-alt-right
+          td(title=transactions[i].target)
+            -if(address == transactions[i].target){
+              span.text-truncate.hash-tag.font-italic #{transactions[i].target}
+            -} else {
+              span.text-truncate.hash-tag
+                a(href=`/address/${transactions[i].target}`) #{transactions[i].target}
+            -}
         td #{transactions[i].amount}
         td #{transactions[i].fee}
         td #{transactions[i].createdAt}

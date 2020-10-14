@@ -1,7 +1,7 @@
 extends ../layout
 block content
   div#wrapper
-    include ../navbar
+    include ../common/navbar
     div.container#content.p-sm-0.block-detail
       span.h4.content.font-weight-bold #{title}
       span.code-block 
@@ -57,7 +57,7 @@ block content
       -}
     
     div.w-100(style={"margin-top": "50px"})
-      include ../footer
+      include ../common/footer
   style.
     body {
       background-color: #f5f5f5;

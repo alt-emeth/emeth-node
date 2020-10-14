@@ -1,0 +1,103 @@
+extends ../layout
+block content
+  div#wrapper
+    include ../common/navbar
+    div.container#content.p-sm-0.token-detail.addr-detail
+      .d-flex
+        .h4.mb-0.content.font-weight-bold #{title}
+          span.ml-1.address#txt-copy #{address}
+        -if(address){
+          .d-flex
+            div.addr-copy
+              i.far.fa-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+        -}
+        -if(address){
+          .d-flex
+            div.addr-copy(data-toggle='modal' data-target='#modalQrCode')
+              i.fa.fa-qrcode(title="Copy signature to clipboard" onclick="handleShowQrCode(this)")
+        -}
+      // Modal QR-Code
+      #modalQrCode.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+        .modal-dialog(role='document')
+          .modal-content
+            .modal-header
+              span.modal-title #{address}
+              button.close(type='button' data-dismiss='modal' aria-label='Close')
+                span(aria-hidden='true') &times;
+            .modal-body.text-center
+              img(src="../images/icons/token.png", alt="")
+
+      -if(!addressDetail){
+        h3.text-center Data empty
+      -} else {
+        .row.overview
+          .col-12.col-lg-6
+            .box-detail
+              form
+                div.h6.font-weight-bold.title Overview
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label.font-weight-bold Balance:
+                  .col-sm-8
+                    .form-control 
+                      span.text-truncate.hash-tag #{addressDetail.balance} BURN
+          .col-12.col-lg-6.mt-4.mt-lg-0(style={'z-index': '1000'})
+            .box-detail
+              form
+                div.h6.title.font-weight-bold Tokens
+                hr
+                .form-group.row
+                  .col-sm-12
+                    .btn-group
+                      div.dropdown-token.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                        | Tokens
+                      .dropdown-menu.menu-token
+                        -for(item of addressDetail.tokens) {
+                          .d-flex.align-items-sm-center.line-token
+                            img.icon-token(src='../images/icons/token.png')
+                            span.ml-1.token-name(style={'white-space': 'nowrap'}) #{item.name}
+                            span.token-price.ml-auto(style={'white-space': 'nowrap'}) #{item.price} #{item.symbol}
+                        -}
+        .row.content-tab.mt-5
+          .col
+            .box-detail
+              ul.nav.nav-tabs
+                li
+                  a.nav-link.active(href='#transactions' data-toggle='tab') Transactions
+                li
+                  a.nav-link(href='#tokens' data-toggle='tab') Tokens
+              div.tab-content
+                div.active.tab-pane.table-transactions#transactions
+                  div.my-3
+                    div#title-transactions Latest 25 from a total of #{total} transactions
+                  hr.mb-0
+                  include ../tables/table-transactions
+                div.tab-pane#tokens
+                  div.my-3
+                    div#title-transactions Latest 25 from a total of #{totalTokens} tokens
+                  hr.mb-0
+                  include ../tables/table-tokens
+      -}
+    
+    div.w-100(style={"margin-top": "50px"})
+      include ../common/footer
+  style.
+    body {
+      background-color: #f5f5f5;
+    }
+
+  script. 
+    $(document).ready(function(){
+      $('#tbCustom_wrapper').trigger('resize');
+
+      function handleCopy(element){
+        const copyText = document.querySelector(`#txt-copy`).innerText;
+        const textArea = document.createElement("textarea");
+        textArea.value = copyText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("Copy");
+        textArea.remove();
+      }
+    });

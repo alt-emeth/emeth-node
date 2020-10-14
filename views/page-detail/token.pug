@@ -4,7 +4,7 @@ block content
     .spinner-border.text-primary(role='status')
       span.sr-only Loading...
   div#wrapper
-    include ../navbar
+    include ../common/navbar
     div.container#content.p-sm-0.token-detail
       span.h4.content.font-weight-bold #{title} #{token?token.symbol:''}
       -if(!token){
@@ -38,7 +38,7 @@ block content
                   .col-sm-8
                     span.text-truncate.hash-tag #{token.transfers}
                 hr
-          .col-12.col-lg-6
+          .col-12.col-lg-6.mt-4.mt-lg-0
             .box-detail
               form
                 div.title Profile Summary
@@ -70,7 +70,7 @@ block content
                   div.my-3
                     div#title-transfers A total of ... transactions found
                   hr.mb-0
-                  table#tbTransactions.table.table-striped.mb-0(width='100%')
+                  table#tbCustom.table.table-striped.mb-0(width='100%')
                     thead.head-table
                       tr
                         th.th_sm.font-weight-bold Txn Hash
@@ -85,7 +85,7 @@ block content
                 div.tab-pane#holders
                   div.my-3#title-holders A total of ... holders
                   hr
-                  table#tbTransactions.table.table-striped.mb-0(width='100%')
+                  table#tbCustom.table.table-striped.mb-0(width='100%')
                     thead.head-table
                       tr
                         th.th_sm.font-weight-bold Rank
@@ -97,7 +97,7 @@ block content
                     div.pagination
       -}
     div.w-100(style={"margin-top": "50px"})
-      include ../footer
+      include ../common/footer
   style.
     body {
       background-color: #f5f5f5;
@@ -115,7 +115,7 @@ block content
             renderViewHolders(holders, pagesHolders, 1, totalPageHolders);
             $('#transfers #title-transfers').text(`A total of ${totalTransfers} transactions found`);
             $('#holders #title-holders').text(`A total of ${totalHolders} holders`);
-            $('#tbTransactions_wrapper').trigger('resize');
+            $('#tbCustom_wrapper').trigger('resize');
             $('#transfers-loading').hide();
           },
           error: function( error ) {
