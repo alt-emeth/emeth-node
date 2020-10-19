@@ -14,7 +14,7 @@ import {
 } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
-  res.redirect('pages/dashboard');
+  res.redirect('/dashboard');
 };
 
 export const dashboard = async (req: Request, res: Response) => {
