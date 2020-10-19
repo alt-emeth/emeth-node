@@ -41,7 +41,10 @@ block content
                     label.col-form-label.font-weight-bold Balance:
                   .col-sm-8
                     .form-control 
-                      span.text-truncate.hash-tag #{addressDetail.balance} BURN
+                      -for(item of addressDetail){
+                        span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;  
+                      -}
+                      
           .col-12.col-lg-6.mt-4.mt-lg-0(style={'z-index': '1000'})
             .box-detail
               form
@@ -53,11 +56,11 @@ block content
                       div.dropdown-token.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                         | Tokens
                       .dropdown-menu.menu-token
-                        -for(item of addressDetail.tokens) {
+                        -for(item of addressDetail) {
                           .d-flex.align-items-sm-center.line-token
-                            img.icon-token(src='../images/icons/token.png')
+                            img.icon-token(src= `${item.icon || '../images/icons/token.png'}`)
                             span.ml-1.token-name(style={'white-space': 'nowrap'}) #{item.name}
-                            span.token-price.ml-auto(style={'white-space': 'nowrap'}) #{item.price} #{item.symbol}
+                            span.token-price.ml-auto(style={'white-space': 'nowrap'}) #{item.balance} #{item.symbol}
                         -}
         .row.content-tab.mt-5
           .col
@@ -70,12 +73,12 @@ block content
               div.tab-content
                 div.active.tab-pane.table-transactions#transactions
                   div.my-3
-                    div#title-transactions Latest 25 from a total of #{total} transactions
+                    div#title-transactions Latest #{total > 25 ? 25 : total} from a total of #{total} transactions
                   hr.mb-0
                   include ../tables/table-transactions
                 div.tab-pane#tokens
                   div.my-3
-                    div#title-transactions Latest 25 from a total of #{totalTokens} tokens
+                    div#title-transactions Latest #{totalTokens > 25 ? 25 : totalTokens} from a total of #{totalTokens} tokens
                   hr.mb-0
                   include ../tables/table-tokens
       -}

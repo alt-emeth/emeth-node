@@ -58,7 +58,7 @@ block content
                 label.col-form-label From:
               .col-sm-8#tx-from
                 span.text-truncate.hash-tag
-                  a#txt-copy #{transactionData.source}
+                  a(href = `/address/${transactionData.source}`)#txt-copy #{transactionData.source}
                 -if(transactionData.target){
                   i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
                 -}
@@ -68,7 +68,13 @@ block content
                 label.col-form-label To:
               .col-sm-8#tx-to
                 span.text-truncate.hash-tag
-                  a#txt-copy #{transactionData.target}
+                  -if(transactionData.target.type === 'token'){
+                    a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -} else if(transactionData.target.type === 'store') {
+                    a(href = `/stores/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -} else {
+                    a(href = `/address/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -}
                 -if(transactionData.target){
                   i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
                 -}

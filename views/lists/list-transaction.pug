@@ -14,8 +14,15 @@ mixin my-transaction(txId, time, addrFrom, addrTo)
         div(style={'max-width': '100%'})
           .transaction-addr
             span(style={'white-space': 'nowrap'}) From 
-              a(href='#') #{addrFrom?addrFrom:'...'}
+              a(href=`/address/${addrFrom}`) #{addrFrom?addrFrom:'...'}
           .transaction-addr
             span(style={'white-space': 'nowrap'}) To 
-              a(href='#') #{addrTo?addrTo:'...'}
+              -if(transactions[i].target.type === 'token'){
+                a(href=`/tokens/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+              -} else if(transactions[i].target.type === 'store') {
+                a(href=`/stores/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+              -} else {
+                a(href=`/address/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+              -}
   hr
+

@@ -621,6 +621,11 @@ footer.page-footer a{
   max-width: 200px;
   display: inline-block;
 }
+.token-detail .symbol{
+  font-size: 80%;
+  color: #77838f;
+  font-weight: 400 !important;
+}
 
 .loading-spinner{
   height: 100%;

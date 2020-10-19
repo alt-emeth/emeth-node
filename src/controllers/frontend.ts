@@ -10,6 +10,7 @@ import {
   getTransactionDetail,
   getBlockDetail,
   getTokenDetail,
+  getAddressDetail,
 } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
@@ -226,9 +227,9 @@ export const getToken = async (req: Request, res: Response) => {
 export const getAddress = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
-    const dataRes = await getTransactions(0, 25);
-    let { tokens = [], total: totalTokens = 0 } = await getTokens(0, 10);
-    tokens = tokens.map((ele) => {
+    const dataRes = await getAddressDetail(key);
+    const { tokens: dataTokens = [], total: totalTokens = 0 } = await getTokens(0, 10);
+    const tokens = dataTokens.map((ele) => {
       return {
         ...ele,
         totalSupply: ele.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
@@ -237,41 +238,22 @@ export const getAddress = async (req: Request, res: Response) => {
       };
     });
     let { transactions = [] } = dataRes;
-    const { total = 0 } = dataRes;
+    const { total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
         createdAt: moment(item.createdAt).fromNow(),
       };
     });
-    const addressDetail = {
-      balance: 123456789,
-      tokens: [
-        {
-          name: 'ABC',
-          symbol: 'TST',
-          price: '12121',
-        },
-        {
-          name: 'ABC',
-          symbol: 'TST',
-          price: '12121',
-        },
-        {
-          name: 'ABC',
-          symbol: 'TST',
-          price: '12121',
-        },
-      ],
-    };
+
     res.render('page-detail/address', {
       title: 'Address',
       tokens,
       totalTokens,
       total,
       transactions,
-      address: key,
       addressDetail,
+      address: key,
       url: process.env.BURN_API_URL,
     });
   } catch (error) {

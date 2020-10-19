@@ -6,7 +6,11 @@ block content
   div#wrapper
     include ../common/navbar
     div.container#content.p-sm-0.token-detail
-      span.h4.content.font-weight-bold #{title} #{token?token.symbol:''}
+      
+      span.h4.content.font-weight-bold 
+        img(style={'height': '28px', 'width': '28px'}).icon-token(src= `${token.icon || '../images/icons/token.png'}`) 
+        | #{title}
+        soan.ml-1.symbol #{token?token.symbol:''}
       -if(!token){
         h3.text-center Data empty
       -} else {
@@ -213,7 +217,7 @@ block content
               <tr class=tr-link>
                 <td title=${transfers[i].txId}>
                   <span class='text-truncate hash-tag'>
-                    <a href= tx/${transfers[i].txId}>${transfers[i].txId}</a>
+                    <a href=/tx/${transfers[i].txId}>${transfers[i].txId}</a>
                   </span>
                 </td>
                 <td >
@@ -221,7 +225,7 @@ block content
                 </td>
                 <td title=${transfers[i].source}>
                   <span class='text-truncate hash-tag'>
-                    <a href= #>${transfers[i].source}</a>
+                    <a href=/address/${transfers[i].source}>${transfers[i].source}</a>
                   </span>
                 </td>
                 <td>
@@ -233,7 +237,7 @@ block content
                 </td>
                 <td title=${transfers[i].target}>
                   <span class='text-truncate hash-tag'>
-                    <a href= #>${transfers[i].target}</a>
+                    <a href=/address/${transfers[i].target}>${transfers[i].target}</a>
                   </span>
                 </td>
                 <td>
