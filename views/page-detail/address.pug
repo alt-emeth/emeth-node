@@ -93,14 +93,14 @@ block content
   script. 
     $(document).ready(function(){
       $('#tbCustom_wrapper').trigger('resize');
-
-      function handleCopy(element){
-        const copyText = document.querySelector(`#txt-copy`).innerText;
-        const textArea = document.createElement("textarea");
-        textArea.value = copyText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("Copy");
-        textArea.remove();
-      }
     });
+    
+    function handleCopy(element){
+      const copyText = document.querySelector(`#txt-copy`).innerText;
+      const textArea = document.createElement("textarea");
+      textArea.value = copyText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("Copy");
+      textArea.remove();
+    }
