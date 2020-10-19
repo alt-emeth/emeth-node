@@ -1,0 +1,25 @@
+extends ../layout
+block content
+  div#wrapper(style="background-color: #f5f5f5")
+    include ../common/navbar
+    div#content  
+      div.container.mt-5.p-sm-0
+        div.row.transactions 
+          div.col-12
+            div.border-table.table-transactions
+              h4.mb-4(style={"font-weight": "bold"}) Key-Value Stores
+              div.mb-4.row 
+                div.col-lg-6.col-12
+                  div
+                    label(for="custom-select").limit Show:
+                      select#select-limit.custom-select(onchange="handleChangeLimit()")
+                        option(value='0') 15
+                        option(value='1') 30
+                        option(value='2') 50
+                    label(for="custom-select" style={'margin-left':"5px"}).limit entries
+              hr.mb-0
+              include ../tables/table-stores
+              .box-pagination
+                include ../common/pagination
+
+    include ../common/footer

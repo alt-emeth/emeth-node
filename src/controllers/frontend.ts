@@ -158,6 +158,49 @@ export const tokens = async (req: Request, res: Response) => {
   }
 };
 
+export const stores = async (req: Request, res: Response) => {
+  try {
+    // const { page = 1, limit = 15 } = req.query;
+    // const offset = (+page - 1) * +limit;
+    // const dataRes = await getTokens(offset, +limit);
+    // const { total = 0 } = dataRes;
+    // const { pages, totalPage } = pagination(+page, total, +limit);
+    const stores = [
+      {
+        storeName: 'Store 1',
+        storeId: '0x123456789adadadwadwadawd0',
+        collections: 4,
+        values: 128,
+      },
+      {
+        storeName: 'Store 2',
+        storeId: '0x123456789adadadwadwadawd0',
+        collections: 4,
+        values: 128,
+      },
+      {
+        storeName: 'Store 3',
+        storeId: '0x123456789adadadwadwadawd0',
+        collections: 4,
+        values: 128,
+      },
+    ];
+
+    res.render('pages/kvs', {
+      stores,
+      pages: [1, 2, 3],
+      currentPage: 2,
+      totalPage: 5,
+    });
+  } catch (error) {
+    res.render('pages/kvs', {
+      stores: [],
+      pages: [],
+      totalPage: 0,
+    });
+  }
+};
+
 export const getTransaction = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
@@ -254,6 +297,43 @@ export const getAddress = async (req: Request, res: Response) => {
       transactions,
       addressDetail,
       address: key,
+      url: process.env.BURN_API_URL,
+    });
+  } catch (error) {
+    res.render('pages/error', {
+      error,
+    });
+  }
+};
+
+export const getStore = async (req: Request, res: Response) => {
+  try {
+    // const key = req.params.id;
+    const store = {
+      name: 'Store 1',
+      owner: '0x123456789abcedfe12345',
+      totalTxns: 1,
+      collections: 8,
+      keys: 16,
+      values: 234,
+      transactions: [
+        {
+          txnHash: '0x123456789',
+          source: '0x123456789',
+          age: '3 days ago',
+          collection: '0x123456',
+          key: '0x123456',
+          value: '0x123456',
+        },
+      ],
+    };
+
+    res.render('page-detail/store', {
+      title: 'Key-Value Store',
+      store,
+      pages: [1, 2, 3],
+      currentPage: 2,
+      totalPage: 5,
       url: process.env.BURN_API_URL,
     });
   } catch (error) {

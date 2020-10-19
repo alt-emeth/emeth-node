@@ -1,0 +1,24 @@
+block content
+  table#tbCustom.table.table-striped.mb-0(cellspacing='0' width='100%')
+    thead.head-table
+      tr
+        th.th_sm.font-weight-bold Store Name
+        th.th_sm.font-weight-bold Store ID
+        th.th_sm.font-weight-bold Collections
+        th.th_sm.font-weight-bold Key-Value Pairs
+    tbody
+      -for(store of stores){
+        tr.tr-link
+          td 
+            a(href=`stores/${store.storeId}`) #{store.storeName}
+          td(title=store.storeId)
+            span.text-truncate.hash-tag
+              a(href=`stores/${store.storeId}`) #{store.storeId}
+          td()
+            span.text-truncate.hash-tag
+              a(href=`/kv/${store.kvs}`) #{store.collections}
+          td(title=store.values)
+            span.text-truncate.hash-tag
+              a(href=`/kv/${store.kvs}`) #{store.values}
+      -}
+  
