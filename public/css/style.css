@@ -626,6 +626,10 @@ footer.page-footer a{
   color: #77838f;
   font-weight: 400 !important;
 }
+.token-detail .icon-token{
+  height: 28px;
+  width: 28px;
+}
 
 .loading-spinner{
   height: 100%;

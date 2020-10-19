@@ -8,7 +8,7 @@ block content
     div.container#content.p-sm-0.token-detail
       
       span.h4.content.font-weight-bold 
-        img(style={'height': '28px', 'width': '28px'}).icon-token(src= `${token.icon || '../images/icons/token.png'}`) 
+        img.icon-token(src= `${token.icon || '../images/icons/token.png'}`) 
         | #{title}
         soan.ml-1.symbol #{token?token.symbol:''}
       -if(!token){
