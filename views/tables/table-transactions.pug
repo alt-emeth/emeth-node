@@ -1,4 +1,4 @@
-table#tbTransactions.table.table-striped.mb-0(width='100%')
+table#tbCustom.table.table-striped.mb-0(width='100%')
   thead.head-table
     tr
       th.th_sm.font-weight-bold Tx ID
@@ -17,15 +17,45 @@ table#tbTransactions.table.table-striped.mb-0(width='100%')
             a(href=`tx/${transactions[i].txId}`) #{transactions[i].txId}
         td
           a(href=`blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
-        td(title=transactions[i].source)
-          span.text-truncate.hash-tag
-            a(href='#') #{transactions[i].source}
-        td
-          .circle 
-            i.fas.fa-long-arrow-alt-right
-        td(title=transactions[i].target)
-          span.text-truncate.hash-tag
-            a(href='#') #{transactions[i].target}
+          td(title=transactions[i].source)
+            -if(address){
+              -if(address.toUpperCase() == transactions[i].source.toUpperCase()){
+                span.text-truncate.hash-tag.font-italic #{transactions[i].source}
+              -} else {
+                span.text-truncate.hash-tag
+                  a(href=`/address/${transactions[i].source}`) #{transactions[i].source}
+              -}
+            -} else {
+              span.text-truncate.hash-tag
+                a(href=`/address/${transactions[i].source}`) #{transactions[i].source}
+            -}
+          td
+            .circle 
+              i.fas.fa-long-arrow-alt-right
+          td(title=transactions[i].target.name)
+            -if(address){
+              -if(address.toUpperCase() == transactions[i].target.link.toUpperCase()){
+                span.text-truncate.hash-tag.font-italic #{transactions[i].target.link}
+              -} else {
+                span.text-truncate.hash-tag
+                  -if(transactions[i].target.type === 'token'){
+                    a(href=`/tokens/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  -} else if(transactions[i].target.type === 'store') {
+                    a(href=`/stores/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  -} else {
+                    a(href=`/address/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  -}
+              -}
+            -} else {
+              span.text-truncate.hash-tag
+                -if(transactions[i].target.type === 'token'){
+                  a(href=`/tokens/${transactions[i].target.link}`) #{transactions[i].target.link}
+                -} else if(transactions[i].target.type === 'store') {
+                  a(href=`/stores/${transactions[i].target.link}`) #{transactions[i].target.link}
+                -} else {
+                  a(href=`/address/${transactions[i].target.link}`) #{transactions[i].target.link}
+                -}
+            -}
         td #{transactions[i].amount}
         td #{transactions[i].fee}
         td #{transactions[i].createdAt}

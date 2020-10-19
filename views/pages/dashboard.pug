@@ -1,7 +1,7 @@
-extends layout
+extends ../layout
 block content
   div#wrapper
-    include navbar
+    include ../common/navbar
     div#content.dashboard
       .title
         .container.p-sm-0
@@ -72,7 +72,7 @@ block content
                   div
                     label(for="custom-select").status Show: #{blocks.length}/#{totalBlocks} entries
               hr
-              include lists/list-block
+              include ../lists/list-block
               -for(i = 0; i < blocks.length ;i++){
                 +my-block(blocks[i].blockNumber, blocks[i].createdAt, blocks[i].blockHash, blocks[i].total)
               -}
@@ -88,7 +88,7 @@ block content
                   div
                     label(for="custom-select").status Show: #{transactions.length}/#{totalTransactions} entries
               hr
-              include lists/list-transaction
+              include ../lists/list-transaction
               -for(i = 0; i < transactions.length ;i++){
                 +my-transaction(transactions[i].txId, transactions[i].createdAt, transactions[i].source, transactions[i].target)
               -}
@@ -97,7 +97,7 @@ block content
                 .box-show-more
                   a(href='/transactions') Show more ...
               -}
-    include footer
+    include ../common/footer
   script.
     function handleSearch(){
       const text = $('.search-input').val();

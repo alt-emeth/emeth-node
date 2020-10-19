@@ -30,12 +30,14 @@ export const getSummaryDashboard = async () => {
   return dataRes.data.data;
 };
 
-export const getTransactions = async (offset: number, limit: number) => {
+export const getTransactions = async (offset?: number, limit?: number, address?) => {
   const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
   }
-  const dataRes = await Axios.get(`${url}/transactions?offset=${offset}&limit=${limit}`);
+  const dataRes = await Axios.get(
+    `${url}/transactions?offset=${offset}&limit=${limit}${address ? `&address=${address}` : ''}`
+  );
   if (!dataRes) {
     throw new Error('Respone is error!');
   }
@@ -111,6 +113,21 @@ export const getTokenDetail = async (tokenId: string) => {
     throw new Error('URL does not exist!');
   }
   const dataRes = await Axios.get(`${url}/tokens/${tokenId}`);
+  if (!dataRes) {
+    throw new Error('Respone is error!');
+  }
+  if (dataRes.data.status !== 'success' || dataRes.data.code !== 200) {
+    throw new Error('Internal server error');
+  }
+  return dataRes.data.data;
+};
+
+export const getAddressDetail = async (address: string) => {
+  const url = process.env.BURN_API_URL;
+  if (!url) {
+    throw new Error('URL does not exist!');
+  }
+  const dataRes = await Axios.get(`${url}/address/${address}`);
   if (!dataRes) {
     throw new Error('Respone is error!');
   }

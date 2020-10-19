@@ -10,10 +10,11 @@ import {
   getTransactionDetail,
   getBlockDetail,
   getTokenDetail,
+  getAddressDetail,
 } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
-  res.redirect('/dashboard');
+  res.redirect('pages/dashboard');
 };
 
 export const dashboard = async (req: Request, res: Response) => {
@@ -44,7 +45,7 @@ export const dashboard = async (req: Request, res: Response) => {
       };
     });
 
-    res.render('dashboard', {
+    res.render('pages/dashboard', {
       title: 'The BURN Blockchain Explorer',
       transactions,
       blocks,
@@ -57,7 +58,7 @@ export const dashboard = async (req: Request, res: Response) => {
       totalBalances,
     });
   } catch (error) {
-    res.render('dashboard', {
+    res.render('pages/dashboard', {
       title: 'The BURN Blockchain Explorer',
       transactions: [],
       blocks: [],
@@ -81,14 +82,14 @@ export const transactions = async (req: Request, res: Response) => {
         createdAt: moment(item.createdAt).fromNow(),
       };
     });
-    res.render('transactions', {
+    res.render('pages/transactions', {
       transactions,
       pages,
       currentPage: +page,
       totalPage,
     });
   } catch (error) {
-    res.render('transactions', {
+    res.render('pages/transactions', {
       transactions: [],
       pages: [],
       totalPage: 0,
@@ -110,14 +111,14 @@ export const blocks = async (req: Request, res: Response) => {
         createdAt: moment(item.createdAt).fromNow(),
       };
     });
-    res.render('blocks', {
+    res.render('pages/blocks', {
       blocks,
       pages,
       currentPage: +page,
       totalPage,
     });
   } catch (error) {
-    res.render('blocks', {
+    res.render('pages/blocks', {
       blocks: [],
       pages: [],
       totalPage: 0,
@@ -141,7 +142,7 @@ export const tokens = async (req: Request, res: Response) => {
         transfers: ele.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
       };
     });
-    res.render('tokens', {
+    res.render('pages/tokens', {
       tokens,
       total,
       pages,
@@ -149,7 +150,7 @@ export const tokens = async (req: Request, res: Response) => {
       totalPage,
     });
   } catch (error) {
-    res.render('tokens', {
+    res.render('pages/tokens', {
       tokens: [],
       pages: [],
       totalPage: 0,
@@ -164,12 +165,12 @@ export const getTransaction = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { transactionData } = await getTransactionDetail(key);
-    res.render('detail/transaction', {
+    res.render('page-detail/transaction', {
       title: 'Transaction',
       transactionData,
     });
   } catch (error) {
-    res.render('detail/transaction', {
+    res.render('page-detail/transaction', {
       title: 'Transaction',
       transactionData: null,
     });
@@ -183,7 +184,7 @@ export const getBlock = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { blockData, preBlockNumber, nextBlockNumber } = await getBlockDetail(Number(key));
-    res.render('detail/block', {
+    res.render('page-detail/block', {
       title: 'Blocks',
       code: blockData.blockNumber,
       url: process.env.ETHERSCAN_URL,
@@ -192,7 +193,7 @@ export const getBlock = async (req: Request, res: Response) => {
       blockData,
     });
   } catch (error) {
-    res.render('detail/block', {
+    res.render('page-detail/block', {
       title: 'Blocks',
       code: req.params.id,
       preBlockNumber: null,
@@ -211,13 +212,52 @@ export const getToken = async (req: Request, res: Response) => {
       holders: token.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
       transfers: token.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
     });
-    res.render('detail/token', {
+    res.render('page-detail/token', {
       title: 'Token',
       token,
       url: process.env.BURN_API_URL,
     });
   } catch (error) {
-    res.render('error', {
+    res.render('pages/error', {
+      error,
+    });
+  }
+};
+
+export const getAddress = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    const dataRes = await getAddressDetail(key);
+    const { tokens: dataTokens = [], total: totalTokens = 0 } = await getTokens(0, 10);
+    const tokens = dataTokens.map((ele) => {
+      return {
+        ...ele,
+        totalSupply: ele.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        holders: ele.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        transfers: ele.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+      };
+    });
+    let { transactions = [] } = dataRes;
+    const { total = 0, balances: addressDetail } = dataRes;
+    transactions = transactions.map((item) => {
+      return {
+        ...item,
+        createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
+
+    res.render('page-detail/address', {
+      title: 'Address',
+      tokens,
+      totalTokens,
+      total,
+      transactions,
+      addressDetail,
+      address: key,
+      url: process.env.BURN_API_URL,
+    });
+  } catch (error) {
+    res.render('pages/error', {
       error,
     });
   }

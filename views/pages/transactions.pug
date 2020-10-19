@@ -1,7 +1,7 @@
-extends layout
+extends ../layout
 block content
   div#wrapper(style="background-color: #f5f5f5")
-    include navbar
+    include ../common/navbar
     div#content  
       div.container.mt-5.p-sm-0
         div.row.transactions 
@@ -18,8 +18,8 @@ block content
                         option(value='2') 50
                     label(for="custom-select" style={'margin-left':"5px"}).limit entries
               hr.mb-0
-              include tables/table-transactions
+              include ../tables/table-transactions
               .box-pagination
-                include pagination
+                include ../common/pagination
 
-    include footer
+    include ../common/footer

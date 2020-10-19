@@ -1,7 +1,7 @@
 extends ../layout
 block content
   div#wrapper
-    include ../navbar
+    include ../common/navbar
     div.container#content.p-sm-0.block-detail
       span.h4.content.font-weight-bold #{title}
       -if(!transactionData){
@@ -58,7 +58,7 @@ block content
                 label.col-form-label From:
               .col-sm-8#tx-from
                 span.text-truncate.hash-tag
-                  a#txt-copy #{transactionData.source}
+                  a(href = `/address/${transactionData.source}`)#txt-copy #{transactionData.source}
                 -if(transactionData.target){
                   i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
                 -}
@@ -68,7 +68,13 @@ block content
                 label.col-form-label To:
               .col-sm-8#tx-to
                 span.text-truncate.hash-tag
-                  a#txt-copy #{transactionData.target}
+                  -if(transactionData.target.type === 'token'){
+                    a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -} else if(transactionData.target.type === 'store') {
+                    a(href = `/stores/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -} else {
+                    a(href = `/address/${transactionData.target.link}`)#txt-copy #{transactionData.target.link}
+                  -}
                 -if(transactionData.target){
                   i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
                 -}
@@ -124,7 +130,7 @@ block content
       -}
     
     div(style={"margin-top": "50px"})
-    include ../footer
+    include ../common/footer
   style.
     body {
       background-color: #f5f5f5;
