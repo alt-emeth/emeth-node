@@ -14,7 +14,7 @@ block content
         -if(address){
           .d-flex
             div.addr-copy(data-toggle='modal' data-target='#modalQrCode')
-              i.fa.fa-qrcode(title="Copy signature to clipboard" onclick="handleShowQrCode(this)")
+              i.fa.fa-qrcode(title="Copy signature to clipboard")
         -}
       // Modal QR-Code
       #modalQrCode.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
@@ -40,10 +40,11 @@ block content
                   .col-sm-4
                     label.col-form-label.font-weight-bold Balance:
                   .col-sm-8
-                    .form-control 
-                      -for(item of addressDetail){
-                        span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;  
+                    -for(item of addressDetail){
+                      -if(item.tokenId === tokenSpeical){
+                        span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;
                       -}
+                    -}
                       
           .col-12.col-lg-6.mt-4.mt-lg-0(style={'z-index': '1000'})
             .box-detail

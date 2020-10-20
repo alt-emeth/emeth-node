@@ -14,7 +14,7 @@ import {
 } from '../services/dashboard.service';
 
 export const index = async (req: Request, res: Response) => {
-  res.redirect('pages/dashboard');
+  res.redirect('/dashboard');
 };
 
 export const dashboard = async (req: Request, res: Response) => {
@@ -46,7 +46,6 @@ export const dashboard = async (req: Request, res: Response) => {
     });
 
     res.render('pages/dashboard', {
-      title: 'The BURN Blockchain Explorer',
       transactions,
       blocks,
       totalTransactions,
@@ -59,7 +58,6 @@ export const dashboard = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.render('pages/dashboard', {
-      title: 'The BURN Blockchain Explorer',
       transactions: [],
       blocks: [],
       totalTransactions: 0,
@@ -281,7 +279,7 @@ export const getAddress = async (req: Request, res: Response) => {
       };
     });
     let { transactions = [] } = dataRes;
-    const { total = 0, balances: addressDetail } = dataRes;
+    const { total = 0, tokenSpeical, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -296,6 +294,7 @@ export const getAddress = async (req: Request, res: Response) => {
       total,
       transactions,
       addressDetail,
+      tokenSpeical,
       address: key,
       url: process.env.BURN_API_URL,
     });
