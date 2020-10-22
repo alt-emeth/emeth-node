@@ -112,15 +112,15 @@ block content
                   .tx-data
                     .row 
                       .col-4
-                        label.col-form-label #{`${transactionData.store ? 'Collection' : 'To'}`}:
+                        label.col-form-label #{`${transactionData.store != undefined ? 'Collection' : 'To'}`}:
                       .col-8
-                        span.text-truncate.hash-tag #{`${transactionData.store ? transactionData.data.collection : transactionData.data.to}`}
+                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.collection : transactionData.data.to}`}
                     .row 
                       .col-4
-                        label.col-form-label #{`${transactionData.store ? 'Key' : 'Amount'}`}:
+                        label.col-form-label #{`${transactionData.store != undefined ? 'Key' : 'Amount'}`}:
                       .col-8
-                        span.text-truncate.hash-tag #{`${transactionData.store ? transactionData.data.key : transactionData.data.amount}`}
-                    -if(transactionData.store){
+                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.key : transactionData.data.amount}`}
+                    -if(transactionData.store != undefined){
                       .row 
                         .col-4
                           label.col-form-label Value:
