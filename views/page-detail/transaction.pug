@@ -103,8 +103,8 @@ block content
               .col-sm-8#tx-signature
                 span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
                 i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+            hr
             -if(transactionData.data){
-              hr
               .form-group.row
                 .col-sm-4
                   label.col-form-label Data:
@@ -112,19 +112,21 @@ block content
                   .tx-data
                     .row 
                       .col-4
-                        label.col-form-label Collection:
+                        label.col-form-label #{`${transactionData.store != undefined ? 'Collection' : 'To'}`}:
                       .col-8
-                        span.text-truncate.hash-tag #{transactionData.data.collection}
+                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.collection : transactionData.data.to}`}
                     .row 
                       .col-4
-                        label.col-form-label Key:
+                        label.col-form-label #{`${transactionData.store != undefined ? 'Key' : 'Amount'}`}:
                       .col-8
-                        span.text-truncate.hash-tag #{transactionData.data.key}
-                    .row 
-                      .col-4
-                        label.col-form-label Value:
-                      .col-8
-                        span.text-truncate.hash-tag #{transactionData.data.value}
+                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.key : transactionData.data.amount}`}
+                    -if(transactionData.store != undefined){
+                      .row 
+                        .col-4
+                          label.col-form-label Value:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.value}
+                    -}
             -}
             hr
       -}
