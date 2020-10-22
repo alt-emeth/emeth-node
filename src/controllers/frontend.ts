@@ -11,7 +11,9 @@ import {
   getBlockDetail,
   getTokenDetail,
   getAddressDetail,
+  getStoreDetail,
 } from '../services/dashboard.service';
+import { TOKEN_SPECIAL } from '../config/index';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -156,6 +158,28 @@ export const tokens = async (req: Request, res: Response) => {
   }
 };
 
+export const stores = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 15 } = req.query;
+    const offset = (+page - 1) * +limit;
+    const { total = 0, stores = [] } = await getTokens(offset, +limit);
+    const { pages, totalPage } = pagination(+page, total, +limit);
+
+    res.render('pages/kvs', {
+      stores,
+      pages,
+      currentPage: +page,
+      totalPage,
+    });
+  } catch (error) {
+    res.render('pages/kvs', {
+      stores: [],
+      pages: [],
+      totalPage: 0,
+    });
+  }
+};
+
 export const getTransaction = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
@@ -236,7 +260,7 @@ export const getAddress = async (req: Request, res: Response) => {
       };
     });
     let { transactions = [] } = dataRes;
-    const { total = 0, tokenSpeical, balances: addressDetail } = dataRes;
+    const { total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -251,8 +275,35 @@ export const getAddress = async (req: Request, res: Response) => {
       total,
       transactions,
       addressDetail,
-      tokenSpeical,
+      tokenSpeical: TOKEN_SPECIAL,
       address: key,
+      url: process.env.BURN_API_URL,
+    });
+  } catch (error) {
+    res.render('pages/error', {
+      error,
+    });
+  }
+};
+
+export const getStore = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    const { page = 1, limit = 15 } = req.query;
+    const offset = (+page - 1) * +limit;
+    const dataRes = await getStoreDetail(key, offset, +limit);
+    const { transactions = [], store: storeRes, total = 0 } = dataRes;
+    const { pages, totalPage } = pagination(+page, total, +limit);
+    const store = {
+      ...storeRes,
+      transactions,
+    };
+    res.render('page-detail/store', {
+      title: 'Key-Value Store',
+      store,
+      pages,
+      currentPage: +page,
+      totalPage,
       url: process.env.BURN_API_URL,
     });
   } catch (error) {

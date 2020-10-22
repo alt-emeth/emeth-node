@@ -1,0 +1,276 @@
+extends ../layout
+block content
+  div#wrapper
+    include ../common/navbar
+    div.container#content.p-sm-0.token-detail
+      span.h4.content.font-weight-bold #{title}
+        span.ml-3.symbol #{store?store.name:''}
+      -if(!store){
+        h3.text-center Data empty
+      -} else {
+        .row.overview
+          .col-12.col-lg-6
+            .box-detail
+              form
+                div.title Overview
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Name:
+                  .col-sm-8
+                    span.font-weight-bold.text-truncate.hash-tag #{store.name}
+                      
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Owner:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{store.owner}
+                      
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Txns:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{store.numTransactions}
+                hr
+          .col-12.col-lg-6.mt-4.mt-lg-0
+            .box-detail
+              form
+                div.title Statistics
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Collections:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{store.numCollections}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Keys:
+                  .col-sm-8
+                    span.text-truncate.hash-tag #{store.numKeys}
+                hr
+        .row.content-tab.mt-5
+          .col
+            .box-detail
+              ul.nav.nav-tabs
+                li
+                  a.nav-link.active(href='#transactions' data-toggle='tab') Transactions
+              div.tab-content
+                div.active.tab-pane#transactions
+                  div.d-flex.my-3
+                    div#title-transactions A total of #{store.numTransactions} transactions found
+                    div.mb-3.ml-auto 
+                      div
+                        label(for="custom-select").limit Show:
+                          select#select-limit.custom-select(onchange="handleChangeLimit()")
+                            option(value='0') 15
+                            option(value='1') 30
+                            option(value='2') 50
+                          | &nbsp; entries
+                  hr.mb-0
+                  table#tbCustom.table.table-striped.mb-0(width='100%')
+                    thead.head-table
+                      tr
+                        th.th_sm.font-weight-bold Txn Hash
+                        th.th_sm.font-weight-bold Age
+                        th.th_sm.font-weight-bold From
+                        th.th_sm.font-weight-bold Collection
+                        th.th_sm.font-weight-bold Key
+                        th.th_sm.font-weight-bold Value
+                    tbody#tbody-transactions
+                      -for(tx of store.transactions){
+                        td(title=tx.txnHash)
+                          span.text-truncate.hash-tag
+                            a(href=`/tx/${tx.txnHash}`) #{tx.txnHash}
+                        td
+                          span.text-truncate.hash-tag #{tx.createdAt}
+                        td(title=tx.source)
+                          span.text-truncate.hash-tag
+                            a(href=`/address/${tx.source}`) #{tx.source}
+                        td #{tx.collection}
+                        td #{tx.key}
+                        td #{tx.value}
+                      -}
+                  .box-pagination
+                    include ../common/pagination
+
+      -}
+    div.w-100(style={"margin-top": "50px"})
+      include ../common/footer
+  style.
+    body {
+      background-color: #f5f5f5;
+    }
+  //- script. 
+  //-   $(document).ready(function(){
+  //-     const token = `#{token}`;
+  //-     if(token){
+  //-       $.ajax({
+  //-         method: "GET",
+  //-         url: `#{url}/tokens/transfers-holders/#{token.tokenId}`,
+  //-         success: function( msg ) {
+  //-           const { transfers, holders, pagesTransfers, pagesHolders, totalPageTransfers, totalPageHolders, totalTransfers, totalHolders } = msg.data;
+  //-           renderViewTransfers(transfers, pagesTransfers, 1, totalPageTransfers);
+  //-           renderViewHolders(holders, pagesHolders, 1, totalPageHolders);
+  //-           $('#transfers #title-transfers').text(`A total of ${totalTransfers} transactions found`);
+  //-           $('#holders #title-holders').text(`A total of ${totalHolders} holders`);
+  //-           $('#tbCustom_wrapper').trigger('resize');
+  //-           $('#transfers-loading').hide();
+  //-         },
+  //-         error: function( error ) {
+  //-           $('#transfers-loading').hide();
+  //-         }
+  //-       })
+  //-     } else {
+  //-       $('#transfers-loading').hide();
+  //-     }
+  //-   });
+
+  //-   function renderPagination(element, pages, currentPage, totalPage, test){
+  //-     if(pages.length === 0 || pages[0] === 1){
+  //-       element.append(`
+  //-         <a class= 'btn-floating waves-effect waves-light pagination-button disabled' onclick='customGoToPage${test}(1)'>
+  //-           <img src="/images/double_arrow_left.svg">
+  //-         </a>
+  //-       `)
+  //-     }
+  //-     else {
+  //-       element.append(`
+  //-         <a class= 'btn-floating waves-effect waves-light pagination-button' onclick="customGoToPage${test}(1)">
+  //-           <img src="/images/double_arrow_left.svg" >
+  //-         </a>
+  //-       `)
+  //-     }
+  //-     for(page of pages){
+  //-       if(currentPage === page){
+  //-         element.append(`
+  //-           <a class='btn-floating waves-effect waves-light pagination-button selected' onclick="customGoToPage${test}(${page})">${page}</a>
+  //-         `)
+  //-       } else {
+  //-         element.append(`
+  //-           <a class='btn-floating waves-effect waves-light pagination-button' onclick="customGoToPage${test}(${page})">${page}</a>
+  //-         `)
+  //-       }
+  //-     }
+  //-     if (pages.length === 0 || pages[pages.length - 1] === totalPage){
+  //-       element.append(`
+  //-         <a class= 'btn-floating waves-effect waves-light pagination-button disabled' onclick="customGoToPage${test}(${totalPage})">
+  //-           <img src="/images/double_arrow_right.svg" >
+  //-         </a>
+  //-       `)
+  //-     } else {
+  //-       element.append(`
+  //-         <a class= 'btn-floating waves-effect waves-light pagination-button' onclick="customGoToPage${test}(${totalPage})">
+  //-           <img src="/images/double_arrow_right.svg" >
+  //-         </a>
+  //-       `)
+  //-     }
+  //-   }
+
+  //-   function customGoToPageTransfers(page){
+  //-     $('#transfers-loading').show();
+  //-     $.ajax({
+  //-         method: "GET",
+  //-         url: `#{url}/tokens/transfers/#{token.tokenId}?page=${page}&limit=${25}`,
+  //-         success: function( msg ){
+  //-           const {transfers, pages, currentPage, totalPage} = msg.data;
+  //-           $('#tbody-transfers').children('tr').remove();
+  //-           $('#transfers .pagination').children('a').remove();
+  //-           renderViewTransfers(transfers, pages, currentPage, totalPage);
+  //-           $('#transfers-loading').hide();
+  //-         },
+  //-         error: function( error ) {
+  //-           $('#transfers-loading').hide();
+  //-         }
+  //-     })
+  //-   }
+
+  //-   function customGoToPageHolders(page){
+  //-     $('#transfers-loading').show();
+  //-     $.ajax({
+  //-         method: "GET",
+  //-         url: `#{url}/tokens/holders/#{token.tokenId}?page=${page}&limit=${50}`,
+  //-         success: function( msg ){
+  //-           const {holders, pages, currentPage, totalPage} = msg.data;
+  //-           $('#tbody-holders').children('tr').remove();
+  //-           $('#holders .pagination').children('a').remove();
+  //-           renderViewTransfers(holders, pages, currentPage, totalPage);
+  //-           $('#transfers-loading').hide();
+  //-         },
+  //-         error: function( error ) {
+  //-           $('#transfers-loading').hide();
+  //-         }
+  //-     })
+  //-   }
+
+  //-   function renderViewTransfers(transfers, pages, currentPage, totalPage){
+  //-     const elementTrans = $('#tbody-transfers');
+  //-     const elementPage = $('#transfers .pagination');
+  //-     for(let i = 0; i < transfers.length; i++){
+  //-       $('#tbody-transfers .odd').hide();
+  //-       elementTrans.append(`
+  //-             <tr class=tr-link>
+  //-               <td title=${transfers[i].txId}>
+  //-                 <span class='text-truncate hash-tag'>
+  //-                   <a href=/tx/${transfers[i].txId}>${transfers[i].txId}</a>
+  //-                 </span>
+  //-               </td>
+  //-               <td >
+  //-                 <span class='text-truncate hash-tag'> ${transfers[i].createdAt} </span>
+  //-               </td>
+  //-               <td title=${transfers[i].source}>
+  //-                 <span class='text-truncate hash-tag'>
+  //-                   <a href=/address/${transfers[i].source}>${transfers[i].source}</a>
+  //-                 </span>
+  //-               </td>
+  //-               <td>
+  //-                 <span class='text-truncate hash-tag'>
+  //-                   <div class = circle>
+  //-                     <i class='fas fa-long-arrow-alt-right'></i>
+  //-                   </div>
+  //-                 </span>
+  //-               </td>
+  //-               <td title=${transfers[i].target}>
+  //-                 <span class='text-truncate hash-tag'>
+  //-                   <a href=/address/${transfers[i].target}>${transfers[i].target}</a>
+  //-                 </span>
+  //-               </td>
+  //-               <td>
+  //-                 <span class='text-truncate hash-tag'>${transfers[i].quantity}</span>
+  //-               </td>
+  //-             </tr>
+  //-       `);
+  //-     }
+  //-     renderPagination(elementPage, pages, currentPage, totalPage, 'Transfers');
+  //-   }
+
+  //-   function renderViewHolders(holders, pages, currentPage, totalPage){
+  //-     const elementHolders = $('#tbody-holders');
+  //-     const elementPage = $('#holders .pagination');
+  //-     for(let i = 0; i < holders.length; i++){
+  //-       $('#tbody-holders .odd').hide();
+  //-       elementHolders.append(`
+  //-             <tr class=tr-link>
+  //-               <td >
+  //-                 <span class='text-truncate hash-tag'> ${i+1} </span>
+  //-               </td>
+  //-               <td>
+  //-                 <span class='text-truncate hash-tag'>
+  //-                   <a href= #>${holders[i].address}</a>
+  //-                 </span>
+  //-               </td>
+  //-               <td >
+  //-                 <span class='text-truncate hash-tag'> ${holders[i].quantity} </span>
+  //-               </td>
+  //-               <td >
+  //-                 <span class='text-truncate hash-tag'> ${holders[i].percentage} </span>
+  //-               </td>
+  //-             </tr>
+  //-       `);
+  //-     }
+  //-     renderPagination(elementPage, pages, currentPage, totalPage, 'Holders');
+  //-   }
+
+
