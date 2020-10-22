@@ -10,15 +10,15 @@ block content
       -for(store of stores){
         tr.tr-link
           td 
-            a(href=`stores/${store.storeId}`) #{store.storeName}
+            a(href=`/stores/${store.storeId}`) #{store.name}
           td(title=store.storeId)
             span.text-truncate.hash-tag
-              a(href=`stores/${store.storeId}`) #{store.storeId}
+              a(href=`/stores/${store.storeId}`) #{store.id}
           td()
             span.text-truncate.hash-tag
-              a(href=`/kv/${store.kvs}`) #{store.collections}
+              a(href=`/kv/${store.kvs}`) #{store.numCollections}
           td(title=store.values)
             span.text-truncate.hash-tag
-              a(href=`/kv/${store.kvs}`) #{store.values}
+              a(href=`/kv/${store.kvs}`) #{store.numKeys}
       -}
   

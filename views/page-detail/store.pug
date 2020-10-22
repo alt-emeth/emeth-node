@@ -32,7 +32,7 @@ block content
                   .col-sm-4
                     label.col-form-label Txns:
                   .col-sm-8
-                    span.text-truncate.hash-tag #{store.totalTxns}
+                    span.text-truncate.hash-tag #{store.numTransactions}
                 hr
           .col-12.col-lg-6.mt-4.mt-lg-0
             .box-detail
@@ -43,19 +43,13 @@ block content
                   .col-sm-4
                     label.col-form-label Collections:
                   .col-sm-8
-                    span.text-truncate.hash-tag #{store.collections}
+                    span.text-truncate.hash-tag #{store.numCollections}
                 hr
                 .form-group.row
                   .col-sm-4
                     label.col-form-label Keys:
                   .col-sm-8
-                    span.text-truncate.hash-tag #{store.keys}
-                hr
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Key-Values:
-                  .col-sm-8
-                    span.text-truncate.hash-tag #{store.values}
+                    span.text-truncate.hash-tag #{store.numKeys}
                 hr
         .row.content-tab.mt-5
           .col
@@ -66,7 +60,7 @@ block content
               div.tab-content
                 div.active.tab-pane#transactions
                   div.d-flex.my-3
-                    div#title-transactions A total of #{store.totalTxns} transactions found
+                    div#title-transactions A total of #{store.numTransactions} transactions found
                     div.mb-3.ml-auto 
                       div
                         label(for="custom-select").limit Show:

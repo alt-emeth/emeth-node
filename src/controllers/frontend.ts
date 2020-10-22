@@ -11,7 +11,9 @@ import {
   getBlockDetail,
   getTokenDetail,
   getAddressDetail,
+  getStoreDetail,
 } from '../services/dashboard.service';
+import { TOKEN_SPECIAL } from '../config/index';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -158,37 +160,16 @@ export const tokens = async (req: Request, res: Response) => {
 
 export const stores = async (req: Request, res: Response) => {
   try {
-    // const { page = 1, limit = 15 } = req.query;
-    // const offset = (+page - 1) * +limit;
-    // const dataRes = await getTokens(offset, +limit);
-    // const { total = 0 } = dataRes;
-    // const { pages, totalPage } = pagination(+page, total, +limit);
-    const stores = [
-      {
-        storeName: 'Store 1',
-        storeId: '0x123456789adadadwadwadawd0',
-        collections: 4,
-        values: 128,
-      },
-      {
-        storeName: 'Store 2',
-        storeId: '0x123456789adadadwadwadawd0',
-        collections: 4,
-        values: 128,
-      },
-      {
-        storeName: 'Store 3',
-        storeId: '0x123456789adadadwadwadawd0',
-        collections: 4,
-        values: 128,
-      },
-    ];
+    const { page = 1, limit = 15 } = req.query;
+    const offset = (+page - 1) * +limit;
+    const { total = 0, stores = [] } = await getTokens(offset, +limit);
+    const { pages, totalPage } = pagination(+page, total, +limit);
 
     res.render('pages/kvs', {
       stores,
-      pages: [1, 2, 3],
-      currentPage: 2,
-      totalPage: 5,
+      pages,
+      currentPage: +page,
+      totalPage,
     });
   } catch (error) {
     res.render('pages/kvs', {
@@ -279,7 +260,7 @@ export const getAddress = async (req: Request, res: Response) => {
       };
     });
     let { transactions = [] } = dataRes;
-    const { total = 0, tokenSpeical, balances: addressDetail } = dataRes;
+    const { total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -294,7 +275,7 @@ export const getAddress = async (req: Request, res: Response) => {
       total,
       transactions,
       addressDetail,
-      tokenSpeical,
+      tokenSpeical: TOKEN_SPECIAL,
       address: key,
       url: process.env.BURN_API_URL,
     });
@@ -307,32 +288,22 @@ export const getAddress = async (req: Request, res: Response) => {
 
 export const getStore = async (req: Request, res: Response) => {
   try {
-    // const key = req.params.id;
+    const key = req.params.id;
+    const { page = 1, limit = 15 } = req.query;
+    const offset = (+page - 1) * +limit;
+    const dataRes = await getStoreDetail(key, offset, +limit);
+    const { transactions = [], store: storeRes, total = 0 } = dataRes;
+    const { pages, totalPage } = pagination(+page, total, +limit);
     const store = {
-      name: 'Store 1',
-      owner: '0x123456789abcedfe12345',
-      totalTxns: 1,
-      collections: 8,
-      keys: 16,
-      values: 234,
-      transactions: [
-        {
-          txnHash: '0x123456789',
-          source: '0x123456789',
-          age: '3 days ago',
-          collection: '0x123456',
-          key: '0x123456',
-          value: '0x123456',
-        },
-      ],
+      ...storeRes,
+      transactions,
     };
-
     res.render('page-detail/store', {
       title: 'Key-Value Store',
       store,
-      pages: [1, 2, 3],
-      currentPage: 2,
-      totalPage: 5,
+      pages,
+      currentPage: +page,
+      totalPage,
       url: process.env.BURN_API_URL,
     });
   } catch (error) {
