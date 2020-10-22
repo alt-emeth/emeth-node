@@ -18,15 +18,15 @@ block content
                   .col-sm-4
                     label.col-form-label Name:
                   .col-sm-8
-                    .form-control 
-                      span.font-weight-bold.text-truncate.hash-tag #{store.name}
+                    span.font-weight-bold.text-truncate.hash-tag #{store.name}
+                      
                 hr
                 .form-group.row
                   .col-sm-4
                     label.col-form-label Owner:
                   .col-sm-8
-                    .form-control
-                      span.text-truncate.hash-tag #{store.owner}
+                    span.text-truncate.hash-tag #{store.owner}
+                      
                 hr
                 .form-group.row
                   .col-sm-4
@@ -85,7 +85,7 @@ block content
                           span.text-truncate.hash-tag
                             a(href=`/tx/${tx.txnHash}`) #{tx.txnHash}
                         td
-                          span.text-truncate.hash-tag #{tx.age}
+                          span.text-truncate.hash-tag #{tx.createdAt}
                         td(title=tx.source)
                           span.text-truncate.hash-tag
                             a(href=`/address/${tx.source}`) #{tx.source}
