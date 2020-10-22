@@ -718,7 +718,7 @@ footer.page-footer a{
 
 .addr-detail .line-token{
   border-bottom: 1px solid #e7eaf3;
-  padding-bottom: .25rem;
+  padding: 5px;
   margin-bottom: .25rem;
 }
 
