@@ -817,6 +817,20 @@ footer.page-footer a{
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);
   width: 60%;
 }
+.kv-page .box-table .box-form{
+  border: 1px solid #d6d9e0;
+}
+.kv-page .box-table .form-group{
+  width: 100%;
+  margin-left: 0;
+}
+.kv-page .box-table .tb-header{
+  background-color: #f5f5f5;
+}
+
+.kv-page .box-table .box-form .col-left{
+  border-right: 1px solid #d6d9e0;
+}
 /*
   Token
 */
