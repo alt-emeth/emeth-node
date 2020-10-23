@@ -313,6 +313,24 @@ export const getStore = async (req: Request, res: Response) => {
   }
 };
 
+export const keyValues = async (req: Request, res: Response) => {
+  try {
+    const key = req.params.id;
+    const keyValues = {
+      storeName: 'BURN Name Server',
+      collections: ['collection1', 'collection2', 'collection3'],
+    };
+    res.render('page-detail/key-values', {
+      title: 'Key-Value',
+      keyValues,
+    });
+  } catch (error) {
+    res.render('pages/error', {
+      error,
+    });
+  }
+};
+
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
   const totalPage = Math.ceil(total / totalPerPage);
   const totalShow = Math.min(page > totalPage ? 0 : totalPage, totalPageShow);
