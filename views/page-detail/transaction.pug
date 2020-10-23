@@ -112,17 +112,17 @@ block content
                   .tx-data
                     .row 
                       .col-4
-                        label.col-form-label #{`${transactionData.store != undefined ? 'Collection' : 'Function'}`}:
+                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Collection' : 'Function'}`}:
                       .col-8
                         span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.collection : transactionData.data.function}`}
                     .row 
                       .col-4
-                        label.col-form-label #{`${transactionData.store != undefined ? 'Key' : 'Params[0]'}`}:
+                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Key' : 'Params[0]'}`}:
                       .col-8
                         span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.key : transactionData.data.params0}`}
                     .row 
                       .col-4
-                        label.col-form-label #{`${transactionData.store != undefined ? 'Value' : 'Params[1]'}`}:
+                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Value' : 'Params[1]'}`}:
                       .col-8
                         span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.value : transactionData.data.params1}`}
             -}
