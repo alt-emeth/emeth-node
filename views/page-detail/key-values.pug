@@ -1,0 +1,56 @@
+extends ../layout
+block content
+  div#wrapper
+    include ../common/navbar
+    div.container#content.p-sm-0.token-detail.kv-page
+      span.h4.content.font-weight-bold #{title}
+        span.ml-3.symbol #{keyValues?keyValues.storeName:''}
+      -if(!keyValues){
+        h3.text-center Data empty
+      -} else {
+        .row.content-tab
+          .col
+            .box-detail.box-table
+              div.d-flex.my-3
+                div.mb-3.mr-auto
+                  div
+                    select#select-collection.custom-select(onchange="handleChangeCollection()")
+                      -for(index in keyValues.collections){
+                        -if(index == selected){
+                          option(value=`${index}` selected) #{keyValues.collections[index]}
+                        -} else {
+                          option(value=`${index}`) #{keyValues.collections[index]}
+                        -}
+                      -}
+              form.box-form.mb-3
+                .form-group.row.tb-header
+                  .col-sm-5.col-left
+                    label.col-form-label.font-weight-bold Key
+                  .col-sm-7
+                    span.font-weight-bold.text-truncate.hash-tag Value
+                hr.m-0
+                -for(data of keyValues.list){
+                  .form-group.row.tb-body
+                    .col-sm-5.col-left.py-2
+                      label.col-form-label #{data.key}
+                    .col-sm-7.col-right.py-2
+                      span.text-truncate.hash-tag #{data.value}
+                  hr.my-0
+                -}
+                  
+      -}
+    div.w-100(style={"margin-top": "50px"})
+      include ../common/footer
+  style.
+    body {
+      background-color: #f5f5f5;
+    }
+
+  script. 
+    function handleChangeCollection(){
+        const key = $('#select-collection').val();
+        const url = new URL(window.location.href);
+        url.searchParams.set('collection', (`#{keyValues.collections}`).split(',')[key]);
+        window.location.assign(url.toString());
+      } 
+    

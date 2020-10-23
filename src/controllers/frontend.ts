@@ -7,11 +7,13 @@ import {
   getTransactions,
   getBlocks,
   getTokens,
+  getStores,
   getTransactionDetail,
   getBlockDetail,
   getTokenDetail,
   getAddressDetail,
   getStoreDetail,
+  getKvsDetail,
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL } from '../config/index';
 
@@ -162,7 +164,7 @@ export const stores = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 15 } = req.query;
     const offset = (+page - 1) * +limit;
-    const { total = 0, stores = [] } = await getTokens(offset, +limit);
+    const { total = 0, stores = [] } = await getStores(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
 
     res.render('pages/kvs', {
@@ -305,6 +307,30 @@ export const getStore = async (req: Request, res: Response) => {
       currentPage: +page,
       totalPage,
       url: process.env.BURN_API_URL,
+    });
+  } catch (error) {
+    res.render('pages/error', {
+      error,
+    });
+  }
+};
+
+export const keyValues = async (req: Request, res: Response) => {
+  try {
+    let selected = 0;
+    const key = req.params.id;
+    const { collection } = req.query;
+    let keyValues;
+    if (collection) {
+      keyValues = await getKvsDetail(key, String(collection));
+      selected = keyValues.collections.indexOf(String(collection));
+    } else {
+      keyValues = await getKvsDetail(key);
+    }
+    res.render('page-detail/key-values', {
+      title: 'Key-Value',
+      keyValues,
+      selected,
     });
   } catch (error) {
     res.render('pages/error', {

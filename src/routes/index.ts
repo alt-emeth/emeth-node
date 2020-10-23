@@ -15,5 +15,6 @@ router.get('/blocks/:id', frontendController.getBlock);
 router.get('/tokens/:id', frontendController.getToken);
 router.get('/address/:id', frontendController.getAddress);
 router.get('/stores/:id', frontendController.getStore);
+router.get('/kv/:id', frontendController.keyValues);
 
 export default router;

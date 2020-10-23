@@ -30,7 +30,7 @@ export const getSummaryDashboard = async () => {
   return dataRes.data.data;
 };
 
-export const getTransactions = async (offset?: number, limit?: number, address?) => {
+export const getTransactions = async (offset?: number, limit?: number, address?: string) => {
   const url = process.env.BURN_API_URL;
   if (!url) {
     throw new Error('URL does not exist!');
@@ -157,7 +157,22 @@ export const getStoreDetail = async (address: string, offset: number, limit: num
   if (!url) {
     throw new Error('URL does not exist!');
   }
-  const dataRes = await Axios.get(`${url}/stores/${address}/?offset=${offset}&limit=${limit}`);
+  const dataRes = await Axios.get(`${url}/stores/${address}?offset=${offset}&limit=${limit}`);
+  if (!dataRes) {
+    throw new Error('Respone is error!');
+  }
+  if (dataRes.data.status !== 'success' || dataRes.data.code !== 200) {
+    throw new Error('Internal server error');
+  }
+  return dataRes.data.data;
+};
+
+export const getKvsDetail = async (address: string, collection?: string) => {
+  const url = process.env.BURN_API_URL;
+  if (!url) {
+    throw new Error('URL does not exist!');
+  }
+  const dataRes = await Axios.get(`${url}/kv/${address}${collection ? `?collection=${collection}` : ''} `);
   if (!dataRes) {
     throw new Error('Respone is error!');
   }
