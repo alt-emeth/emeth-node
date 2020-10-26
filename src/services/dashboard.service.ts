@@ -172,7 +172,7 @@ export const getKvsDetail = async (address: string, collection?: string) => {
   if (!url) {
     throw new Error('URL does not exist!');
   }
-  const dataRes = await Axios.get(`${url}/kv/${address}${collection ? `?collection=${collection}` : ''} `);
+  const dataRes = await Axios.get(`${url}/kvs/${address}${collection ? `?collection=${collection}` : ''} `);
   if (!dataRes) {
     throw new Error('Respone is error!');
   }

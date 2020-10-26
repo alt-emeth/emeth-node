@@ -16,9 +16,9 @@ block content
               a(href=`/stores/${store.id}`) #{store.id}
           td()
             span.text-truncate.hash-tag
-              a(href=`/kv/${store.id}`) #{store.numCollections}
+              a(href=`/kvs/${store.id}`) #{store.numCollections}
           td(title=store.values)
             span.text-truncate.hash-tag
-              a(href=`/kv/${store.id}`) #{store.numKeys}
+              a(href=`/kvs/${store.id}`) #{store.numKeys}
       -}
   
