@@ -110,21 +110,39 @@ block content
                   label.col-form-label Data:
                 .col-sm-8
                   .tx-data
-                    .row 
-                      .col-4
-                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Collection' : 'Function'}`}:
-                      .col-8
-                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.collection : transactionData.data.function}`}
-                    .row 
-                      .col-4
-                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Key' : 'Params[0]'}`}:
-                      .col-8
-                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.key : transactionData.data.params0}`}
-                    .row 
-                      .col-4
-                        label(style={'font-weight': '450'}).col-form-label #{`${transactionData.store != undefined ? 'Value' : 'Params[1]'}`}:
-                      .col-8
-                        span.text-truncate.hash-tag #{`${transactionData.store != undefined ? transactionData.data.value : transactionData.data.params1}`}
+                    -if(transactionData.store != undefined){
+                      .row 
+                        .col-4
+                          label(style={'font-weight': '450'}).col-form-label Collection:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.collection}
+                      .row 
+                        .col-4
+                          label(style={'font-weight': '450'}).col-form-label Key:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.key}
+                      .row 
+                        .col-4
+                          label(style={'font-weight': '450'}).col-form-label Value:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.value}
+                    -} else {
+                      .row 
+                        .col-4
+                          label(style={'font-weight': '450'}).col-form-label Function:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.function}
+                      -for(index in transactionData.data.decodedData){
+                        -if(!isNaN(index)){
+                          .row 
+                            .col-4
+                              label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                            .col-8
+                              span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                        -}
+                        
+                      -}
+                    -}
             -}
             hr
       -}
