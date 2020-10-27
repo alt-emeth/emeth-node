@@ -81,9 +81,9 @@ block content
                         th.th_sm.font-weight-bold Value
                     tbody#tbody-transactions
                       -for(tx of store.transactions){
-                        td(title=tx.txnHash)
+                        td(title=tx.txId)
                           span.text-truncate.hash-tag
-                            a(href=`/tx/${tx.txnHash}`) #{tx.txnHash}
+                            a(href=`/tx/${tx.txId}`) #{tx.txId}
                         td
                           span.text-truncate.hash-tag #{tx.createdAt}
                         td(title=tx.source)
