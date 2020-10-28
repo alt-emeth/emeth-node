@@ -15,7 +15,7 @@ import {
   getStoreDetail,
   getKvsDetail,
 } from '../services/dashboard.service';
-import { TOKEN_SPECIAL } from '../config/index';
+import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -72,7 +72,7 @@ export const dashboard = async (req: Request, res: Response) => {
 
 export const transactions = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 15 } = req.query;
+    const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
     const dataRes = await getTransactions(+offset, +limit);
     let { transactions = [] } = dataRes;
@@ -89,6 +89,8 @@ export const transactions = async (req: Request, res: Response) => {
       pages,
       currentPage: +page,
       totalPage,
+      selectList: SELECT_LIMIT,
+      selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
     res.render('pages/transactions', {
@@ -101,7 +103,7 @@ export const transactions = async (req: Request, res: Response) => {
 
 export const blocks = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 15 } = req.query;
+    const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
     const dataRes = await getBlocks(offset, +limit);
     let { blocks = [] } = dataRes;
@@ -118,6 +120,8 @@ export const blocks = async (req: Request, res: Response) => {
       pages,
       currentPage: +page,
       totalPage,
+      selectList: SELECT_LIMIT,
+      selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
     res.render('pages/blocks', {
@@ -130,7 +134,7 @@ export const blocks = async (req: Request, res: Response) => {
 
 export const tokens = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 15 } = req.query;
+    const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
     const dataRes = await getTokens(offset, +limit);
     let { tokens = [] } = dataRes;
@@ -150,6 +154,8 @@ export const tokens = async (req: Request, res: Response) => {
       pages,
       currentPage: +page,
       totalPage,
+      selectList: SELECT_LIMIT,
+      selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
     res.render('pages/tokens', {
@@ -162,7 +168,7 @@ export const tokens = async (req: Request, res: Response) => {
 
 export const stores = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 15 } = req.query;
+    const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
     const { total = 0, stores = [] } = await getStores(offset, +limit);
     const { pages, totalPage } = pagination(+page, total, +limit);
@@ -172,6 +178,8 @@ export const stores = async (req: Request, res: Response) => {
       pages,
       currentPage: +page,
       totalPage,
+      selectList: SELECT_LIMIT,
+      selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
     res.render('pages/kvs', {
@@ -291,7 +299,7 @@ export const getAddress = async (req: Request, res: Response) => {
 export const getStore = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
-    const { page = 1, limit = 15 } = req.query;
+    const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
     const dataRes = await getStoreDetail(key, offset, +limit);
     const { transactions = [], store: storeRes, total = 0 } = dataRes;
@@ -307,6 +315,8 @@ export const getStore = async (req: Request, res: Response) => {
       currentPage: +page,
       totalPage,
       url: process.env.BURN_API_URL,
+      selectList: SELECT_LIMIT,
+      selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
     res.render('pages/error', {
