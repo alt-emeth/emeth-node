@@ -12,10 +12,7 @@ block content
                 div.col-lg-6.col-12
                   div
                     label(for="custom-select").limit Show:
-                      select#select-limit.custom-select(onchange="handleChangeLimit()")
-                        option(value='0') 15
-                        option(value='1') 30
-                        option(value='2') 50
+                      include ../common/select
                     label(for="custom-select" style={'margin-left':"5px"}).limit entries
               hr.mb-0
               include ../tables/table-transactions

@@ -64,10 +64,7 @@ block content
                     div.mb-3.ml-auto 
                       div
                         label(for="custom-select").limit Show:
-                          select#select-limit.custom-select(onchange="handleChangeLimit()")
-                            option(value='0') 15
-                            option(value='1') 30
-                            option(value='2') 50
+                          include ../common/select
                           | &nbsp; entries
                   hr.mb-0
                   table#tbCustom.table.table-striped.mb-0(width='100%')

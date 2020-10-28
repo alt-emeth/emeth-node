@@ -37,7 +37,6 @@ block content
                       span.text-truncate.hash-tag #{data.value}
                   hr.my-0
                 -}
-                  
       -}
     div.w-100(style={"margin-top": "50px"})
       include ../common/footer
@@ -48,9 +47,9 @@ block content
 
   script. 
     function handleChangeCollection(){
-        const key = $('#select-collection').val();
-        const url = new URL(window.location.href);
-        url.searchParams.set('collection', (`#{keyValues.collections}`).split(',')[key]);
-        window.location.assign(url.toString());
-      } 
+      const key = $('#select-collection').val();
+      const url = new URL(window.location.href);
+      url.searchParams.set('collection', (`#{keyValues.collections}`).split(',')[key]);
+      window.location.assign(url.toString());
+    } 
     

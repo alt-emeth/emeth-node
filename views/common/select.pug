@@ -1,0 +1,8 @@
+select#select-limit.custom-select(onchange="handleChangeLimit()")
+  -for(index in selectList){
+    -if(index == selected){
+      option(value=`${index}` selected) #{selectList[index]}
+    -} else {
+      option(value=`${index}`) #{selectList[index]}
+    -}
+  -}
