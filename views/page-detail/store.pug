@@ -86,9 +86,9 @@ block content
                         td(title=tx.source)
                           span.text-truncate.hash-tag
                             a(href=`/address/${tx.source}`) #{tx.source}
-                        td #{tx.collection}
-                        td #{tx.key}
-                        td #{tx.value}
+                        td #{tx.data.decodedData[0]}
+                        td #{tx.data.decodedData[1]}
+                        td #{tx.data.decodedData[2]}
                       -}
                   .box-pagination
                     include ../common/pagination
