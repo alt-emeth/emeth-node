@@ -16,6 +16,7 @@ import {
   getKvsDetail,
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
+import { addressPrefix } from '../app';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -59,6 +60,7 @@ export const dashboard = async (req: Request, res: Response) => {
       latestCheckPoint,
       totalStores,
       totalBalances,
+      addressPrefix,
     });
   } catch (error) {
     res.render('pages/dashboard', {
@@ -91,6 +93,7 @@ export const transactions = async (req: Request, res: Response) => {
       totalPage,
       selectList: SELECT_LIMIT,
       selected: SELECT_LIMIT.indexOf(Number(limit)),
+      addressPrefix,
     });
   } catch (error) {
     res.render('pages/transactions', {
@@ -200,6 +203,7 @@ export const getTransaction = async (req: Request, res: Response) => {
     res.render('page-detail/transaction', {
       title: 'Transaction',
       transactionData,
+      addressPrefix,
     });
   } catch (error) {
     res.render('page-detail/transaction', {
@@ -288,6 +292,7 @@ export const getAddress = async (req: Request, res: Response) => {
       tokenSpeical: TOKEN_SPECIAL,
       address: key,
       url: process.env.BURN_API_URL,
+      addressPrefix,
     });
   } catch (error) {
     res.render('pages/error', {
@@ -317,6 +322,7 @@ export const getStore = async (req: Request, res: Response) => {
       url: process.env.BURN_API_URL,
       selectList: SELECT_LIMIT,
       selected: SELECT_LIMIT.indexOf(Number(limit)),
+      addressPrefix,
     });
   } catch (error) {
     res.render('pages/error', {

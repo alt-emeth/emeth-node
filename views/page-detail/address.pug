@@ -5,7 +5,7 @@ block content
     div.container#content.p-sm-0.token-detail.addr-detail
       .d-flex
         .h4.mb-0.content.font-weight-bold #{title}
-          span.ml-1.address#txt-copy #{address}
+          span.ml-1.address#txt-copy #{address.replace('0x', `${addressPrefix}`)}
         -if(address){
           .d-flex
             div.addr-copy
