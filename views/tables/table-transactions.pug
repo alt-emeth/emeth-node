@@ -1,3 +1,4 @@
+include ../helpers/helper.js.pug
 table#tbCustom.table.table-striped.mb-0(width='100%')
   thead.head-table
     tr
@@ -19,41 +20,30 @@ table#tbCustom.table.table-striped.mb-0(width='100%')
           a(href=`/blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
           td(title=transactions[i].source)
             -if(address){
-              -if(address.toUpperCase() == transactions[i].source.toUpperCase()){
-                span.text-truncate.hash-tag.font-italic #{transactions[i].source}
+              -if(address == transactions[i].source){
+                span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].source, addressPrefix)}
               -} else {
                 span.text-truncate.hash-tag
-                  a(href=`/address/${transactions[i].source}`) #{transactions[i].source}
+                  a(href=`/address/${transactions[i].source}`) #{replaceAddress(transactions[i].source, addressPrefix)}
               -}
             -} else {
               span.text-truncate.hash-tag
-                a(href=`/address/${transactions[i].source}`) #{transactions[i].source}
+                a(href=`/address/${transactions[i].source}`) #{replaceAddress(transactions[i].source, addressPrefix)}
             -}
           td
             .circle 
               i.fas.fa-long-arrow-alt-right
           td(title=transactions[i].target.name)
-            -if(address){
-              -if(address.toUpperCase() == transactions[i].target.link.toUpperCase()){
-                span.text-truncate.hash-tag.font-italic #{transactions[i].target.link}
-              -} else {
-                span.text-truncate.hash-tag
-                  -if(transactions[i].target.type === 'token'){
-                    a(href=`/tokens/${transactions[i].target.link}`) #{transactions[i].target.link}
-                  -} else if(transactions[i].target.type === 'store') {
-                    a(href=`/stores/${transactions[i].target.link}`) #{transactions[i].target.link}
-                  -} else {
-                    a(href=`/address/${transactions[i].target.link}`) #{transactions[i].target.link}
-                  -}
-              -}
+            -if(address === transactions[i].target.link){
+              span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].target.link, addressPrefix)} else {
             -} else {
               span.text-truncate.hash-tag
                 -if(transactions[i].target.type === 'token'){
-                  a(href=`/tokens/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  a(href=`/tokens/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
                 -} else if(transactions[i].target.type === 'store') {
-                  a(href=`/stores/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  a(href=`/stores/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
                 -} else {
-                  a(href=`/address/${transactions[i].target.link}`) #{transactions[i].target.link}
+                  a(href=`/address/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
                 -}
             -}
         td #{transactions[i].amount}

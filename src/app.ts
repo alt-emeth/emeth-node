@@ -11,6 +11,7 @@ import routes from './routes/index';
 dotenv.config();
 const app = express();
 
+export const addressPrefix = process.env.ADDRESS_PREFIX || '0x';
 // config axios
 Axios.defaults.baseURL = process.env.BURN_API_URL;
 

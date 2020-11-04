@@ -1,4 +1,5 @@
 mixin my-transaction(txId, time, addrFrom, addrTo)
+  include ../helpers/helper.js.pug
   .row
     .col-sm-4
       .d-flex.align-items-sm-center
@@ -14,15 +15,15 @@ mixin my-transaction(txId, time, addrFrom, addrTo)
         div(style={'max-width': '100%'})
           .transaction-addr
             span(style={'white-space': 'nowrap'}) From 
-              a(href=`/address/${addrFrom}`) #{addrFrom?addrFrom:'...'}
+              a(href=`/address/${addrFrom}`) #{replaceAddress(addrFrom, addressPrefix)}
           .transaction-addr
             span(style={'white-space': 'nowrap'}) To 
               -if(transactions[i].target.type === 'token'){
-                a(href=`/tokens/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+                a(href=`/tokens/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
               -} else if(transactions[i].target.type === 'store') {
-                a(href=`/stores/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+                a(href=`/stores/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
               -} else {
-                a(href=`/address/${addrTo.link}`) #{addrTo?addrTo.link:'...'}
+                a(href=`/address/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
               -}
   hr
 

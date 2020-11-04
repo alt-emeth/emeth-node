@@ -1,20 +1,24 @@
 extends ../layout
 block content
+  include ../helpers/helper.js.pug
   div#wrapper
     include ../common/navbar
+    .notifi-copy
+      .alert#notifi-copy.alert-success.alert-dismissible.fade(role='alert' style='display: none;') 
+        span Copied
     div.container#content.p-sm-0.token-detail.addr-detail
       .d-flex
         .h4.mb-0.content.font-weight-bold #{title}
-          span.ml-1.address#txt-copy #{address}
+          span.ml-1.address#txt-copy #{replaceAddress(address, addressPrefix)}
         -if(address){
           .d-flex
-            div.addr-copy
-              i.far.fa-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+            div.addr-copy(data-toggle='tooltip' data-placement='top' title='Copy address to clipboard')
+              i.far.fa-copy(onclick="handleCopy(this)")
         -}
         -if(address){
           .d-flex
-            div.addr-copy(data-toggle='modal' data-target='#modalQrCode')
-              i.fa.fa-qrcode(title="Copy signature to clipboard")
+            div.addr-copy(data-toggle='modal' data-target='#modalQrCode' title = 'Show QR code' )
+              i.fa.fa-qrcode
         -}
       // Modal QR-Code
       #modalQrCode.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
@@ -100,4 +104,10 @@ block content
       textArea.select();
       document.execCommand("Copy");
       textArea.remove();
+      $(`#notifi-copy`).show();
+      $(`#notifi-copy`).addClass('show');
+      setTimeout(function(){
+        $(`#notifi-copy`).removeClass('show');
+        $(`#notifi-copy`).hide();
+      },1000)
     }
