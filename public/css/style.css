@@ -877,3 +877,19 @@ footer.page-footer a{
 .tokens .form-search{
   width: 100%;
 }
+
+/* alert copy*/
+.notifi-copy{
+  position: absolute;
+  top: 5px;
+  display: flex;
+  left: calc(50% - 45px);
+}
+.notifi-copy .alert{
+  text-align: center;
+  width: 90px;
+  height: 30px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
