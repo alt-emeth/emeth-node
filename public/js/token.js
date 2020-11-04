@@ -8,7 +8,7 @@ $(document).ready(function () {
   if (token) {
     $.ajax({
       method: 'GET',
-      url: `${url}/tokens/transfers-holders/0x0ec344252ed14124708dfdd6f1a375d5b33971ba`,
+      url: `${url}/tokens/transfers-holders/${tokenId}`,
       success: function (msg) {
         const {
           transfers,
@@ -80,7 +80,7 @@ function customGoToPageTransfers(page) {
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
-    url: `${url}/tokens/transfers/0x0ec344252ed14124708dfdd6f1a375d5b33971ba?page=${page}&limit=${limit}`,
+    url: `${url}/tokens/transfers/${tokenId}?page=${page}&limit=${limit}`,
     success: function (msg) {
       const { transfers, pages, currentPage, totalPage } = msg.data;
       $('#tbody-transfers').children('tr').remove();
@@ -98,7 +98,7 @@ function customGoToPageHolders(page) {
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
-    url: `${url}/tokens/holders/0x0ec344252ed14124708dfdd6f1a375d5b33971ba?page=${page}&limit=${limit}`,
+    url: `${url}/tokens/holders/${tokenId}?page=${page}&limit=${limit}`,
     success: function (msg) {
       const { holders, pages, currentPage, totalPage } = msg.data;
       $('#tbody-holders').children('tr').remove();
