@@ -146,9 +146,9 @@ export const tokens = async (req: Request, res: Response) => {
     tokens = tokens.map((ele) => {
       return {
         ...ele,
-        totalSupply: ele.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-        holders: ele.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-        transfers: ele.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        totalSupply: formatNumber(ele.totalSupply),
+        holders: formatNumber(ele.holders),
+        transfers: formatNumber(ele.transfers),
       };
     });
     res.render('pages/tokens', {
@@ -244,9 +244,9 @@ export const getToken = async (req: Request, res: Response) => {
     const key = req.params.id;
     const { token } = await getTokenDetail(key);
     Object.assign(token, {
-      totalSupply: token.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-      holders: token.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-      transfers: token.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+      totalSupply: formatNumber(token.totalSupply),
+      holders: formatNumber(token.holders),
+      transfers: formatNumber(token.transfers),
     });
     res.render('page-detail/token', {
       title: 'Token',
@@ -268,9 +268,9 @@ export const getAddress = async (req: Request, res: Response) => {
     const tokens = dataTokens.map((ele) => {
       return {
         ...ele,
-        totalSupply: ele.totalSupply.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-        holders: ele.holders.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
-        transfers: ele.transfers.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,'),
+        totalSupply: formatNumber(ele.totalSupply),
+        holders: formatNumber(ele.holders),
+        transfers: formatNumber(ele.transfers),
       };
     });
     let { transactions = [] } = dataRes;
@@ -353,6 +353,13 @@ export const keyValues = async (req: Request, res: Response) => {
       error,
     });
   }
+};
+
+const formatNumber = (s) => {
+  let data = String(s).split('.');
+  data[0] = data[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+  if (data.length == 1) return data[0];
+  else return data.join('.');
 };
 
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
