@@ -356,7 +356,7 @@ export const keyValues = async (req: Request, res: Response) => {
 };
 
 const formatNumber = (s) => {
-  let data = String(s).split('.');
+  const data = String(s).split('.');
   data[0] = data[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
   if (data.length == 1) return data[0];
   else return data.join('.');

@@ -78,17 +78,18 @@ block content
                         th.th_sm.font-weight-bold Value
                     tbody#tbody-transactions
                       -for(tx of store.transactions){
-                        td(title=tx.txId)
-                          span.text-truncate.hash-tag
-                            a(href=`/tx/${tx.txId}`) #{tx.txId}
-                        td
-                          span.text-truncate.hash-tag #{tx.createdAt}
-                        td(title=tx.source)
-                          span.text-truncate.hash-tag
-                            a(href=`/address/${tx.source}`) #{tx.source}
-                        td #{tx.data.decodedData[0]}
-                        td #{tx.data.decodedData[1]}
-                        td #{tx.data.decodedData[2]}
+                        tr
+                          td(title=tx.txId)
+                            span.text-truncate.hash-tag
+                              a(href=`/tx/${tx.txId}`) #{tx.txId}
+                          td
+                            span.text-truncate.hash-tag #{tx.createdAt}
+                          td(title=tx.source)
+                            span.text-truncate.hash-tag
+                              a(href=`/address/${tx.source}`) #{tx.source}
+                          td #{tx.data.decodedData[0]}
+                          td #{tx.data.decodedData[1]}
+                          td #{tx.data.decodedData[2]}
                       -}
                   .box-pagination
                     include ../common/pagination
