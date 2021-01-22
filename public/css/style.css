@@ -152,7 +152,6 @@ li.sign-in{
 
 .block1, .block2{
   width: 33%;
-  height: 100%;
   border-right: 1px solid #d6d9e0;
   padding-left: 15px;
   padding-right: 15px;
@@ -160,7 +159,6 @@ li.sign-in{
 
 .block3 {
   width: 33%;
-  height: 100%;
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -259,7 +257,6 @@ table.table a:hover{
   background-color: #ffffff;
   padding: 10px;
   box-shadow: 0 0.5rem 1.2rem rgba(189,197,209,.2);
-  height: 100%;
 }
 
 
@@ -424,7 +421,7 @@ a.pagination-button.selected {
   cursor: pointer;
 }
 
-@media (max-width: 768px){
+@media (max-width: 992px){
   .table-up{
     margin-top: 30px;
   }
@@ -690,13 +687,14 @@ footer.page-footer a{
   display: flex;
   align-items: center;
   border-radius: .25rem;
-  
 }
 
 .addr-detail .menu-token{
   font-size: 0.9rem;
   padding-right: .75rem;
   padding-left: 0.5rem;
+  max-height: 300px;
+  overflow-y: scroll;
 }
 
 .addr-detail .dropdown-token{
