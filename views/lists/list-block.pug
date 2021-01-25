@@ -15,7 +15,7 @@ mixin my-block(blockNumber, time, blockHash, txsTotal)
           span(style={'white-space': 'nowrap'}, title='block hash') 
             .transaction-addr
               span.d-sm-none Hash  
-              a(href='#') #{blockHash}
+              a(href=`/blocks/${blockNumber}`) #{blockHash}
           span(style={'white-space': 'nowrap'}, title='total transaction').d-block
-            a(href='#').transaction-addr #{txsTotal} txs
+            .transaction-addr #{txsTotal} txs
   hr

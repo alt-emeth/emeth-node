@@ -32,7 +32,7 @@ export const dashboard = async (req: Request, res: Response) => {
       totalBlocks = 0,
       latestBlock = 0,
       totalTokens = 0,
-      latestCheckPoint = 0,
+      latestCheckPoint: { checkpointNumber, publicTxHash },
       totalStores = 0,
       totalBalances = 0,
     } = summaryDashboardData;
@@ -57,7 +57,10 @@ export const dashboard = async (req: Request, res: Response) => {
       totalBlocks,
       latestBlock,
       totalTokens,
-      latestCheckPoint,
+      latestCheckPoint: {
+        checkpointNumber,
+        publicTxHash: `${process.env.ETHERSCAN_URL}/tx/${publicTxHash}`,
+      },
       totalStores,
       totalBalances,
       addressPrefix,

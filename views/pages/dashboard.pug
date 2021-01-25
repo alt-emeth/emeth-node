@@ -19,49 +19,49 @@ block content
               img(src="/images/icons/block.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0.mb-0 LATEST BLOCK
-                a.nav-link.p-0.number #{latestBlock?latestBlock:'0'}
+                a(href=latestBlock ? `/blocks/${latestBlock}` : '#').nav-link.p-0.number #{latestBlock || '0'}
             hr.my-4.my-4
             .row2.d-flex.align-items-center
               img(src="/images/icons/checkpoint.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 LATEST CHECKPOINT
-                a.nav-link.p-0.number #{latestCheckPoint?latestCheckPoint:'0'}
+                a(href=latestCheckPoint.publicTxHash).nav-link.p-0.number #{latestCheckPoint.checkpointNumber || '0'}
             hr.my-4.d-md-none
             .row3.align-items-center
               img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 TOKENS
-                a.nav-link.p-0.number #{totalTokens?totalTokens:'0'}
+                a(href=`/tokens`).nav-link.p-0.number #{totalTokens || '0'}
           .block2
             .row1.d-flex.align-items-center
               img(src="/images/icons/transaction.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 TRANSACTIONS
-                a.nav-link.p-0.number #{totalTransactions?totalTransactions:'0'}
+                a(href=`/transactions`).nav-link.p-0.number #{totalTransactions || '0'}
             hr.my-4
             .row2.d-flex.align-items-center
               img(src="/images/icons/account.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 ACCOUNTS
-                a.nav-link.p-0.number #{totalBalances?totalBalances:'0'}
+                .p-0.number #{totalBalances || '0'}
             hr.my-4.d-md-none
             .row3.align-items-center
               img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 STORES
-                a.nav-link.p-0.number #{totalStores?totalStores:'0'}
+                a(href=`/kvs`).nav-link.p-0.number #{totalStores || '0'}
           .block3
             .row1.d-flex.align-items-center
               img(src="/images/icons/token.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 TOKENS
-                a.nav-link.p-0.number #{totalTokens?totalTokens:'0'}
+                a(href=`/tokens`).nav-link.p-0.number #{totalTokens || '0'}
             hr.my-4
             .row2.d-flex.align-items-center
               img(src="/images/icons/store.png", style={'width': '25px', 'height': '25px'})
               div(style={'margin-left': '10px'})
                 h5.mb-0 STORES
-                a.nav-link.p-0.number #{totalStores?totalStores:'0'}
+                a(href=`/kvs`).nav-link.p-0.number #{totalStores || '0'}
       .container.p-sm-0
         div.row.dashboard 
           .col-12.col-lg-6

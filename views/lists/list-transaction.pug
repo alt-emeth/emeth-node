@@ -19,11 +19,11 @@ mixin my-transaction(txId, time, addrFrom, addrTo)
           .transaction-addr
             span(style={'white-space': 'nowrap'}) To 
               -if(transactions[i].target.type === 'token'){
-                a(href=`/tokens/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
-              -} else if(transactions[i].target.type === 'store') {
-                a(href=`/stores/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
+                a(href=`/tokens/${addrTo.link}`) #{replaceAddress(addrTo.link, addressPrefix)}
+              -} else if(transactions[i].target.type === 'store'){
+                a(href=`/stores/${addrTo.link}`) #{replaceAddress(addrTo.link, addressPrefix)}
               -} else {
-                a(href=`/address/${addrTo.link}`) #{replaceAddress(addrFrom, addressPrefix)}
+                a(href=`/address/${addrTo.link}`) #{replaceAddress(addrTo.link, addressPrefix)}
               -}
   hr
 
