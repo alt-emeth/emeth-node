@@ -99,16 +99,34 @@ block content
               -}
     include ../common/footer
   script.
-    function handleSearch(){
+    async function handleSearch(){
       const text = $('.search-input').val();
       const originUrl = window.location.origin;
-      let url = ''
+      let url = '';
       if (/(^[+,-]?\d{1,})+$/.test(`${text}`)) {
         url = `${originUrl}/blocks/${text}` 
       } else if (/(^0x[a-fA-F0-9]{64})+$/.test(`${text}`)) {
         url = `${originUrl}/tx/${text}` 
       } else if (/(^0x[a-fA-F0-9]{40})+$/.test(`${text}`)) {
-        url = `${originUrl}/tokens/${text}` 
+        const data = await $.ajax({
+          method: 'GET',
+          url: `${originUrl}/address-type/${text}`,
+        });
+
+        const { addressType } = data;
+        switch(addressType) {
+          case 'token':
+            url = `${originUrl}/tokens/${text}`;
+            break;
+          case 'store':
+            url = `${originUrl}/stores/${text}`;
+            break;
+          case 'address':
+            url = `${originUrl}/address/${text}`;
+            break;
+          default:
+            url = `${originUrl}/dashboard`;
+        }
       } else {
         url = `${originUrl}/dashboard` 
       }

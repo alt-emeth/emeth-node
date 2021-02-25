@@ -16,5 +16,6 @@ router.get('/tokens/:id', frontendController.getToken);
 router.get('/address/:id', frontendController.getAddress);
 router.get('/stores/:id', frontendController.getStore);
 router.get('/kvs/:id', frontendController.keyValues);
+router.get('/address-type/:id', frontendController.checkAddressType);
 
 export default router;

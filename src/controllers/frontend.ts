@@ -22,6 +22,52 @@ export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
 };
 
+export const checkAddressType = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  let continueChecking = false;
+
+  try {
+    const { token } = await getTokenDetail(id);
+    if (token) {
+      return res.json({
+        addressType: 'token',
+      });
+    }
+  } catch (error) {
+    continueChecking = true;
+  }
+
+  try {
+    if (continueChecking) {
+      const addressDetail = await getAddressDetail(id);
+      if (addressDetail) {
+        return res.json({
+          addressType: 'address',
+        });
+      }
+    }
+  } catch (error) {
+    continueChecking = true;
+  }
+
+  try {
+    if (continueChecking) {
+      const storeDetail = await getStoreDetail(id, 0, 1);
+      if (storeDetail) {
+        return res.json({
+          addressType: 'store',
+        });
+      }
+    }
+  } catch (error) {
+    continueChecking = true;
+  }
+
+  return res.json({
+    addressType: 'dashboard',
+  });
+};
+
 export const dashboard = async (req: Request, res: Response) => {
   try {
     const listTableDashboard = await getListTableDashboard();
