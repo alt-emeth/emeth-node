@@ -39,10 +39,10 @@ export const checkAddressType = async (req: Request, res: Response) => {
 
   try {
     if (continueChecking) {
-      const addressDetail = await getAddressDetail(id);
-      if (addressDetail) {
+      const storeDetail = await getKvsDetail(id);
+      if (storeDetail) {
         return res.json({
-          addressType: 'address',
+          addressType: 'store',
         });
       }
     }
@@ -52,10 +52,10 @@ export const checkAddressType = async (req: Request, res: Response) => {
 
   try {
     if (continueChecking) {
-      const storeDetail = await getStoreDetail(id, 0, 1);
-      if (storeDetail) {
+      const addressDetail = await getAddressDetail(id);
+      if (addressDetail?.balances?.length > 0) {
         return res.json({
-          addressType: 'store',
+          addressType: 'address',
         });
       }
     }
