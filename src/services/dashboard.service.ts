@@ -25,6 +25,7 @@ export const getTransactions = async (offset?: number, limit?: number, address?:
     const { data: resData } = await Axios.get(`/transactions`, {
       params: {
         limit,
+        offset,
         address,
       },
     });
