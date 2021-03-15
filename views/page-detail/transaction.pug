@@ -40,18 +40,18 @@ block content
                   span.text-truncate.hash-tag #{transactionData.createdAt}
             hr
             .form-group.row
-              -if(transactionData.token){
+              -if(transactionData.tokenId){
                 .col-sm-4
                   label.col-form-label Token:
                 .col-sm-8
                   span.text-truncate.hash-tag
-                    a(href=`/tokens/${transactionData.tokenId}`) #{transactionData.token}
+                    a(href=`/tokens/${transactionData.tokenId}`) #{transactionData.tokenName}
               -} else{
                 .col-sm-4
                   label.col-form-label Store:
                 .col-sm-8
                   span.text-truncate.hash-tag
-                    a(href=`/stores/${transactionData.target.link}`) #{transactionData.store}
+                    a(href=`/stores/${transactionData.target.link}`) #{transactionData.storeName}
               -}
             hr
             .form-group.row.tx-from
