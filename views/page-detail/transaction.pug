@@ -115,17 +115,19 @@ block content
                 .col-sm-8
                   .tx-data
                     .row 
-                      .col-4
-                        label(style={'font-weight': '450'}).col-form-label Function:
-                      .col-8
-                        span.text-truncate.hash-tag #{transactionData.data.function}
-                    -for(index in transactionData.data.decodedData){
-                      -if(!isNaN(index)){
-                        .row 
-                          .col-4
-                            label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
-                          .col-8
-                            span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                      -if(transactionData.data.function){
+                        .col-4
+                          label(style={'font-weight': '450'}).col-form-label Function:
+                        .col-8
+                          span.text-truncate.hash-tag #{transactionData.data.function}
+                      -for(index in transactionData.data.decodedData){
+                        -if(!isNaN(index)){
+                          .row 
+                            .col-4
+                              label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                            .col-8
+                              span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                        -}
                       -}
                     -}
             -}
