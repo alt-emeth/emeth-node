@@ -113,9 +113,9 @@ block content
                 .col-sm-4
                   label.col-form-label Data:
                 .col-sm-8
-                  .tx-data
-                    .row 
-                      -if(transactionData.data.function){
+                  -if(transactionData.data.function){
+                    .tx-data
+                      .row 
                         .col-4
                           label(style={'font-weight': '450'}).col-form-label Function:
                         .col-8
