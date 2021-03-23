@@ -844,6 +844,16 @@ footer.page-footer a{
   font-size: 0.85rem;
 }
 
+.tb-tokens img:before {
+  content: '';
+  display: block;
+  position: absolute;
+  height: 25px;
+  width: 25px;
+  background-color: white;
+  background-image:url('../images/icons/small_token.png');
+}
+
 .tokens .tk-search{
   border: 0;
   border-radius: 5px;
