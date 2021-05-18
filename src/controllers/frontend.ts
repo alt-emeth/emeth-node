@@ -105,7 +105,7 @@ export const dashboard = async (req: Request, res: Response) => {
       totalTokens,
       latestCheckPoint: {
         checkpointNumber,
-        publicTxHash: `${process.env.ETHERSCAN_URL}/tx/${publicTxHash}`,
+        publicTxHash: publicTxHash && `${process.env.ETHERSCAN_URL}/tx/${publicTxHash}`,
       },
       totalStores,
       totalBalances,

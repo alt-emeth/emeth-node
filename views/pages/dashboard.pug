@@ -26,7 +26,7 @@ block content
               div(style={'margin-left': '10px'})
                 h5.mb-0 LATEST CHECKPOINT
                 -if(latestCheckPoint){
-                  a(href=latestCheckPoint.publicTxHash || '#').nav-link.p-0.number #{latestCheckPoint.checkpointNumber || '0'}
+                  a(href=`${latestCheckPoint.publicTxHash || '#'}`).nav-link.p-0.number #{latestCheckPoint.checkpointNumber || '0'}
                 -}else {
                   a(href='#').nav-link.p-0.number #{'0'}
                 -}
