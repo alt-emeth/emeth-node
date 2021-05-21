@@ -338,7 +338,7 @@ export const getAddress = async (req: Request, res: Response) => {
       total,
       transactions,
       addressDetail,
-      tokenSpeical: TOKEN_SPECIAL,
+      nativeToken: TOKEN_SPECIAL,
       address: key,
       url: process.env.BURN_API_URL,
       addressPrefix,

@@ -45,7 +45,7 @@ block content
                     label.col-form-label.font-weight-bold Balance:
                   .col-sm-8
                     -for(item of addressDetail){
-                      -if(item.tokenId === tokenSpeical){
+                      -if(item.tokenId === nativeToken){
                         span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;
                       -}
                     -}
