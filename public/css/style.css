@@ -891,3 +891,17 @@ footer.page-footer a{
   display: flex;
   align-items: center;
 }
+
+/* contract */
+.box-code-contract {
+  height: 200px;
+  max-height: 400px;
+  margin-top: 5px;
+  overflow-wrap: break-word;
+  padding: .75rem;
+  border: 1px solid #e7eaf3;
+  background-color: #f8f9fa;
+  border-radius: .35rem;
+  margin-bottom: .5rem;
+  overflow: auto;
+}

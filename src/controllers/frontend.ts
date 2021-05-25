@@ -313,17 +313,8 @@ export const getAddress = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
     const dataRes = await getAddressDetail(key);
-    const { tokens: dataTokens = [], total: totalTokens = 0 } = await getTokens(0, 10);
-    const tokens = dataTokens.map((ele) => {
-      return {
-        ...ele,
-        totalSupply: formatNumber(ele.totalSupply),
-        holders: formatNumber(ele.holders),
-        transfers: formatNumber(ele.transfers),
-      };
-    });
     let { transactions = [] } = dataRes;
-    const { total = 0, balances: addressDetail } = dataRes;
+    const { isContract, contract, tsxContractCreator, total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -332,9 +323,10 @@ export const getAddress = async (req: Request, res: Response) => {
     });
 
     res.render('page-detail/address', {
-      title: 'Address',
-      tokens,
-      totalTokens,
+      title: isContract ? 'Contract' : 'Address',
+      isContract,
+      contract,
+      tsxContractCreator,
       total,
       transactions,
       addressDetail,

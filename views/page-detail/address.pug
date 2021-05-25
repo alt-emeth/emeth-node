@@ -49,6 +49,15 @@ block content
                         span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;
                       -}
                     -}
+                -if(isContract){
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label.font-weight-bold Contract Creator:
+                    .col-sm-8
+                      a.nav-link(href=`/address/${tsxContractCreator.source}`, style={'width': '45%', 'padding-left': 0}).text-truncate.hash-tag #{tsxContractCreator.source}
+                      span.text-truncate.hash-tag at &nbsp;
+                      a.nav-link(href=`/tx/${tsxContractCreator.txId}`, style={'width': '45%', 'padding-left': 0}).text-truncate.hash-tag #{tsxContractCreator.txId}
+                -}
                       
           .col-12.col-lg-6.mt-4.mt-lg-0(style={'z-index': '1000'})
             .box-detail
@@ -73,19 +82,27 @@ block content
               ul.nav.nav-tabs
                 li
                   a.nav-link.active(href='#transactions' data-toggle='tab') Transactions
-                li
-                  a.nav-link(href='#tokens' data-toggle='tab') Tokens
+                -if(isContract){
+                  li
+                    a.nav-link(href='#contracts' data-toggle='tab') Contract
+                  li
+                    a.nav-link(href='#events' data-toggle='tab') Events
+                -}
               div.tab-content
                 div.active.tab-pane.table-transactions#transactions
                   div.my-3
                     div#title-transactions Latest #{total > 25 ? 25 : total} from a total of #{total} transactions
                   hr.mb-0
                   include ../tables/table-transactions
-                div.tab-pane#tokens
-                  div.my-3
-                    div#title-transactions Latest #{totalTokens > 25 ? 25 : totalTokens} from a total of #{totalTokens} tokens
-                  hr.mb-0
-                  include ../tables/table-tokens
+                -if(isContract){
+                  div.tab-pane#contracts
+                    div.my-3
+                      div.fa.fa-code &nbsp; Contract Creation Code
+                    div.box-code-contract 
+                      div #{contract.code}
+                  div.tab-pane#events
+                    h3(style={'padding': '10px', 'text-align': 'center'}) Events
+                -}
       -}
     
     div.w-100(style={"margin-top": "50px"})
