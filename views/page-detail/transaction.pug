@@ -22,9 +22,16 @@ block content
               .col-sm-4
                 label.col-form-label Status:
               .col-sm-8
-                span.text-truncate.hash-tag.tx-status-success
-                  i.fa.fa-check-circle.mr-1 
-                  | Success
+                -if(transactionData.status){
+                  span.text-truncate.hash-tag.tx-status-success
+                    i.fa.fa-check-circle.mr-1 
+                    | Success
+                -} else {
+                  span.text-truncate.hash-tag.tx-status-fail
+                    i.fa.fa-times-circle.mr-1 
+                    | #{transactionData.errorMessage}
+                -}
+                
             hr
             .form-group.row
               .col-sm-4
