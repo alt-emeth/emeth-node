@@ -15,8 +15,12 @@ block content
               .col-sm-4
                 label.col-form-label Transaction Hash:
               .col-sm-8
-                span.text-truncate.hash-tag
-                  a(href="#") #{transactionData.txId}
+                -if(transactionData.txType == 3){
+                  span.text-truncate.hash-tag This is a Contract Interaction
+                -} else {
+                  span.text-truncate.hash-tag 
+                    a(href="#") #{transactionData.txId}
+                -}
             hr
             .form-group.row
               .col-sm-4
@@ -320,13 +324,7 @@ block content
                   label.col-form-label To:
                 .col-sm-8#tx-to
                   span.text-truncate.hash-tag
-                    -if(transactionData.target.type === 'token'){
-                      a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-                    -} else if(transactionData.target.type === 'store'){
-                      a(href = `/stores/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-                    -} else {
-                      a(href = `/address/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-                    -}
+                    a(href = `/address/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
                   -if(transactionData.target){
                     i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
                   -}
@@ -337,6 +335,24 @@ block content
                   label.col-form-label Fee:
                 .col-sm-8
                     span.text-truncate.hash-tag #{transactionData.fee}
+              hr
+              .form-group.row
+                .col-sm-4
+                  label.col-form-label Gas Price:
+                .col-sm-8
+                    span.text-truncate.hash-tag #{transactionData.gasPrice}
+              hr
+              .form-group.row
+                .col-sm-4
+                  label.col-form-label Gas Limit:
+                .col-sm-8
+                    span.text-truncate.hash-tag #{transactionData.gasLimit}
+              hr
+              .form-group.row
+                .col-sm-4
+                  label.col-form-label Gas Used:
+                .col-sm-8
+                    span.text-truncate.hash-tag #{transactionData.gasUsed}
               hr
               .form-group.row
                 .col-sm-4
@@ -352,7 +368,7 @@ block content
                   i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
                   span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
               hr
-              -if(transactionData.data && transactionData.data.functionHash){
+              -if(transactionData.data && transactionData.data.functionFull){
                 .form-group.row
                   .col-sm-4
                     label.col-form-label Data:
@@ -362,7 +378,7 @@ block content
                         .col-4
                           label(style={'font-weight': '450'}).col-form-label Function:
                         .col-8
-                          span.text-truncate.hash-tag #{transactionData.data.functionHash}
+                          span.text-truncate.hash-tag #{transactionData.data.functionFull}
                       -for(index in transactionData.data.decodedData){
                         -if(!isNaN(index)){
                           .row 
@@ -372,6 +388,14 @@ block content
                               span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
                         -}
                       -}
+                hr
+              -}else {
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Input Data:
+                  .col-sm-8
+                    .tx-data
+                      span.text-truncate.hash-tag #{`${transactionData.data.decodedData}`}
                 hr
               -}
             -}
