@@ -565,6 +565,15 @@ footer.page-footer a{
   padding: .4rem .7rem;
   border-radius: .35rem;
 }
+
+.table-tsx-address .txs-method{
+  color: #1e2022;
+  background-color: rgba(52,152,219,.1);
+  font-size: .71094rem;
+  padding: .4rem .7rem;
+  border-radius: .35rem;
+}
+
 .block-detail .tx-copy{
   position: absolute;
   cursor: pointer;
