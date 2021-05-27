@@ -123,9 +123,10 @@ export const dashboard = async (req: Request, res: Response) => {
 
 export const transactions = async (req: Request, res: Response) => {
   try {
+    const address = req.params.address;
     const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
-    const dataRes = await getTransactions(+offset, +limit);
+    const dataRes = await getTransactions(+offset, +limit, address);
     let { transactions = [] } = dataRes;
     const { total = 0 } = dataRes;
     const { pages, totalPage } = pagination(+page, total, +limit);
@@ -314,7 +315,7 @@ export const getAddress = async (req: Request, res: Response) => {
     const key = req.params.id;
     const dataRes = await getAddressDetail(key);
     let { transactions = [] } = dataRes;
-    const { isContract, contract, tsxContractCreator, total = 0, balances: addressDetail } = dataRes;
+    const { contract, tsxContractCreator, total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -323,8 +324,7 @@ export const getAddress = async (req: Request, res: Response) => {
     });
 
     res.render('page-detail/address', {
-      title: isContract ? 'Contract' : 'Address',
-      isContract,
+      title: contract ? 'Contract' : 'Address',
       contract,
       tsxContractCreator,
       total,

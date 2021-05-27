@@ -49,7 +49,7 @@ block content
                         span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;
                       -}
                     -}
-                -if(isContract){
+                -if(contract){
                   .form-group.row
                     .col-sm-4
                       label.col-form-label.font-weight-bold Contract Creator:
@@ -82,7 +82,7 @@ block content
               ul.nav.nav-tabs
                 li
                   a.nav-link.active(href='#transactions' data-toggle='tab') Transactions
-                -if(isContract){
+                -if(contract){
                   li
                     a.nav-link(href='#contracts' data-toggle='tab') Contract
                   li
@@ -91,10 +91,17 @@ block content
               div.tab-content
                 div.active.tab-pane.table-transactions#transactions
                   div.my-3
-                    div#title-transactions Latest #{total > 25 ? 25 : total} from a total of #{total} transactions
+                    -if(total > 25){
+                      div#title-transactions Latest 25 from a total of&nbsp;
+                        a(href=`/txs/${address}`) #{total}&nbsp;
+                        | transactions
+                    -} else {
+                      div#title-transactions Latest #{total} from a total of #{total} transactions
+                    -}
+                    
                   hr.mb-0
                   include ../tables/table-transactions
-                -if(isContract){
+                -if(contract){
                   div.tab-pane#contracts
                     div.my-3
                       div.fa.fa-code &nbsp; 
