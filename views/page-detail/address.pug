@@ -91,13 +91,9 @@ block content
               div.tab-content
                 div.active.tab-pane.table-transactions#transactions
                   div.my-3
-                    -if(total > 25){
-                      div#title-transactions Latest 25 from a total of&nbsp;
-                        a(href=`/txs/${address}`) #{total}&nbsp;
-                        | transactions
-                    -} else {
-                      div#title-transactions Latest #{total} from a total of #{total} transactions
-                    -}
+                    div#title-transactions Latest #{total > 25 ? 25 : total} from a total of&nbsp;
+                      a(href=`/txs/${address}` data-toggle='tooltip' data-placement="top" title='Click to view full list') #{total}&nbsp;
+                      | transactions
                     
                   hr.mb-0
                   include ../tables/table-transactions
