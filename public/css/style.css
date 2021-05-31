@@ -773,17 +773,28 @@ footer.page-footer a{
 	background-color: #777;
 }
 
+@media (min-width: 576px){
+  .container {
+    max-width: 100%;
+  }
+}
+
 @media (min-width: 1400px){
   .container {
-      max-width: 1270px;
+    max-width: 1400px;
   }
+}
+
+.container {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
 }
 
 /*
   list dashboard
 */
 
-.tag-transaction{
+.tag-transaction {
   max-width: 110px;
   overflow: hidden;
   text-overflow: ellipsis;
