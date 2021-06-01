@@ -331,7 +331,7 @@ export const getAddress = async (req: Request, res: Response) => {
       transactions,
       addressDetail,
       nativeToken: TOKEN_SPECIAL,
-      address: key,
+      address: key.toLowerCase(),
       url: process.env.BURN_API_URL,
       addressPrefix,
     });
