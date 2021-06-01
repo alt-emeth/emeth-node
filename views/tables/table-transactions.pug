@@ -7,7 +7,7 @@ table#tbCustom.table.table-striped.mb-0(width='100%')
       th.th_sm.font-weight-bold From
       th.th_sm.font-weight-bold
       th.th_sm.font-weight-bold To
-      th.th_sm.font-weight-bold Amount
+      th.th_sm.font-weight-bold Value
       th.th_sm.font-weight-bold Fee
       th.th_sm.font-weight-bold Age
   tbody
@@ -46,7 +46,7 @@ table#tbCustom.table.table-striped.mb-0(width='100%')
                   a(href=`/address/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
                 -}
             -}
-        td #{transactions[i].amount}
+        td #{transactions[i].value}
         td #{transactions[i].fee}
         td #{transactions[i].createdAt}
     -}
