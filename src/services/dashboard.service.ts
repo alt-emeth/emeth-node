@@ -103,7 +103,7 @@ export const getBlockDetail = async (blockNumber: number) => {
 
 export const getTokenDetail = async (tokenId: string) => {
   try {
-    const { data: resData } = await Axios.get(`/tokens/${tokenId}`);
+    const { data: resData } = await Axios.get(`/tokens/${tokenId}?excludeZeroBalance=true`);
 
     return resData.data;
   } catch (error) {

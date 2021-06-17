@@ -8,7 +8,7 @@ $(document).ready(function () {
   if (token) {
     $.ajax({
       method: 'GET',
-      url: `${url}/tokens/transfers-holders/${tokenId}`,
+      url: `${url}/tokens/transfers-holders/${tokenId}?excludeZeroBalance=true`,
       success: function (msg) {
         const {
           transfers,
@@ -98,7 +98,7 @@ function customGoToPageHolders(page) {
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
-    url: `${url}/tokens/holders/${tokenId}?page=${page}&limit=${limit}`,
+    url: `${url}/tokens/holders/${tokenId}?page=${page}&limit=${limit}&excludeZeroBalance=true`,
     success: function (msg) {
       const { holders, pages, currentPage, totalPage } = msg.data;
       $('#tbody-holders').children('tr').remove();
