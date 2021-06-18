@@ -251,12 +251,12 @@ export const getTransaction = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { transactionData } = await getTransactionDetail(key);
-    const { tsxEvents } = await getLogsTxs(key);
+    const { txEvents } = await getLogsTxs(key);
 
     res.render('page-detail/transaction', {
       title: 'Transaction',
       transactionData,
-      tsxEvents,
+      txEvents,
       addressPrefix,
     });
   } catch (error) {
