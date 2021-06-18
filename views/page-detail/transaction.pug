@@ -3,405 +3,413 @@ block content
   include ../helpers/helper.js.pug
   div#wrapper
     include ../common/navbar
-    div.container#content.p-sm-0.block-detail
+    div.container#content.p-sm-0.block-detail.transaction-detail
       span.h4.content.font-weight-bold #{title}
       -if(!transactionData){
         h3.text-center Data empty
       -} else {
         .box-detail
-          form
-            hr
-            .form-group.row
-              .col-sm-4
-                label.col-form-label Transaction Hash:
-              .col-sm-8
-                span.text-truncate.hash-tag 
-                  a(href="#") #{transactionData.txId}
-            hr
-            .form-group.row
-              .col-sm-4
-                label.col-form-label Status:
-              .col-sm-8
-                -if(transactionData.status){
-                  span.text-truncate.hash-tag.tx-status-success
-                    i.fa.fa-check-circle.mr-1 
-                    | Success
+          ul.nav.nav-tabs
+            li
+              a.nav-link.active(href='#overview' data-toggle='tab') Overview
+            li
+              a.nav-link(href='#logs' data-toggle='tab') Logs
+          div.tab-content
+            div.active.tab-pane#overview(style="padding-left: 0.75rem")
+              form.mt-3
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Transaction Hash:
+                  .col-sm-8
+                    span.text-truncate.hash-tag 
+                      a(href="#") #{transactionData.txId}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Status:
+                  .col-sm-8
+                    -if(transactionData.status){
+                      span.text-truncate.hash-tag.tx-status-success
+                        i.fa.fa-check-circle.mr-1 
+                        | Success
+                    -} else {
+                      span.text-truncate.hash-tag.tx-status-fail
+                        i.fa.fa-times-circle.mr-1 
+                        | #{transactionData.errorMessage}
+                    -}  
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Block:
+                  .col-sm-8
+                    span.text-truncate.hash-tag
+                      a(href=`/blocks/${transactionData.blockNumber}`) #{transactionData.blockNumber}
+                hr
+                .form-group.row
+                  .col-sm-4
+                    label.col-form-label Timestamp:
+                  .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.createdAt}
+                -if(transactionData.txType == 0){
+                  hr
+                  .form-group.row.tx-from
+                    .col-sm-4
+                      label.col-form-label From:
+                    .col-sm-8#tx-from
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row.tx-to
+                    .col-sm-4
+                      label.col-form-label To:
+                    .col-sm-8#tx-to
+                      span.text-truncate.hash-tag [Contract #{transactionData.target.link} created]
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Fee:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.fee}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Nonce:
+                    .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.nonce}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Signature:
+                    .col-sm-8#tx-signature
+                      span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
+                      i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+                      span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Data:
+                    .col-sm-8
+                      span.text-truncate.hash-tag Contract Deployment
+                  hr
+                -} else if(transactionData.txType == 1){
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Token:
+                    .col-sm-8
+                      span.text-truncate.hash-tag
+                        a(href=`/tokens/${transactionData.tokenId}`) #{transactionData.tokenName} (#{transactionData.tokenSymbol})
+                  hr
+                  .form-group.row.tx-from
+                    .col-sm-4
+                      label.col-form-label From:
+                    .col-sm-8#tx-from
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row.tx-to
+                    .col-sm-4
+                      label.col-form-label To:
+                    .col-sm-8#tx-to
+                      span.text-truncate.hash-tag
+                        a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Value:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.value}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Fee:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.fee}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Nonce:
+                    .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.nonce}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Signature:
+                    .col-sm-8#tx-signature
+                      span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
+                      i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+                      span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
+                  hr
+                  -if(transactionData.data){
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Data:
+                      .col-sm-8
+                        -if(transactionData.data.functionFull){
+                          .tx-data
+                            .row 
+                              .col-4
+                                label(style={'font-weight': '450'}).col-form-label Function:
+                              .col-8
+                                span.text-truncate.hash-tag #{transactionData.data.functionFull}
+                            -for(index in transactionData.data.decodedData){
+                              -if(!isNaN(index)){
+                                .row 
+                                  .col-4
+                                    label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                                  .col-8
+                                    span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                              -}
+                            -}
+                          -}
+                    hr
+                  -}
+                -} else if(transactionData.txType == 2){
+                  hr
+                  .form-group.row.tx-from
+                    .col-sm-4
+                      label.col-form-label From:
+                    .col-sm-8#tx-from
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row.tx-to
+                    .col-sm-4
+                      label.col-form-label To:
+                    .col-sm-8#tx-to
+                      span.text-truncate.hash-tag
+                        a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Fee:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.fee}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Nonce:
+                    .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.nonce}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Signature:
+                    .col-sm-8#tx-signature
+                      span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
+                      i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+                      span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
+                  hr
+                  -if(transactionData.data){
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Data:
+                      .col-sm-8
+                        -if(transactionData.data.functionFull){
+                          .tx-data
+                            .row 
+                              .col-4
+                                label(style={'font-weight': '450'}).col-form-label Function:
+                              .col-8
+                                span.text-truncate.hash-tag #{transactionData.data.functionFull}
+                            -for(index in transactionData.data.decodedData){
+                              -if(!isNaN(index)){
+                                .row 
+                                  .col-4
+                                    label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                                  .col-8
+                                    span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                              -}
+                            -}
+                        -}
+                  -}
+                -} else if(transactionData.txType == 4){
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Store:
+                    .col-sm-8
+                      span.text-truncate.hash-tag
+                        a(href=`/stores/${transactionData.target.link}`) #{transactionData.storeName}
+                  hr
+                  .form-group.row.tx-from
+                    .col-sm-4
+                      label.col-form-label From:
+                    .col-sm-8#tx-from
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row.tx-to
+                    .col-sm-4
+                      label.col-form-label To:
+                    .col-sm-8#tx-to
+                      span.text-truncate.hash-tag
+                        a(href = `/stores/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Fee:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.fee}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Nonce:
+                    .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.nonce}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Signature:
+                    .col-sm-8#tx-signature
+                      span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
+                      i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+                      span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
+                  hr
+                  -if(transactionData.data && transactionData.data.functionFull){
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Data:
+                      .col-sm-8
+                        .tx-data
+                          .row 
+                            .col-4
+                              label(style={'font-weight': '450'}).col-form-label Function:
+                            .col-8
+                              span.text-truncate.hash-tag #{transactionData.data.functionFull}
+                          -for(index in transactionData.data.decodedData){
+                            -if(!isNaN(index)){
+                              .row 
+                                .col-4
+                                  label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                                .col-8
+                                  span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                            -}
+                          -}
+                    hr
+                  -}
                 -} else {
-                  span.text-truncate.hash-tag.tx-status-fail
-                    i.fa.fa-times-circle.mr-1 
-                    | #{transactionData.errorMessage}
+                  hr
+                  .form-group.row.tx-from
+                    .col-sm-4
+                      label.col-form-label From:
+                    .col-sm-8#tx-from
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row.tx-to
+                    .col-sm-4
+                      label.col-form-label To:
+                    .col-sm-8#tx-to
+                      span.text-truncate.hash-tag
+                        a(href = `/address/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
+                      -if(transactionData.target){
+                        i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
+                      -}
+                        span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Value:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.value}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Fee:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.fee}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Gas Price:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.gasPrice}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Gas Limit:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.gasLimit}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Gas Used:
+                    .col-sm-8
+                        span.text-truncate.hash-tag #{transactionData.gasUsed}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Nonce:
+                    .col-sm-8
+                      span.text-truncate.hash-tag #{transactionData.nonce}
+                  hr
+                  .form-group.row
+                    .col-sm-4
+                      label.col-form-label Signature:
+                    .col-sm-8#tx-signature
+                      span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
+                      i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
+                      span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
+                  hr
+                  -if(transactionData.data && transactionData.data.functionFull){
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Data:
+                      .col-sm-8
+                        .tx-data
+                          .row 
+                            .col-4
+                              label(style={'font-weight': '450'}).col-form-label Function:
+                            .col-8
+                              span.text-truncate.hash-tag #{transactionData.data.functionFull}
+                          -for(index in transactionData.data.decodedData){
+                            -if(!isNaN(index)){
+                              .row 
+                                .col-4
+                                  label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
+                                .col-8
+                                  span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
+                            -}
+                          -}
+                    hr
+                  -}else {
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Input Data:
+                      .col-sm-8
+                        .tx-data
+                          span.hash-tag.box-decodeData #{`${transactionData.data.decodedData}`}
+                    hr
+                  -}
                 -}
-                
-            hr
-            .form-group.row
-              .col-sm-4
-                label.col-form-label Block:
-              .col-sm-8
-                span.text-truncate.hash-tag
-                  a(href=`/blocks/${transactionData.blockNumber}`) #{transactionData.blockNumber}
-            hr
-            .form-group.row
-              .col-sm-4
-                label.col-form-label Timestamp:
-              .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.createdAt}
-            -if(transactionData.txType == 0){
-              hr
-              .form-group.row.tx-from
-                .col-sm-4
-                  label.col-form-label From:
-                .col-sm-8#tx-from
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row.tx-to
-                .col-sm-4
-                  label.col-form-label To:
-                .col-sm-8#tx-to
-                  span.text-truncate.hash-tag [Contract #{transactionData.target.link} created]
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Fee:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.fee}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Nonce:
-                .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.nonce}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Signature:
-                .col-sm-8#tx-signature
-                  span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
-                  i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
-                  span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Data:
-                .col-sm-8
-                  span.text-truncate.hash-tag Contract Deployment
-              hr
-            -} else if(transactionData.txType == 1){
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Token:
-                .col-sm-8
-                  span.text-truncate.hash-tag
-                    a(href=`/tokens/${transactionData.tokenId}`) #{transactionData.tokenName} (#{transactionData.tokenSymbol})
-              hr
-              .form-group.row.tx-from
-                .col-sm-4
-                  label.col-form-label From:
-                .col-sm-8#tx-from
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row.tx-to
-                .col-sm-4
-                  label.col-form-label To:
-                .col-sm-8#tx-to
-                  span.text-truncate.hash-tag
-                    a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Value:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.value}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Fee:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.fee}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Nonce:
-                .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.nonce}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Signature:
-                .col-sm-8#tx-signature
-                  span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
-                  i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
-                  span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
-              hr
-              -if(transactionData.data){
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Data:
-                  .col-sm-8
-                    -if(transactionData.data.functionFull){
-                      .tx-data
-                        .row 
-                          .col-4
-                            label(style={'font-weight': '450'}).col-form-label Function:
-                          .col-8
-                            span.text-truncate.hash-tag #{transactionData.data.functionFull}
-                        -for(index in transactionData.data.decodedData){
-                          -if(!isNaN(index)){
-                            .row 
-                              .col-4
-                                label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
-                              .col-8
-                                span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
-                          -}
-                        -}
-                      -}
-                hr
-              -}
-            -} else if(transactionData.txType == 2){
-              hr
-              .form-group.row.tx-from
-                .col-sm-4
-                  label.col-form-label From:
-                .col-sm-8#tx-from
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row.tx-to
-                .col-sm-4
-                  label.col-form-label To:
-                .col-sm-8#tx-to
-                  span.text-truncate.hash-tag
-                    a(href = `/tokens/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Fee:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.fee}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Nonce:
-                .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.nonce}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Signature:
-                .col-sm-8#tx-signature
-                  span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
-                  i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
-                  span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
-              hr
-              -if(transactionData.data){
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Data:
-                  .col-sm-8
-                    -if(transactionData.data.functionFull){
-                      .tx-data
-                        .row 
-                          .col-4
-                            label(style={'font-weight': '450'}).col-form-label Function:
-                          .col-8
-                            span.text-truncate.hash-tag #{transactionData.data.functionFull}
-                        -for(index in transactionData.data.decodedData){
-                          -if(!isNaN(index)){
-                            .row 
-                              .col-4
-                                label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
-                              .col-8
-                                span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
-                          -}
-                        -}
-                    -}
-              -}
-            -} else if(transactionData.txType == 4){
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Store:
-                .col-sm-8
-                  span.text-truncate.hash-tag
-                    a(href=`/stores/${transactionData.target.link}`) #{transactionData.storeName}
-              hr
-              .form-group.row.tx-from
-                .col-sm-4
-                  label.col-form-label From:
-                .col-sm-8#tx-from
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row.tx-to
-                .col-sm-4
-                  label.col-form-label To:
-                .col-sm-8#tx-to
-                  span.text-truncate.hash-tag
-                    a(href = `/stores/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Fee:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.fee}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Nonce:
-                .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.nonce}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Signature:
-                .col-sm-8#tx-signature
-                  span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
-                  i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
-                  span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
-              hr
-              -if(transactionData.data && transactionData.data.functionFull){
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Data:
-                  .col-sm-8
-                    .tx-data
-                      .row 
-                        .col-4
-                          label(style={'font-weight': '450'}).col-form-label Function:
-                        .col-8
-                          span.text-truncate.hash-tag #{transactionData.data.functionFull}
-                      -for(index in transactionData.data.decodedData){
-                        -if(!isNaN(index)){
-                          .row 
-                            .col-4
-                              label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
-                            .col-8
-                              span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
-                        -}
-                      -}
-                hr
-              -}
-            -} else {
-              hr
-              .form-group.row.tx-from
-                .col-sm-4
-                  label.col-form-label From:
-                .col-sm-8#tx-from
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.source}`)#txt-copy #{replaceAddress(transactionData.source, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row.tx-to
-                .col-sm-4
-                  label.col-form-label To:
-                .col-sm-8#tx-to
-                  span.text-truncate.hash-tag
-                    a(href = `/address/${transactionData.target.link}`)#txt-copy #{replaceAddress(transactionData.target.link, addressPrefix)}
-                  -if(transactionData.target){
-                    i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
-                  -}
-                    span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Value:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.value}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Fee:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.fee}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Gas Price:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.gasPrice}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Gas Limit:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.gasLimit}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Gas Used:
-                .col-sm-8
-                    span.text-truncate.hash-tag #{transactionData.gasUsed}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Nonce:
-                .col-sm-8
-                  span.text-truncate.hash-tag #{transactionData.nonce}
-              hr
-              .form-group.row
-                .col-sm-4
-                  label.col-form-label Signature:
-                .col-sm-8#tx-signature
-                  span.text-truncate.hash-tag#txt-copy #{transactionData.signature}
-                  i.far.fa-copy.tx-copy(title="Copy signature to clipboard" onclick="handleCopy(this)")
-                  span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-3(style='display: none;') Copied
-              hr
-              -if(transactionData.data && transactionData.data.functionFull){
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Data:
-                  .col-sm-8
-                    .tx-data
-                      .row 
-                        .col-4
-                          label(style={'font-weight': '450'}).col-form-label Function:
-                        .col-8
-                          span.text-truncate.hash-tag #{transactionData.data.functionFull}
-                      -for(index in transactionData.data.decodedData){
-                        -if(!isNaN(index)){
-                          .row 
-                            .col-4
-                              label(style={'font-weight': '450'}).col-form-label #{`Params[${index}]`}:
-                            .col-8
-                              span.text-truncate.hash-tag #{`${transactionData.data.decodedData[index]}`}
-                        -}
-                      -}
-                hr
-              -}else {
-                .form-group.row
-                  .col-sm-4
-                    label.col-form-label Input Data:
-                  .col-sm-8
-                    .tx-data
-                      span.text-truncate.hash-tag #{`${transactionData.data.decodedData}`}
-                hr
-              -}
-            -}
+            div.tab-pane#logs(style="padding-left: 0.75rem")
+              div.mt-3 Transaction Receipt Event Logs 
+              include ./logs-tx.pug
       -}
     
     div(style={"margin-top": "50px"})

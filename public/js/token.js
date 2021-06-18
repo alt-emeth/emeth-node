@@ -6,29 +6,33 @@
 
 $(document).ready(function () {
   if (token) {
+    $('#transfers-loading').show();
     $.ajax({
       method: 'GET',
-      url: `${url}/tokens/transfers-holders/${tokenId}?excludeZeroBalance=true`,
+      url: `${url}/tokens/transfers/${tokenId}?page=1&limit=15`,
       success: function (msg) {
-        const {
-          transfers,
-          holders,
-          pagesTransfers,
-          pagesHolders,
-          totalPageTransfers,
-          totalPageHolders,
-          totalTransfers,
-          totalHolders,
-        } = msg.data;
-        renderViewTransfers(transfers, pagesTransfers, 1, totalPageTransfers);
-        renderViewHolders(holders, pagesHolders, 1, totalPageHolders);
-        $('#transfers #title-transfers').text(`A total of ${totalTransfers} transactions found`);
-        $('#holders #title-holders').text(`A total of ${totalHolders} holders`);
-        $('#tbCustom_wrapper').trigger('resize');
         $('#transfers-loading').hide();
+        const { transfers, pages, totalPage, total } = msg.data;
+        renderViewTransfers(transfers, pages, 1, totalPage);
+        $('#transfers #title-transfers').text(`A total of ${total} transactions found`);
+        $('#tbCustom_wrapper').trigger('resize');
       },
       error: function (error) {
         $('#transfers-loading').hide();
+      },
+    });
+
+    $.ajax({
+      method: 'GET',
+      url: `${url}/tokens/holders/${tokenId}?page=1&limit=15&excludeZeroBalance=true`,
+      success: function (msg) {
+        const { holders, pages, totalPage, total } = msg.data;
+        renderViewHolders(holders, pages, 1, totalPage);
+        $('#holders #title-holders').text(`A total of ${total} holders`);
+        $('#tbCustom_wrapper').trigger('resize');
+      },
+      error: function (error) {
+        //do nothing
       },
     });
   } else {
