@@ -14,6 +14,7 @@ import {
   getAddressDetail,
   getStoreDetail,
   getKvsDetail,
+  getLogsTxs,
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
 import { addressPrefix } from '../app';
@@ -250,9 +251,12 @@ export const getTransaction = async (req: Request, res: Response) => {
       throw new Error('url invalid!');
     }
     const { transactionData } = await getTransactionDetail(key);
+    const { tsxEvents } = await getLogsTxs(key);
+
     res.render('page-detail/transaction', {
       title: 'Transaction',
       transactionData,
+      tsxEvents,
       addressPrefix,
     });
   } catch (error) {

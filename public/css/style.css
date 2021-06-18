@@ -208,6 +208,35 @@ li.sign-in{
 
 }
 
+/* transaction detail */
+.transaction-detail .nav-tabs {
+  border-bottom: none;
+}
+.transaction-detail .nav-tabs .nav-link{
+  font-size: .8125rem;
+  font-weight: 600;
+  padding: .75rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  transition: .3s;
+  margin-bottom: -1px;
+  margin-top: -1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.transaction-detail .nav-tabs .nav-link.active {
+  border-bottom-color: #3498db;
+  color: #3498db;
+}
+.transaction-detail .box-logs {
+  padding-left: 20px;
+}
+.transaction-detail .box-decodeData {
+  max-width: 100% !important;
+  overflow-wrap:  break-word;
+}
+
 /*
   custom-table 
 */

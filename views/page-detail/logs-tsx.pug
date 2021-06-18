@@ -1,0 +1,40 @@
+-if(!tsxEvents){
+  div.text-center Data Empty
+-} else {
+  -for(tsxEvent of tsxEvents){
+    - var topics = tsxEvent.topics
+    form
+      hr
+      .form-group.row
+        .col-sm-2.text-sm-right
+          label.col-form-label.font-weight-bold Address:
+        .col-sm-10
+          span.text-truncate.hash-tag.mx-2
+            a(href=`/address/${tsxEvent.address}`) #{tsxEvent.address}
+      .form-group.row
+        .col-sm-2.text-sm-right
+          label.col-form-label Topics:
+        .col-sm-10
+          -for(let i = 0; i<topics?.length; i++){
+            -if(!topics[i]) {
+              - break
+            -}
+            div
+              span.text-truncate.hash-tag 
+                .badge.badge-light.mx-2 #{i}
+                | #{topics[i]}
+          -}
+      .form-group.row
+        .col-sm-2.text-sm-right
+          label.col-form-label Data:
+        .col-sm-8
+          div
+            span.text-truncate.hash-tag 
+              div(style="display: inline-block;")
+                select.mx-2
+                  option(selected value="Hex") Hex
+                i.fas.fa-long-arrow-alt-right.mr-1
+                | #{tsxEvent.decode.decodedData}
+  -}
+-}
+  

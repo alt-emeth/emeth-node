@@ -91,6 +91,16 @@ export const getTransactionDetail = async (txId: string) => {
   }
 };
 
+export const getLogsTxs = async (txId: string) => {
+  try {
+    const { data: resData } = await Axios.get(`/tx/logs/${txId}`);
+
+    return resData.data;
+  } catch (error) {
+    throw new Error(`getLogsTransaction: ${error.message}`);
+  }
+};
+
 export const getBlockDetail = async (blockNumber: number) => {
   try {
     const { data: resData } = await Axios.get(`/blocks/${blockNumber}`);
