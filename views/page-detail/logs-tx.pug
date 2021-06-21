@@ -2,7 +2,7 @@
   div.text-center Data Empty
 -} else {
   -for(txEvent of txEvents){
-    - var topics = txEvent.topics
+    - var topics = txEvent.topics || []
     form
       hr
       .form-group.row
@@ -15,7 +15,7 @@
         .col-sm-2.text-sm-right
           label.col-form-label Topics:
         .col-sm-10
-          -for(let i = 0; i<topics?.length; i++){
+          -for(let i = 0; i<topics.length; i++){
             -if(!topics[i]) {
               - break
             -}
