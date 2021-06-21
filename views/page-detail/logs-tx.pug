@@ -6,16 +6,16 @@
     form
       hr
       .form-group.row
-        .col-sm-2.text-sm-right
+        .col-sm-2.text-sm-left
           label.col-form-label.font-weight-bold Address:
         .col-sm-10
           span.text-truncate.hash-tag.mx-2
             a(href=`/address/${txEvent.address}`) #{txEvent.address}
       .form-group.row
-        .col-sm-2.text-sm-right
+        .col-sm-2.text-sm-left
           label.col-form-label Topics:
         .col-sm-10
-          -for(let i = 0; i<topics?.length; i++){
+          -for(let i = 0; i<topics.length; i++){
             -if(!topics[i]) {
               - break
             -}
@@ -25,16 +25,22 @@
                 | #{topics[i]}
           -}
       .form-group.row
-        .col-sm-2.text-sm-right
+        .col-sm-2.text-sm-left
           label.col-form-label Data:
-        .col-sm-8
-          div
-            span.text-truncate.hash-tag 
-              div(style="display: inline-block;")
-                select.mx-2
-                  option(selected value="Hex") Hex
-                i.fas.fa-long-arrow-alt-right.mr-1
-                | #{txEvent.decode.decodedData}
+        .col-sm-10
+          -if(txEvent.decode.decodedData){
+            -if(txEvent.decode.decodedData.length){
+              -for(let i = 0; i<txEvent.decode.decodedData.length; i++){
+                div
+                  span.text-truncate.hash-tag 
+                span.text-truncate.hash-tag 
+                  div(style="display: inline-block;")
+                    select.mx-2
+                      option(selected value="Hex") Hex
+                    i.fas.fa-long-arrow-alt-right.mr-1
+                    | #{txEvent.decode.decodedData[i]}
+              -}
+            -}
+          -}
   -}
 -}
-  
