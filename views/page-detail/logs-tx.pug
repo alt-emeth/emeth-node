@@ -2,7 +2,8 @@
   div.text-center Data Empty
 -} else {
   -for(txEvent of txEvents){
-    - var topics = txEvent.topics
+    - var topics = txEvent.topics || []
+    - var decodedData = txEvent.decode.decodedData || []
     form
       hr
       .form-group.row
@@ -28,19 +29,16 @@
         .col-sm-2.text-sm-left
           label.col-form-label Data:
         .col-sm-10
-          -if(txEvent.decode.decodedData){
-            -if(txEvent.decode.decodedData.length){
-              -for(let i = 0; i<txEvent.decode.decodedData.length; i++){
-                div
-                  span.text-truncate.hash-tag 
-                span.text-truncate.hash-tag 
-                  div(style="display: inline-block;")
-                    select.mx-2
-                      option(selected value="Hex") Hex
-                    i.fas.fa-long-arrow-alt-right.mr-1
-                    | #{txEvent.decode.decodedData[i]}
-              -}
-            -}
+          -for(let i = 0; i<decodedData.length; i++){
+            div
+              span.text-truncate.hash-tag 
+            span.text-truncate.hash-tag 
+              div(style="display: flex;")
+                span
+                  select.mx-2
+                    option(selected value="Hex") Hex
+                  i.fas.fa-long-arrow-alt-right.mr-1
+                span.text-truncate #{decodedData[i]}
           -}
   -}
 -}
