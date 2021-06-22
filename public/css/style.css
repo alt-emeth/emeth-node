@@ -954,3 +954,13 @@ footer.page-footer a{
   margin-bottom: .5rem;
   overflow: auto;
 }
+
+/* table-events */
+table.table-events {
+  font-weight: 400;
+}
+
+.table.table-events td .hash-tag {
+  max-width: 100%;
+  display: inline-block;
+}

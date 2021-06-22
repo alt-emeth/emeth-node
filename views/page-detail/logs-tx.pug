@@ -30,10 +30,8 @@
           label.col-form-label Data:
         .col-sm-10
           -for(let i = 0; i<decodedData.length; i++){
-            div
-              span.text-truncate.hash-tag 
             span.text-truncate.hash-tag 
-              div(style="display: flex;")
+              div(style="display: flex; align-items: center")
                 span
                   select.mx-2
                     option(selected value="Hex") Hex

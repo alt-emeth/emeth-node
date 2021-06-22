@@ -1,52 +1,53 @@
 include ../helpers/helper.js.pug
-table#tbCustom.table.table-striped.mb-0(width='100%')
-  thead.head-table
-    tr
-      th.th_sm.font-weight-bold Tx ID
-      th.th_sm.font-weight-bold Block
-      th.th_sm.font-weight-bold From
-      th.th_sm.font-weight-bold
-      th.th_sm.font-weight-bold To
-      th.th_sm.font-weight-bold Value
-      th.th_sm.font-weight-bold Fee
-      th.th_sm.font-weight-bold Age
-  tbody
-    -for(let i=0; i<transactions.length; i++){
-      tr.tr-link
-        td(title=transactions[i].txId)
-          span.text-truncate.hash-tag
-            a(href=`/tx/${transactions[i].txId}`) #{transactions[i].txId}
-        td
-          a(href=`/blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
-          td(title=transactions[i].source)
-            -if(address){
-              -if(address == transactions[i].source){
-                span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].source, addressPrefix)}
+.table-responsive
+  table#tbCustom.table.table-striped.mb-0(width='100%')
+    thead.head-table
+      tr
+        th.th_sm.font-weight-bold Tx ID
+        th.th_sm.font-weight-bold Block
+        th.th_sm.font-weight-bold From
+        th.th_sm.font-weight-bold
+        th.th_sm.font-weight-bold To
+        th.th_sm.font-weight-bold Value
+        th.th_sm.font-weight-bold Fee
+        th.th_sm.font-weight-bold Age
+    tbody
+      -for(let i=0; i<transactions.length; i++){
+        tr.tr-link
+          td(title=transactions[i].txId)
+            span.text-truncate.hash-tag
+              a(href=`/tx/${transactions[i].txId}`) #{transactions[i].txId}
+          td
+            a(href=`/blocks/${transactions[i].blockNumber}`) #{transactions[i].blockNumber}
+            td(title=transactions[i].source)
+              -if(address){
+                -if(address == transactions[i].source){
+                  span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].source, addressPrefix)}
+                -} else {
+                  span.text-truncate.hash-tag
+                    a(href=`/address/${transactions[i].source}`) #{replaceAddress(transactions[i].source, addressPrefix)}
+                -}
               -} else {
                 span.text-truncate.hash-tag
                   a(href=`/address/${transactions[i].source}`) #{replaceAddress(transactions[i].source, addressPrefix)}
               -}
-            -} else {
-              span.text-truncate.hash-tag
-                a(href=`/address/${transactions[i].source}`) #{replaceAddress(transactions[i].source, addressPrefix)}
-            -}
-          td
-            .circle 
-              i.fas.fa-long-arrow-alt-right
-          td(title=transactions[i].target.name)
-            -if(address === transactions[i].target.link){
-              span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].target.link, addressPrefix)} else {
-            -} else {
-              span.text-truncate.hash-tag
-                -if(transactions[i].target.type === 'token'){
-                  a(href=`/tokens/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
-                -} else if(transactions[i].target.type === 'store') {
-                  a(href=`/stores/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
-                -} else {
-                  a(href=`/address/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
-                -}
-            -}
-        td #{transactions[i].value}
-        td #{transactions[i].fee}
-        td #{transactions[i].createdAt}
-    -}
+            td
+              .circle 
+                i.fas.fa-long-arrow-alt-right
+            td(title=transactions[i].target.name)
+              -if(address === transactions[i].target.link){
+                span.text-truncate.hash-tag.font-italic #{replaceAddress(transactions[i].target.link, addressPrefix)} else {
+              -} else {
+                span.text-truncate.hash-tag
+                  -if(transactions[i].target.type === 'token'){
+                    a(href=`/tokens/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
+                  -} else if(transactions[i].target.type === 'store') {
+                    a(href=`/stores/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
+                  -} else {
+                    a(href=`/address/${transactions[i].target.link}`) #{replaceAddress(transactions[i].target.link, addressPrefix)}
+                  -}
+              -}
+          td #{transactions[i].value}
+          td #{transactions[i].fee}
+          td #{transactions[i].createdAt}
+      -}

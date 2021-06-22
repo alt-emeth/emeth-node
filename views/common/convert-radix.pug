@@ -1,0 +1,37 @@
+-for(let i = 0; i < decodedData.length; i++){
+  div.mb-2
+    span.text-truncate.hash-tag 
+      div(style="display: flex; align-items: center;" id=txEvent.txId + i)
+        span
+          select.form-select.mr-1(onchange="handleChangeRadix(this," + i + ")"  id="select-convert-radix-" + i)
+            option(selected value="hex") Hex
+            //- TODO: apply switch change radix
+            //- option( value="number") Number
+            //- option( value="text") Text
+          i.fas.fa-long-arrow-alt-right.mr-2
+        span.text-truncate(id=`decode-value-${i}`) #{decodedData[i]}
+-}
+
+script. 
+  function handleChangeRadix(element, id){
+    const parentId = element.parentNode.parentNode.id;
+    const decodeElement = $(`#${parentId} #decode-value-${id}`);
+    const key = $(`#${parentId} #select-convert-radix-${id}`).val();
+
+    //- TODO: apply return value when switch radix
+    //- switch(key) {
+    //-   case 'hex':
+    //-     decodeElement.text('0x1231212121212');
+    //-     break;
+    //-   case 'number':
+    //-     decodeElement.text('123456');
+    //-     break;
+    //-   case 'text':
+    //-     decodeElement.text('hello world');
+    //-     break;
+    //-   default:
+    //-     decodeElement.text('1010110');
+    //-     return;
+    //- }
+  }
+  

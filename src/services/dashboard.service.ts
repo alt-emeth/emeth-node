@@ -131,6 +131,21 @@ export const getAddressDetail = async (address: string) => {
   }
 };
 
+export const getEvents = async (address: string, offset?: number, limit?: number) => {
+  try {
+    const { data: resData } = await Axios.get(`/address-events/${address}`, {
+      params: {
+        offset,
+        limit,
+      },
+    });
+
+    return resData.data;
+  } catch (error) {
+    throw new Error(`getAddressDetail: ${error.message}`);
+  }
+};
+
 export const getStoreDetail = async (address: string, offset: number, limit: number) => {
   try {
     const { data: resData } = await Axios.get(`/stores/${address}`, {

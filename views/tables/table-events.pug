@@ -1,0 +1,38 @@
+.table-responsive
+  table#tbEvents.table.table-events.mb-0(width='100%')
+    thead.head-table
+      tr
+        th(style="width: 40%").th_sm.font-weight-bold Txn Hash
+        th(style="width: 20%").th_sm.font-weight-bold Method
+        th(style="width: 40%").th_sm.font-weight-bold Logs
+    tbody
+      -for(txEvent of txEvents){
+        - var decodedData = txEvent.decode.decodedData || []
+        - var topics = txEvent.topics || []
+        tr.tr-link
+          td
+            span.text-truncate.hash-tag.mb-3
+              a(href=`/tx/${txEvent.txId}`) #{txEvent.txId}
+            div.mb-3
+              span.text-truncate #&nbsp;
+                a(href=`/blocks/${txEvent.blockNumber}`) #{txEvent.blockNumber}
+            div.mb-3
+              span.text-truncate
+                .badge.badge-pill.badge-light #{txEvent.createdAt}
+          td
+            span.text-truncate
+              .badge.badge-pill.badge-light #{txEvent.method}
+          td
+            div.mb-3
+              -for(let j = 0; j < topics.length; j++){
+                -if(!topics[j]) {
+                  - break
+                -}
+                div.mb-1
+                  span.text-truncate.hash-tag 
+                    | [topic #{j} ]
+                    | #{topics[j]}
+              -}
+            include ../common/convert-radix.pug
+      -}
+

@@ -15,6 +15,7 @@ import {
   getStoreDetail,
   getKvsDetail,
   getLogsTxs,
+  getEvents,
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
 import { addressPrefix } from '../app';
@@ -318,12 +319,22 @@ export const getAddress = async (req: Request, res: Response) => {
   try {
     const key = req.params.id;
     const dataRes = await getAddressDetail(key);
+    const { txEvents: _txEvents } = await getEvents(key);
     let { transactions = [] } = dataRes;
     const { contract, tsxContractCreator, total = 0, balances: addressDetail } = dataRes;
     transactions = transactions.map((item) => {
       return {
         ...item,
         createdAt: moment(item.createdAt).fromNow(),
+      };
+    });
+    const txEvents = _txEvents.map((txEvent) => {
+      const { topic0, topic1, topic2, topic3 } = txEvent;
+      return {
+        ...txEvent,
+        createdAt: moment(txEvent.createdAt).fromNow(),
+        topics: [topic1, topic2, topic3],
+        method: topic0.substring(0, 10),
       };
     });
 
@@ -338,6 +349,7 @@ export const getAddress = async (req: Request, res: Response) => {
       address: key.toLowerCase(),
       url: process.env.BURN_API_URL,
       addressPrefix,
+      txEvents,
     });
   } catch (error) {
     res.render('pages/error', {
