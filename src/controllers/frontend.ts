@@ -253,6 +253,24 @@ export const getTransaction = async (req: Request, res: Response) => {
     }
     const { transactionData } = await getTransactionDetail(key);
     const { txEvents } = await getLogsTxs(key);
+    //TODO: fake transferredTokens
+    const transferredTokens = [
+      {
+        from: '0xfb3cd9f19483dc204e4412f933f7bf4583171d62',
+        to: '0xfb3cd9f19483dc204e4412f933f7bf4583171d62',
+        amount: '0.123456789',
+        symbol: 'BURN',
+        tokenName: 'BURN token',
+      },
+      {
+        from: '0xfb3cd9f19483dc204e4412f933f7bf4583171d62',
+        to: '0xfb3cd9f19483dc204e4412f933f7bf4583171d62',
+        amount: '0.123456789',
+        symbol: 'BURN',
+        tokenName: 'BURN token',
+      },
+    ];
+    Object.assign(transactionData, { transferredTokens });
 
     res.render('page-detail/transaction', {
       title: 'Transaction',
