@@ -963,4 +963,5 @@ table.table-events {
 .table.table-events td .hash-tag {
   max-width: 100%;
   display: inline-block;
+  font-weight: 400
 }

@@ -1,1 +1,21 @@
 - var replaceAddress = (address = '', prefix) => address.indexOf('0x') === 0 ? address.replace('0x', prefix) : `${address}`;
+
+- var convertRadix = (key, value) => {
+  - let result = value;
+  case key
+    when 'hex'
+      result = value
+      - break
+    when 'number'
+      result = Web3.utils.hexToNumber("0x"+value)
+      - break
+    when 'text'
+      result = Web3.utils.hexToAscii("0x"+value)
+      - break
+    when 'address'
+      result = value.slice(-40)
+      - break
+    default
+      - break
+  return result;
+-}

@@ -350,7 +350,7 @@ block content
                               span.font-weight-bold  For&nbsp; 
                               span #{transferredTokens[i].amount}&nbsp;
                               span 
-                                a(href="#") #{transferredTokens[i].tokenName} (#{transferredTokens[i].symbol})
+                                a(href=`/address/${transferredTokens[i].tokenAddress}`) #{transferredTokens[i].tokenName} (#{transferredTokens[i].symbol})
                       -}
                   hr
                   .form-group.row

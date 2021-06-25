@@ -28,10 +28,9 @@
                 -if(!topics[j]) {
                   - break
                 -}
-                div.mb-1
-                  span.text-truncate.hash-tag 
-                    | [topic #{j} ]
-                    | #{topics[j]}
+                span.text-truncate.hash-tag.mb-1
+                  | [topic #{j} ]
+                  | #{topics[j]}
               -}
             include ../common/convert-radix.pug
       -}
