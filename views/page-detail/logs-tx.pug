@@ -29,14 +29,6 @@
         .col-sm-2.text-sm-left
           label.col-form-label Data:
         .col-sm-10
-          -for(let i = 0; i<decodedData.length; i++){
-            span.text-truncate.hash-tag 
-              div(style="display: flex; align-items: center")
-                span
-                  select.mx-2
-                    option(selected value="Hex") Hex
-                  i.fas.fa-long-arrow-alt-right.mr-1
-                span.text-truncate #{decodedData[i]}
-          -}
+          include ../common/convert-radix.pug
   -}
 -}
