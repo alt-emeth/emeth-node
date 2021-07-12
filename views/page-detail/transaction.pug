@@ -332,26 +332,28 @@ block content
                         i.far.fa-copy.tx-copy(title="Copy address to clipboard" onclick="handleCopy(this)")
                       -}
                         span.text-truncate.hash-tag.font-italic#addr.font-weight-light.ml-4(style='display: none;') Copied
-                  hr
-                  .form-group.row
-                    .col-sm-4
-                      label.col-form-label Tokens Transferred:
-                    .col-sm-8
-                      -for(let i = 0; i < transferredTokens.length; i++ ){
-                        div 
-                          span.text-truncate.hash-tag
-                            div(style="display: flex;")
-                              span.font-weight-bold  From&nbsp;
-                              span.text-truncate
-                                a(href=`/address/${transferredTokens[i].from}`) #{transferredTokens[i].from}&nbsp;
-                              span.font-weight-bold  To&nbsp;
-                              span.text-truncate 
-                                a(href=href=`/address/${transferredTokens[i].to}`) #{transferredTokens[i].to}&nbsp;
-                              span.font-weight-bold  For&nbsp; 
-                              span #{transferredTokens[i].amount}&nbsp;
-                              span 
-                                a(href=`/address/${transferredTokens[i].tokenAddress}`) #{transferredTokens[i].tokenName} (#{transferredTokens[i].symbol})
-                      -}
+                  -if(transferredTokens.length > 0){
+                    hr
+                    .form-group.row
+                      .col-sm-4
+                        label.col-form-label Tokens Transferred:
+                      .col-sm-8
+                        -for(let i = 0; i < transferredTokens.length; i++ ){
+                          div 
+                            span.text-truncate.hash-tag
+                              div(style="display: flex;")
+                                span.font-weight-bold  From&nbsp;
+                                span.text-truncate
+                                  a(href=`/address/${transferredTokens[i].from}`) #{transferredTokens[i].from}&nbsp;
+                                span.font-weight-bold  To&nbsp;
+                                span.text-truncate 
+                                  a(href=href=`/address/${transferredTokens[i].to}`) #{transferredTokens[i].to}&nbsp;
+                                span.font-weight-bold  For&nbsp; 
+                                span #{transferredTokens[i].amount}&nbsp;
+                                span 
+                                  a(href=`/address/${transferredTokens[i].tokenAddress}`) #{transferredTokens[i].tokenName} (#{transferredTokens[i].symbol})
+                        -}
+                  -}
                   hr
                   .form-group.row
                     .col-sm-4
