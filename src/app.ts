@@ -2,13 +2,27 @@ import 'reflect-metadata';
 import path from 'path';
 
 import express from 'express';
+import { createConnection } from 'typeorm';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import Axios from 'axios';
 
 import routes from './routes/index';
+import checkValidationEnv from './config/validationSchemaEnv';
 
 dotenv.config();
+
+//require env
+checkValidationEnv();
+//connect database
+createConnection()
+  .then((connection) => {
+    console.log('Connected to DB: ' + connection.driver.database);
+  })
+  .catch((error) => {
+    console.log('TypeORM connection error: ', error);
+  });
+
 const app = express();
 
 export const addressPrefix = process.env.ADDRESS_PREFIX || '0x';
