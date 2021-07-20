@@ -31,6 +31,11 @@ $ yarn build
 | MYSQL_USERNAME | Database Username |
 | MYSQL_PASSWORD | Database Password |
 | MYSQL_PORT | MySQL Port (usually 3306) |
+
+#### Web3 config (required)
+| Parameter | Description |
+| --------- | --------------------------------------------------- |
+| BURN_URL_PROVIDER | burn url provider using for web3 |
 ## Customize appearance
 Edit the following .pug files.
 - views/common/navbar.pug

@@ -1,5 +1,12 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, getRepository } from 'typeorm';
 
+export interface Erc20TokensDtoCreate {
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  icon?: string;
+}
 @Entity('erc20_tokens')
 export class Erc20Tokens {
   @PrimaryColumn({
@@ -32,6 +39,7 @@ export class Erc20Tokens {
   @Column({
     name: 'icon',
     type: 'varchar',
+    nullable: true,
     length: 255,
   })
   icon: string;
@@ -47,4 +55,27 @@ export class Erc20Tokens {
     type: 'datetime',
   })
   modifiedAt: Date;
+
+  async findByAddress(address: string) {
+    try {
+      const erc20TokensRepository = getRepository(Erc20Tokens);
+      const result = await erc20TokensRepository.findOne(address);
+      return result;
+    } catch (error) {
+      const errMsg = `[erc20Tokens][findByAddress] ${error.message}`;
+      throw new Error(errMsg);
+    }
+  }
+
+  async create(erc20Tokens: Erc20TokensDtoCreate) {
+    try {
+      const erc20TokensRepository = getRepository(Erc20Tokens);
+      const result = await erc20TokensRepository.save(erc20Tokens);
+      console.log(`[Erc20TOkens][create] with address: ${result.address}`);
+      return result;
+    } catch (error) {
+      const errMsg = `[erc20Tokens][create] ${error.message}`;
+      throw new Error(errMsg);
+    }
+  }
 }

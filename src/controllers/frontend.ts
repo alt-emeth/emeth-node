@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
+// import Web3 from 'web3';
+// import { AbiItem } from 'web3-utils';
 
 import {
   getListTableDashboard,
@@ -19,6 +21,9 @@ import {
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
 import { addressPrefix } from '../app';
+import { Erc20Tokens, Erc20TokensDtoCreate } from '../entities/erc20-tokens.entity';
+
+const ERC20_TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -254,6 +259,27 @@ export const getTransaction = async (req: Request, res: Response) => {
     const { transactionData } = await getTransactionDetail(key);
     const { txEvents } = await getLogsTxs(key);
 
+    const { txTo } = transactionData;
+    const erc20TokensEntity = new Erc20Tokens();
+    const isTxToInErc20Tokens = await erc20TokensEntity.findByAddress(txTo);
+
+    for (const txEvent of txEvents) {
+      const { topic0, address: txEventAddress, tokenName, symbol, decimals } = txEvent;
+      if (topic0 === ERC20_TRANSFER_TOPIC && !isTxToInErc20Tokens) {
+        try {
+          const dataErc20Tokens: Erc20TokensDtoCreate = {
+            address: txEventAddress,
+            name: tokenName,
+            symbol,
+            decimals,
+          };
+          erc20TokensEntity.create(dataErc20Tokens);
+        } catch (error) {
+          console.log(`[tokenContract] ${error}`);
+          continue;
+        }
+      }
+    }
     Object.assign(transactionData);
 
     res.render('page-detail/transaction', {

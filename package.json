@@ -22,7 +22,9 @@
     "pug": "^3.0.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.34",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "web3": "^1.4.0",
+    "web3-utils": "^1.4.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.0",
