@@ -14,7 +14,7 @@ export class Initialize1626086675702 implements MigrationInterface {
       'CREATE TABLE IF NOT EXISTS `contract_methods` (`hash` char(10) NOT NULL, `method_name` varchar(255) NOT NULL, PRIMARY KEY (`hash`)) ENGINE=InnoDB'
     );
     await queryRunner.query(
-      'CREATE TABLE IF NOT EXISTS `erc20_tokens` (`address` varchar(255) NOT NULL, `name` varchar(255) NOT NULL, `symbol` varchar(255) NOT NULL, `decimals` tinyint NOT NULL, `icon` varchar(255) NULL, `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), `modified_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (`address`)) ENGINE=InnoDB'
+      'CREATE TABLE IF NOT EXISTS `erc20_tokens` (`address` varchar(255) NOT NULL, `name` varchar(255) NULL, `symbol` varchar(255) NULL, `decimals` tinyint NULL, `icon` varchar(255) NULL, `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), `modified_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (`address`)) ENGINE=InnoDB'
     );
   }
 

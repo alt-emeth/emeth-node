@@ -20,6 +20,7 @@ export class Erc20Tokens {
     name: 'name',
     type: 'varchar',
     length: 255,
+    nullable: true,
   })
   name: string;
 
@@ -27,12 +28,14 @@ export class Erc20Tokens {
     name: 'symbol',
     type: 'varchar',
     length: 255,
+    nullable: true,
   })
   symbol: string;
 
   @Column({
     name: 'decimals',
     type: 'tinyint',
+    nullable: true,
   })
   decimals: number;
 
