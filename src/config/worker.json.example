@@ -1,0 +1,8 @@
+{
+  "batchSize": "",
+  "n_epochs": "",
+  "device": "",
+  "myIp": "",
+  "masterIp": "",
+  "powerCapacity": ""
+}

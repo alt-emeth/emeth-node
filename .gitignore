@@ -1,0 +1,7 @@
+node_modules
+dist
+**/.DS_Store
+!.gitkeep
+src/config/master.json
+src/config/worker.json
+emeth-node.sqlite3

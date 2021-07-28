@@ -1,0 +1,11 @@
+{
+  "emethContractAddress": "",
+  "tokenContractAddress": "",
+  "endpoint": "",
+  "privateKey": "",
+  "storageApi": "",
+  "batchSize": "",
+  "n_epochs": "",
+  "device": "",
+  "myIp": ""
+}
