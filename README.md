@@ -158,3 +158,9 @@ Under master node directory:
 ```
 node dist/cli.js withdraw
 ```
+
+### Job list (in Master node)
+Under master node directory:
+```
+node dist/cli.js joblist
+```
