@@ -89,8 +89,8 @@ $ cd emeth-master
 $ cp src/config/master.json.example src/config/master.json
 $ vi src/config/master.json
 ```
-| Parameter | Description |
-| --------- | ---------------------------------------- |
+| Parameter | Description | Memo |
+| --------- | ---------------------------------------- | ---------------------------------------- |
 | emethContractAddress | Emeth contract address |
 | tokenContractAddress | Token contract address |
 | endpoint | Ethereum node endpoint(Web socket) |
@@ -98,7 +98,7 @@ $ vi src/config/master.json
 | storageApi | Emeth storage api endpoint |
 | batchSize | Batch size |
 | n_epochs | Epoch num |
-| device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
+| device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) | Since master does not high perform calculations that require GPU, basically 'cpu' is recommended as the setting value.
 | myIp | Master node's IP address (127.0.0.1) for local master/worker connection |
 
 [worker node]
