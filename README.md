@@ -130,37 +130,37 @@ $ npm run build
 
 ## Run Emeth-node
 ### Launch Master node
-Under the master node directory:
+Execute under master node directory.
 ```
 node dist/cli.js master
 ```
 
 ### Launch Worker node
-Under the worker node directory:
+Execute under worker node directory.
 ```
 node dist/cli.js worker
 ```
 
-### Attach (in Master node)
-Under master node directory:
+### Attach
+Execute under master node directory after starting master and worker.
 ```
 node dist/cli.js attach
 ```
 
-### Dettach (in Master node)
-Under master node directory:
+### Dettach
+Execute under master node directory.
 ```
 node dist/cli.js dettach
 ```
 
-### Withdraw (in Master node)
-Under master node directory:
+### Withdraw
+Execute under master node directory.
 ```
 node dist/cli.js withdraw
 ```
 
-### Job list (in Master node)
-Under master node directory:
+### Job list
+Execute under master node directory.
 ```
 node dist/cli.js joblist
 ```
