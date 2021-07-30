@@ -23,6 +23,12 @@ $ sudo apt update
 $ sudo apt install python3.6 python3-pip
 ```
 
+Install related packages
+```
+$ cd parallelGPT
+$ pip3 install -r requirementgpu.txt
+```
+
 ### GPU seetup
 Check CUDA
 ```
@@ -58,77 +64,91 @@ $ sudo apt-get install libnccl2 libnccl-dev
 ```
 
 ### Fund EMT
-Fund some EMT token to your node address (corresponding to the private key configured in config.json)
+- Create your Ethereum account (address) using MetaMask or other tool.
+- Export and keep the private key for the address.
+- Fund some EMT token to your node address.
 
 ## Emeth-node Setup
-### Clone or unzip the repository code
+### Clone the repository code
 ```
 $ git clone <repository path>
-or
-$ unzip emeth-node-0.8.0.zip
+```
+
+If you setup a master node and a worker node one one machine, clone the repository to 2 different directories.
+
+Example:
+```
+$ git clone <repository path> emeth-master
+$ git clone <repository path> emeth-worker
 ```
 
 ### Config file
+[master node]
 ```
-$ cp src/config/config.json.example src/config/config.json
-$ vi src/config/config.json
+$ cd emeth-master
+$ cp src/config/master.json.example src/config/master.json
+$ vi src/config/master.json
 ```
 | Parameter | Description |
 | --------- | ---------------------------------------- |
 | emethContractAddress | Emeth contract address |
 | tokenContractAddress | Token contract address |
 | endpoint | Ethereum node endpoint(Web socket) |
-| privateKey | Your private key |
+| privateKey | Your Ethereum account private key |
 | storageApi | Emeth storage api endpoint |
-| profile.powerCapacity | Power capacity |
-| profile.batchSize | Batch size |
-| profile.n_epochs | Epoch num |
-| profile.device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
+| batchSize | Batch size |
+| n_epochs | Epoch num |
+| device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
+| myIp | Master node's IP address (127.0.0.1) for local master/worker connection |
 
-Test Phase Example:
+[worker node]
 ```
-{
-  "emethContractAddress": "0xA49B59ae7E27E4CDc31c4CdD29f2B8725cE7ac49",
-  "tokenContractAddress": "0x608919fA99A5C85D8D29f74E8c0325C0FE91016B",
-  "endpoint": "wss://rinkeby.infura.io/ws/v3/<your infura.io key>",
-  "privateKey": "<your private key>",
-  "storageApi": "ec2-52-196-43-170.ap-northeast-1.compute.amazonaws.com",
-  "profile": {
-    "powerCapacity": "27300",
-    "batchSize": "6",
-    "n_epochs": "6",
-    "device": "cuda"
-  }
-}
+$ cd ~/emeth-worker
+$ cp src/config/worker.json.example src/config/worker.json
+$ vi src/config/worker.json
 ```
+| Parameter | Description |
+| --------- | ---------------------------------------- |
+| batchSize | Batch size |
+| n_epochs | Epoch num |
+| device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
+| myIp | Worker node's IP address (127.0.0.1) for local master/worker connection |
+| masterIp | Master node's IP address (127.0.0.1) for local master/worker connection |
+| powerCapacity | Power capacity |
 
 ### Install packages
+Both for master and worker
 ```
-npm install
+$ npm install
 ```
 
 ### Build
+Both for master and worker
 ```
-npm run build
+$ npm run build
 ```
 
 ## Run Emeth-node
-### Attach (in Master node)
-```
-node dist/cli.js attach
-```
-
 ### Launch Master node
+Under the master node directory:
 ```
 node dist/cli.js master
 ```
 
 ### Launch Worker node
+Under the worker node directory:
 ```
 node dist/cli.js worker
 ```
 
+### Attach (in Master node)
+Under master node directory:
+```
+node dist/cli.js attach
+```
+
 ### Dettach (in Master node)
+Under master node directory:
 ```
 node dist/cli.js dettach
 ```
