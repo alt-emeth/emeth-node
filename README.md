@@ -152,3 +152,9 @@ Under master node directory:
 ```
 node dist/cli.js dettach
 ```
+
+### Withdraw (in Master node)
+Under master node directory:
+```
+node dist/cli.js withdraw
+```
