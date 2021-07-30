@@ -47,5 +47,7 @@ export enum JobStatus {
   VERIFIED = 4,
   REJECTED = 5,
   CANCELED = 6,
-  FAILED = 7
+  TIMEOUT = 7,
+  FAILED = 8,
+  DECLINED = 9
 }
