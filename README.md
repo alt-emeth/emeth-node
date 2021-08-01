@@ -121,6 +121,24 @@ Both for master and worker
 ```
 $ npm install
 ```
+It get a scrypt installation error but there is no problem in operation. 
+```
+make: *** [Release/obj.target/scrypt/src/node-boilerplate/scrypt_params_async.o] Error 1
+gyp ERR! build error 
+gyp ERR! stack Error: `make` failed with exit code: 2
+gyp ERR! stack     at ChildProcess.onExit (/Users/satoshi/.nvm/versions/node/v14.16.1/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:194:23)
+gyp ERR! stack     at ChildProcess.emit (events.js:315:20)
+gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:277:12)
+gyp ERR! System Darwin 20.4.0
+gyp ERR! command "/Users/satoshi/.nvm/versions/node/v14.16.1/bin/node" "/Users/satoshi/.nvm/versions/node/v14.16.1/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+gyp ERR! cwd /Users/satoshi/Documents/alt/Emeth/opening-phase/emeth-node/node_modules/scrypt
+gyp ERR! node -v v14.16.1
+gyp ERR! node-gyp -v v5.1.0
+gyp ERR! not ok 
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: scrypt@6.0.3 (node_modules/scrypt):
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: scrypt@6.0.3 install: `node-gyp rebuild`
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: Exit status 1
+```
 
 ### Build
 Both for master and worker
