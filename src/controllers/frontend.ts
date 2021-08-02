@@ -261,7 +261,7 @@ export const getTransaction = async (req: Request, res: Response) => {
     const erc20TokensEntity = new Erc20Tokens();
     const isTxToInErc20Tokens = await erc20TokensEntity.findByAddress(txTo);
 
-    if (!isTxToInErc20Tokens) {
+    if (!isTxToInErc20Tokens && transferredTokens) {
       for (const transferredToken of transferredTokens) {
         const { tokenAddress, tokenName, symbol, decimals } = transferredToken;
         try {
