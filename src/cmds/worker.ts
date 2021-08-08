@@ -69,6 +69,7 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
 
     let mode = MODE.None
     let child: ChildProcess|null = null
+    let currentJobId:string = ""
 
     const app = express()
 
@@ -186,10 +187,14 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
           mode = MODE.None
   
           child = null
+
+          currentJobId = ""
         })
 
         argv.logger.info(`Change mode to:${MODE.Ready}`)
         mode = MODE.Ready
+
+        currentJobId = jobId
 
         res.send({ result: mode })
       })().catch(next)
@@ -205,6 +210,8 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
       argv.logger.info(`Change mode to:${MODE.None}`)
       mode = MODE.None
 
+      currentJobId = ""
+
       res.send({ result: mode })
     })
 
@@ -215,6 +222,10 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
 
     router.get('/api/v1/mode', (req, res) => {
       res.send({ result: mode })
+    })
+
+    router.get('/api/v1/currentJob', (req, res) => {
+      res.send({ result: currentJobId })
     })
 
     router.post('/api/v1/upload', upload.single('file'), (req, res) => {
