@@ -16,18 +16,8 @@ const checkValidationEnv = () => {
     MYSQL_USERNAME: Joi.required(),
     MYSQL_PASSWORD: Joi.required(),
     MYSQL_PORT: Joi.number().positive().required(),
-    //web3 provider
-    BURN_URL_PROVIDER: Joi.string().required(),
   });
-  const {
-    TYPE_CONNECTION,
-    MYSQL_HOST,
-    MYSQL_DATABASE,
-    MYSQL_USERNAME,
-    MYSQL_PASSWORD,
-    MYSQL_PORT,
-    BURN_URL_PROVIDER,
-  } = process.env;
+  const { TYPE_CONNECTION, MYSQL_HOST, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_PORT } = process.env;
 
   const checkEnv = envSchema.validate({
     TYPE_CONNECTION,
@@ -36,7 +26,6 @@ const checkValidationEnv = () => {
     MYSQL_USERNAME,
     MYSQL_PASSWORD,
     MYSQL_PORT,
-    BURN_URL_PROVIDER,
   });
 
   if (checkEnv.error) {

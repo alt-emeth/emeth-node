@@ -6,14 +6,19 @@
 
 $(document).ready(function () {
   if (token) {
+    const originUrl = window.location.origin;
     $('#transfers-loading').show();
     $.ajax({
       method: 'GET',
-      url: `${url}/tokens/transfers/${tokenId}?page=1&limit=15`,
+      url: `${originUrl}/tokens/transfers/${tokenId}?page=1&limit=15`,
       success: function (msg) {
         $('#transfers-loading').hide();
         const { transfers, pages, totalPage, total } = msg.data;
-        renderViewTransfers(transfers, pages, 1, totalPage);
+        const parsedTransfers = transfers.map((transfer) => ({
+          ...transfer,
+          amount: formatAmount(transfer.amount / Math.pow(10, token.decimals)),
+        }));
+        renderViewTransfers(parsedTransfers, pages, 1, totalPage);
         $('#transfers #title-transfers').text(`A total of ${total} transactions found`);
         $('#tbCustom_wrapper').trigger('resize');
       },
@@ -24,10 +29,15 @@ $(document).ready(function () {
 
     $.ajax({
       method: 'GET',
-      url: `${url}/tokens/holders/${tokenId}?page=1&limit=15&excludeZeroBalance=true`,
+      url: `${originUrl}/tokens/holders/${tokenId}?page=1&limit=15&excludeZeroBalance=true`,
       success: function (msg) {
         const { holders, pages, totalPage, total } = msg.data;
-        renderViewHolders(holders, pages, 1, totalPage);
+        const parsedHolders = holders.map((holder) => ({
+          ...holder,
+          amount: formatAmount(holder.amount / Math.pow(10, token.decimals)),
+        }));
+
+        renderViewHolders(parsedHolders, pages, 1, totalPage);
         $('#holders #title-holders').text(`A total of ${total} holders`);
         $('#tbCustom_wrapper').trigger('resize');
       },
@@ -39,6 +49,13 @@ $(document).ready(function () {
     $('#transfers-loading').hide();
   }
 });
+
+function formatAmount(s) {
+  const data = String(s).split('.');
+  data[0] = data[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+  if (data.length == 1) return data[0];
+  else return data.join('.');
+}
 
 function renderPagination(element, pages, currentPage, totalPage, test) {
   if (pages.length === 0 || pages[0] === 1) {
@@ -84,7 +101,7 @@ function customGoToPageTransfers(page) {
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
-    url: `${url}/tokens/transfers/${tokenId}?page=${page}&limit=${limit}`,
+    url: `${originUrl}/tokens/transfers/${tokenId}?page=${page}&limit=${limit}`,
     success: function (msg) {
       const { transfers, pages, currentPage, totalPage } = msg.data;
       $('#tbody-transfers').children('tr').remove();
@@ -102,7 +119,7 @@ function customGoToPageHolders(page) {
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
-    url: `${url}/tokens/holders/${tokenId}?page=${page}&limit=${limit}&excludeZeroBalance=true`,
+    url: `${originUrl}/tokens/holders/${tokenId}?page=${page}&limit=${limit}&excludeZeroBalance=true`,
     success: function (msg) {
       const { holders, pages, currentPage, totalPage } = msg.data;
       $('#tbody-holders').children('tr').remove();
@@ -131,9 +148,9 @@ function renderViewTransfers(transfers, pages, currentPage, totalPage) {
             <td >
               <span class='text-truncate hash-tag'> ${transfers[i].createdAt} </span>
             </td>
-            <td title=${transfers[i].source}>
+            <td title=${transfers[i].transferFrom}>
               <span class='text-truncate hash-tag'>
-                <a href=/address/${transfers[i].source}>${transfers[i].source}</a>
+                <a href=/address/${transfers[i].transferFrom}>${transfers[i].transferFrom}</a>
               </span>
             </td>
             <td>
@@ -143,13 +160,13 @@ function renderViewTransfers(transfers, pages, currentPage, totalPage) {
                 </div>
               </span>
             </td>
-            <td title=${transfers[i].target}>
+            <td title=${transfers[i].transferTo}>
               <span class='text-truncate hash-tag'>
-                <a href=/address/${transfers[i].target}>${transfers[i].target}</a>
+                <a href=/address/${transfers[i].transferTo}>${transfers[i].transferTo}</a>
               </span>
             </td>
             <td>
-              <span class='text-truncate hash-tag'>${transfers[i].quantity}</span>
+              <span class='text-truncate hash-tag'>${transfers[i].amount}</span>
             </td>
           </tr>
     `);

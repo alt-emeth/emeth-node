@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import Axios from 'axios';
 
 import routes from './routes/index';
+import { Erc20Tokens } from './entities/erc20-tokens.entity';
 import checkValidationEnv from './config/validationSchemaEnv';
 
 dotenv.config();
@@ -18,6 +19,7 @@ checkValidationEnv();
 createConnection()
   .then((connection) => {
     console.log('Connected to DB: ' + connection.driver.database);
+    Erc20Tokens.initData();
   })
   .catch((error) => {
     console.log('TypeORM connection error: ', error);

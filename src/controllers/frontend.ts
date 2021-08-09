@@ -1,14 +1,13 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
-// import Web3 from 'web3';
-// import { AbiItem } from 'web3-utils';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
 
 import {
   getListTableDashboard,
   getSummaryDashboard,
   getTransactions,
   getBlocks,
-  getTokens,
   getStores,
   getTransactionDetail,
   getBlockDetail,
@@ -18,10 +17,13 @@ import {
   getKvsDetail,
   getLogsTxs,
   getEvents,
+  getLastTransferEvent,
 } from '../services/dashboard.service';
 import { TOKEN_SPECIAL, SELECT_LIMIT } from '../config/index';
+import ERC20Abi from '../config/ERC20.abi.json';
 import { addressPrefix } from '../app';
 import { Erc20Tokens, Erc20TokensDtoCreate } from '../entities/erc20-tokens.entity';
+import { Erc20Transfers, Erc20TransfersDtoCreate } from '../entities/erc20-transfers.entity';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -82,8 +84,8 @@ export const dashboard = async (req: Request, res: Response) => {
       totalTransactions = 0,
       totalBlocks = 0,
       latestBlock = 0,
-      totalTokens = 0,
       latestCheckPoint: { checkpointNumber, publicTxHash },
+      totalTokens = 0,
       totalStores = 0,
       totalBalances = 0,
     } = summaryDashboardData;
@@ -192,20 +194,40 @@ export const blocks = async (req: Request, res: Response) => {
 
 export const tokens = async (req: Request, res: Response) => {
   try {
+    const web3 = new Web3(process.env.BURN_URL_PROVIDER);
     const { page = 1, limit = SELECT_LIMIT[0] } = req.query;
     const offset = (+page - 1) * +limit;
-    const dataRes = await getTokens(offset, +limit);
+    const dataRes = await Erc20Tokens.findAndCount(offset, +limit);
     let { tokens = [] } = dataRes;
     const { total = 0 } = dataRes;
     const { pages, totalPage } = pagination(+page, total, +limit);
-    tokens = tokens.map((ele) => {
-      return {
-        ...ele,
-        totalSupply: formatNumber(ele.totalSupply),
-        holders: formatNumber(ele.holders),
-        transfers: formatNumber(ele.transfers),
-      };
-    });
+    tokens = (
+      await Promise.all(
+        tokens.map(async (token) => {
+          const tokenAddress = token.tokenAddress;
+          try {
+            let result;
+            if (tokenAddress === process.env.NATIVE_TOKEN_ID) {
+              const { token } = await getTokenDetail(tokenAddress);
+              result = { ...token };
+            } else {
+              const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenAddress);
+              const totalSupply = await tokenContract.methods.totalSupply().call();
+              result = {
+                ...token,
+                totalSupply: formatNumber(totalSupply),
+              };
+            }
+
+            return result;
+          } catch (error) {
+            console.log(`parse token ${tokenAddress} error: `, error.message);
+            return undefined;
+          }
+        })
+      )
+    ).filter((e) => e);
+
     res.render('pages/tokens', {
       tokens,
       total,
@@ -216,10 +238,73 @@ export const tokens = async (req: Request, res: Response) => {
       selected: SELECT_LIMIT.indexOf(Number(limit)),
     });
   } catch (error) {
+    console.log('List tokens error: ', error);
     res.render('pages/tokens', {
       tokens: [],
       pages: [],
       totalPage: 0,
+    });
+  }
+};
+
+export const getTransfers = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit: limitStr } = req.query;
+    const tokenId = req.params.id;
+    const limit = limitStr ? parseInt(limitStr as string) : SELECT_LIMIT[0];
+    const offset = (+page - 1) * +limit;
+
+    const { total, transfers } = await Erc20Transfers.listTransfers(tokenId, false, offset, Number(limit));
+    const { pages, totalPage } = pagination(+page, total, +limit);
+
+    return res.json({
+      data: {
+        transfers,
+        total,
+        pages,
+        currentPage: +page,
+        totalPage,
+      },
+    });
+  } catch (error) {
+    console.log('getTransfers API error:', error);
+    return res.json({
+      data: {
+        transfers: [],
+        pages: [],
+        totalPage: 0,
+      },
+    });
+  }
+};
+
+export const getHolders = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit: limitStr } = req.query;
+    const tokenId = req.params.id;
+    const limit = limitStr ? parseInt(limitStr as string) : SELECT_LIMIT[0];
+    const offset = (+page - 1) * +limit;
+
+    const { total, holders } = await Erc20Transfers.listHolders(tokenId, false, offset, Number(limit));
+    const { pages, totalPage } = pagination(+page, total, +limit);
+
+    return res.json({
+      data: {
+        holders,
+        total,
+        pages,
+        currentPage: +page,
+        totalPage,
+      },
+    });
+  } catch (error) {
+    console.log('getHolders API error:', error);
+    return res.json({
+      data: {
+        holders: [],
+        pages: [],
+        totalPage: 0,
+      },
     });
   }
 };
@@ -258,8 +343,7 @@ export const getTransaction = async (req: Request, res: Response) => {
     const { txEvents } = await getLogsTxs(key);
 
     const { txTo, transferredTokens } = transactionData;
-    const erc20TokensEntity = new Erc20Tokens();
-    const isTxToInErc20Tokens = await erc20TokensEntity.findByAddress(txTo);
+    const isTxToInErc20Tokens = await Erc20Tokens.findByAddress(txTo);
 
     if (!isTxToInErc20Tokens && transferredTokens) {
       for (const transferredToken of transferredTokens) {
@@ -271,7 +355,7 @@ export const getTransaction = async (req: Request, res: Response) => {
             symbol,
             decimals,
           };
-          erc20TokensEntity.create(dataErc20Tokens);
+          Erc20Tokens.save(dataErc20Tokens);
         } catch (error) {
           console.log(`[tokenContract] ${error}`);
           continue;
@@ -323,13 +407,44 @@ export const getBlock = async (req: Request, res: Response) => {
 
 export const getToken = async (req: Request, res: Response) => {
   try {
-    const key = req.params.id;
-    const { token } = await getTokenDetail(key);
-    Object.assign(token, {
-      totalSupply: formatNumber(token.totalSupply),
-      holders: formatNumber(token.holders),
-      transfers: formatNumber(token.transfers),
-    });
+    const web3 = new Web3(process.env.BURN_URL_PROVIDER);
+    const tokenAddress = req.params.id;
+    let token;
+    const lastTransferTx = await Erc20Transfers.lastTransactionByToken(tokenAddress);
+
+    const lastTransferTxOnChain = await getLastTransferEvent(tokenAddress, lastTransferTx?.createdAt?.getTime());
+    if (lastTransferTxOnChain) {
+      const { eventIndex, transferFrom, transferTo, txId, amount } = lastTransferTxOnChain;
+      const newErc20Transfer: Erc20TransfersDtoCreate = {
+        txId,
+        tokenAddress,
+        eventIndex,
+        transferFrom,
+        transferTo,
+        amount,
+      };
+      await Erc20Transfers.save(newErc20Transfer);
+    }
+
+    if (tokenAddress === process.env.NATIVE_TOKEN_ID) {
+      const { token: tokenData } = await getTokenDetail(tokenAddress);
+      token = { ...tokenData };
+    } else {
+      const tokenData = await Erc20Tokens.findByAddress(tokenAddress);
+      const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenAddress);
+      const totalSupply = await tokenContract.methods.totalSupply().call();
+      const { total: transfersCount } = await Erc20Transfers.listTransfers(tokenAddress, true);
+      const { total: holdersCount } = await Erc20Transfers.listHolders(tokenAddress, true);
+
+      token = {
+        ...tokenData,
+        tokenId: tokenAddress,
+        totalSupply: formatNumber(totalSupply),
+        transfers: transfersCount,
+        holders: holdersCount,
+      };
+    }
+
     res.render('page-detail/token', {
       title: 'Token',
       token,

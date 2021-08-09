@@ -91,6 +91,16 @@ export const getTransactionDetail = async (txId: string) => {
   }
 };
 
+export const getLastTransferEvent = async (tokenAddress: string, lastTransferTime: string | number) => {
+  try {
+    const { data: resData } = await Axios.get(`/transaction-event/${tokenAddress}`, { params: { lastTransferTime } });
+
+    return resData.data;
+  } catch (error) {
+    throw new Error(`getLastTransferEvent: ${error.message}`);
+  }
+};
+
 export const getLogsTxs = async (txId: string) => {
   try {
     const { data: resData } = await Axios.get(`/tx/logs/${txId}`);

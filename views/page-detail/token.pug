@@ -108,7 +108,7 @@ block content
       background-color: #f5f5f5;
     }
   script. 
-    const token = `#{token}`
+    const token = !{JSON.stringify(token)}
     const url = `#{url}`
     const limit = 25
     const tokenId = `#{token.tokenId}`
