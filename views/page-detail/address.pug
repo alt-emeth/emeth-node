@@ -31,7 +31,7 @@ block content
             .modal-body.text-center
               img(src="../images/icons/token.png", alt="")
 
-      -if(!addressDetail){
+      -if(!addressDetail || !addressDetail.balances){
         h3.text-center Data empty
       -} else {
         .row.overview
@@ -44,11 +44,7 @@ block content
                   .col-sm-4
                     label.col-form-label.font-weight-bold Balance:
                   .col-sm-8
-                    -for(item of addressDetail){
-                      -if(item.tokenId === nativeToken){
-                        span.text-truncate.hash-tag #{item.balance} #{item.symbol} &nbsp;
-                      -}
-                    -}
+                    span.text-truncate.hash-tag #{addressDetail.nativeTokenBalance.balance} #{addressDetail.nativeTokenBalance.symbol} &nbsp;
                 -if(contract){
                   .form-group.row
                     .col-sm-4
@@ -69,13 +65,15 @@ block content
                     .btn-group
                       div.dropdown-token.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                         | Tokens
-                      .dropdown-menu.menu-token
-                        -for(item of addressDetail) {
-                          .d-flex.align-items-sm-center.line-token
-                            img.icon-token(src= `${item.icon || '../images/icons/token.png'}`)
-                            span.ml-1.token-name(style={'white-space': 'nowrap'}) #{item.name}
-                            span.token-price.ml-auto(style={'white-space': 'nowrap'}) #{item.balance} #{item.symbol}
-                        -}
+                      -if(addressDetail.balances.length > 0){
+                        .dropdown-menu.menu-token
+                          -for(item of addressDetail.balances) {
+                            .d-flex.align-items-sm-center.line-token
+                              img.icon-token(src= `${item.icon || '../images/icons/token.png'}`)
+                              span.ml-1.token-name(style={'white-space': 'nowrap'}) #{item.name}
+                              span.token-price.ml-auto(style={'white-space': 'nowrap'}) #{item.balance} #{item.symbol}
+                          -}
+                      -}
         .row.content-tab.mt-5
           .col
             .box-detail

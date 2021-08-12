@@ -32,12 +32,8 @@ $(document).ready(function () {
       url: `${originUrl}/tokens/holders/${tokenId}?page=1&limit=15&excludeZeroBalance=true`,
       success: function (msg) {
         const { holders, pages, totalPage, total } = msg.data;
-        const parsedHolders = holders.map((holder) => ({
-          ...holder,
-          amount: formatAmount(holder.amount / Math.pow(10, token.decimals)),
-        }));
 
-        renderViewHolders(parsedHolders, pages, 1, totalPage);
+        renderViewHolders(holders, pages, 1, totalPage);
         $('#holders #title-holders').text(`A total of ${total} holders`);
         $('#tbCustom_wrapper').trigger('resize');
       },
@@ -190,7 +186,7 @@ function renderViewHolders(holders, pages, currentPage, totalPage) {
               </span>
             </td>
             <td >
-              <span class='text-truncate hash-tag'> ${holders[i].quantity} </span>
+              <span class='text-truncate hash-tag'> ${holders[i].balance} </span>
             </td>
             <td >
               <span class='text-truncate hash-tag'> ${holders[i].percentage} </span>

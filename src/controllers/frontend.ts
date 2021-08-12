@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
+import { AbiItem, toBN } from 'web3-utils';
 
 import {
   getListTableDashboard,
@@ -24,6 +24,7 @@ import ERC20Abi from '../config/ERC20.abi.json';
 import { addressPrefix } from '../app';
 import { Erc20Tokens, Erc20TokensDtoCreate } from '../entities/erc20-tokens.entity';
 import { Erc20Transfers, Erc20TransfersDtoCreate } from '../entities/erc20-transfers.entity';
+import { hexToDecimal } from '../utils/index';
 
 export const index = async (req: Request, res: Response) => {
   res.redirect('/dashboard');
@@ -212,10 +213,12 @@ export const tokens = async (req: Request, res: Response) => {
               result = { ...token };
             } else {
               const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenAddress);
-              const totalSupply = await tokenContract.methods.totalSupply().call();
+              const rawTotalSupply = await tokenContract.methods.totalSupply().call();
+              const totalSupply = hexToDecimal(toBN(rawTotalSupply).toString(16), token.decimals);
+
               result = {
                 ...token,
-                totalSupply: formatNumber(totalSupply),
+                totalSupply,
               };
             }
 
@@ -280,17 +283,31 @@ export const getTransfers = async (req: Request, res: Response) => {
 
 export const getHolders = async (req: Request, res: Response) => {
   try {
+    const web3 = new Web3(process.env.BURN_URL_PROVIDER);
     const { page = 1, limit: limitStr } = req.query;
     const tokenId = req.params.id;
+    console.log('getHolders', tokenId);
+    const token = await Erc20Tokens.findByAddress(tokenId);
+    const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenId);
+    const totalSupply = await tokenContract.methods.totalSupply().call();
     const limit = limitStr ? parseInt(limitStr as string) : SELECT_LIMIT[0];
     const offset = (+page - 1) * +limit;
 
-    const { total, holders } = await Erc20Transfers.listHolders(tokenId, false, offset, Number(limit));
+    const { total, holders: tokenHolders } = await Erc20Transfers.listHolders(tokenId, false, offset, Number(limit));
     const { pages, totalPage } = pagination(+page, total, +limit);
+    const parseHolders = tokenHolders.map(({ holder, balance }) => {
+      const percentage = Math.floor(((balance * 100) / totalSupply) * 100) / 100;
+      const percentageStr = percentage < 0.01 ? `less than 0.01%` : `${percentage} %`;
+      return {
+        address: holder,
+        balance: hexToDecimal(balance, token.decimals),
+        percentage: percentageStr,
+      };
+    });
 
     return res.json({
       data: {
-        holders,
+        holders: parseHolders,
         total,
         pages,
         currentPage: +page,
@@ -432,14 +449,15 @@ export const getToken = async (req: Request, res: Response) => {
     } else {
       const tokenData = await Erc20Tokens.findByAddress(tokenAddress);
       const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenAddress);
-      const totalSupply = await tokenContract.methods.totalSupply().call();
+      const rawTotalSupply = await tokenContract.methods.totalSupply().call();
+      const totalSupply = hexToDecimal(toBN(rawTotalSupply).toString(16), tokenData.decimals);
       const { total: transfersCount } = await Erc20Transfers.listTransfers(tokenAddress, true);
       const { total: holdersCount } = await Erc20Transfers.listHolders(tokenAddress, true);
 
       token = {
         ...tokenData,
         tokenId: tokenAddress,
-        totalSupply: formatNumber(totalSupply),
+        totalSupply,
         transfers: transfersCount,
         holders: holdersCount,
       };
@@ -459,11 +477,25 @@ export const getToken = async (req: Request, res: Response) => {
 
 export const getAddress = async (req: Request, res: Response) => {
   try {
-    const key = req.params.id;
-    const dataRes = await getAddressDetail(key);
-    const { txEvents: _txEvents } = await getEvents(key);
+    const address = req.params.id;
+    const dataRes = await getAddressDetail(address);
+    const { txEvents: _txEvents } = await getEvents(address);
     let { transactions = [] } = dataRes;
-    const { contract, tsxContractCreator, total = 0, balances: addressDetail } = dataRes;
+    const { contract, tsxContractCreator, total = 0, nativeTokenBalance } = dataRes;
+
+    const balances = (await Erc20Tokens.getErc20TokenBalances(address)).map((b) => ({
+      ...b,
+      balance: hexToDecimal(b.balance, b.decimals),
+    }));
+    // add nativeToken balance
+    balances.unshift({
+      ...nativeTokenBalance,
+    });
+    const addressDetail = {
+      nativeTokenBalance,
+      balances,
+    };
+
     transactions = transactions.map((item) => {
       return {
         ...item,
@@ -488,7 +520,7 @@ export const getAddress = async (req: Request, res: Response) => {
       transactions,
       addressDetail,
       nativeToken: TOKEN_SPECIAL,
-      address: key.toLowerCase(),
+      address: address.toLowerCase(),
       url: process.env.BURN_API_URL,
       addressPrefix,
       txEvents,
@@ -554,12 +586,12 @@ export const keyValues = async (req: Request, res: Response) => {
   }
 };
 
-const formatNumber = (s) => {
-  const data = String(s).split('.');
-  data[0] = data[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-  if (data.length == 1) return data[0];
-  else return data.join('.');
-};
+// const formatNumber = (s) => {
+//   const data = String(s).split('.');
+//   data[0] = data[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+//   if (data.length == 1) return data[0];
+//   else return data.join('.');
+// };
 
 const pagination = (page: number, total: number, totalPerPage: number, totalPageShow = 3) => {
   const totalPage = Math.ceil(total / totalPerPage);

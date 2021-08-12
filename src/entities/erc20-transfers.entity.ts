@@ -132,12 +132,12 @@ export class Erc20Transfers {
         FROM
           (SELECT token_address, transfer_to AS holder, SUM(amount) AS amount
           FROM erc20_transfers
-          WHERE token_address = ${tokenAddress}
+          WHERE token_address = '${tokenAddress}'
           GROUP BY transfer_to) amount_in
         LEFT JOIN
           (SELECT token_address, transfer_from AS holder, SUM(amount) AS amount
           FROM erc20_transfers
-          WHERE token_address = ${tokenAddress}
+          WHERE token_address = '${tokenAddress}'
           GROUP BY transfer_from) amount_out
         ON amount_in.token_address = amount_out.token_address
         AND amount_in.holder = amount_out.holder

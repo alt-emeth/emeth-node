@@ -135,4 +135,35 @@ export class Erc20Tokens {
       throw new Error(errMsg);
     }
   }
+
+  static async getErc20TokenBalances(userAddress: string) {
+    try {
+      const nativeTokenId = process.env.NATIVE_TOKEN_ID;
+      const erc20TokenRepository = getRepository(Erc20Tokens);
+      const rawQueryString = `
+        SELECT token.address, token.name, token.symbol, token.icon, token.decimals, 
+        COALESCE(amount_in.amount, 0) - COALESCE(amount_out.amount, 0) AS balance
+        FROM
+        (SELECT token_address, SUM(amount) AS amount
+          FROM erc20_transfers
+          WHERE transfer_to = '${userAddress}'
+          GROUP BY token_address) amount_in
+        LEFT JOIN
+        (SELECT token_address, SUM(amount) AS amount
+          FROM erc20_transfers
+          WHERE transfer_from = '${userAddress}'
+          GROUP BY token_address) amount_out
+        ON amount_in.token_address = amount_out.token_address
+        LEFT JOIN erc20_tokens token
+        ON token.address = amount_in.token_address
+        WHERE COALESCE(amount_in.amount, 0) - COALESCE(amount_out.amount, 0) > 0 AND token.address != '${nativeTokenId}';
+      `;
+      const balances = await erc20TokenRepository.query(rawQueryString);
+
+      return balances;
+    } catch (error) {
+      const errMsg = `[Erc20Transfers][create] ${error.message}`;
+      throw new Error(errMsg);
+    }
+  }
 }
