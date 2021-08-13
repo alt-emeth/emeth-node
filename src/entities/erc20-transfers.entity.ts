@@ -110,6 +110,9 @@ export class Erc20Transfers {
           where: {
             tokenAddress,
           },
+          order: {
+            createdAt: 'DESC',
+          },
           skip,
           take,
         });
