@@ -429,9 +429,9 @@ export const getToken = async (req: Request, res: Response) => {
     let token;
     const lastTransferTx = await Erc20Transfers.lastTransactionByToken(tokenAddress);
 
-    const lastTransferTxOnChain = await getLastTransferEvent(tokenAddress, lastTransferTx?.createdAt?.getTime());
-    if (lastTransferTxOnChain) {
-      const { eventIndex, transferFrom, transferTo, txId, amount } = lastTransferTxOnChain;
+    const lastTransfersTxOnChain = await getLastTransferEvent(tokenAddress, lastTransferTx?.createdAt?.getTime());
+    for (const lastTransferTxOnChain of lastTransfersTxOnChain) {
+      const { eventIndex, transferFrom, transferTo, txId, amount, createdAt } = lastTransferTxOnChain;
       const newErc20Transfer: Erc20TransfersDtoCreate = {
         txId,
         tokenAddress,
@@ -439,6 +439,7 @@ export const getToken = async (req: Request, res: Response) => {
         transferFrom,
         transferTo,
         amount,
+        createdAt,
       };
       await Erc20Transfers.save(newErc20Transfer);
     }
