@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, getRepository, Index } from 'typeorm';
+import { Entity, Column, PrimaryColumn, getRepository, Index } from 'typeorm';
 
 export interface Erc20TransfersDtoCreate {
   txId: string;
@@ -6,6 +6,7 @@ export interface Erc20TransfersDtoCreate {
   tokenAddress: string;
   transferFrom: string;
   transferTo: string;
+  createdAt: Date;
   amount?: string;
 }
 
@@ -60,7 +61,7 @@ export class Erc20Transfers {
   })
   amount: string;
 
-  @CreateDateColumn({
+  @Column({
     name: 'created_at',
     type: 'datetime',
   })
