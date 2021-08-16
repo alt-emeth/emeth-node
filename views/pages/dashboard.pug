@@ -112,25 +112,7 @@ block content
       } else if (/(^0x[a-fA-F0-9]{64})+$/.test(`${text}`)) {
         url = `${originUrl}/tx/${text}` 
       } else if (/(^0x[a-fA-F0-9]{40})+$/.test(`${text}`)) {
-        const data = await $.ajax({
-          method: 'GET',
-          url: `${originUrl}/address-type/${text}`,
-        });
-
-        const { addressType } = data;
-        switch(addressType) {
-          case 'token':
-            url = `${originUrl}/tokens/${text}`;
-            break;
-          case 'store':
-            url = `${originUrl}/stores/${text}`;
-            break;
-          case 'address':
-            url = `${originUrl}/address/${text}`;
-            break;
-          default:
-            url = `${originUrl}/dashboard`;
-        }
+        url = `${originUrl}/address/${text}`;
       } else {
         url = `${originUrl}/dashboard` 
       }
