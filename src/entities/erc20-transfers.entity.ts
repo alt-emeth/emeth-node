@@ -146,6 +146,7 @@ export class Erc20Transfers {
         ON amount_in.token_address = amount_out.token_address
         AND amount_in.holder = amount_out.holder
         WHERE COALESCE(amount_in.amount, 0) - COALESCE(amount_out.amount, 0) > 0
+        ORDER BY balance DESC
       `;
       const pRawQueryString = rawQueryString + ` LIMIT ${skip},${limit};`;
 
