@@ -5,6 +5,7 @@
  */
 
 $(document).ready(function () {
+  const originUrl = window.location.origin;
   if (token) {
     $('#transfers-loading').show();
     $.ajax({
@@ -93,6 +94,7 @@ function renderPagination(element, pages, currentPage, totalPage, test) {
 }
 
 function customGoToPageTransfers(page) {
+  const originUrl = window.location.origin;
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
@@ -111,6 +113,7 @@ function customGoToPageTransfers(page) {
 }
 
 function customGoToPageHolders(page) {
+  const originUrl = window.location.origin;
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
