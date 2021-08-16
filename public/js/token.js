@@ -5,12 +5,12 @@
  */
 
 $(document).ready(function () {
+  const originUrl = window.location.origin;
   if (token) {
-    const originUrl = window.location.origin;
     $('#transfers-loading').show();
     $.ajax({
       method: 'GET',
-      url: `${originUrl}/tokens/transfers/${tokenId}?page=1&limit=15`,
+      url: `${originUrl}/tokens/transfers/${tokenId}?page=1&limit=25`,
       success: function (msg) {
         $('#transfers-loading').hide();
         const { transfers, pages, totalPage, total } = msg.data;
@@ -29,7 +29,7 @@ $(document).ready(function () {
 
     $.ajax({
       method: 'GET',
-      url: `${originUrl}/tokens/holders/${tokenId}?page=1&limit=15&excludeZeroBalance=true`,
+      url: `${originUrl}/tokens/holders/${tokenId}?page=1&limit=25&excludeZeroBalance=true`,
       success: function (msg) {
         const { holders, pages, totalPage, total } = msg.data;
 
@@ -94,6 +94,7 @@ function renderPagination(element, pages, currentPage, totalPage, test) {
 }
 
 function customGoToPageTransfers(page) {
+  const originUrl = window.location.origin;
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
@@ -112,6 +113,7 @@ function customGoToPageTransfers(page) {
 }
 
 function customGoToPageHolders(page) {
+  const originUrl = window.location.origin;
   $('#transfers-loading').show();
   $.ajax({
     method: 'GET',
