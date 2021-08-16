@@ -5,7 +5,6 @@
  */
 
 $(document).ready(function () {
-  const originUrl = window.location.origin;
   if (token) {
     $('#transfers-loading').show();
     $.ajax({
