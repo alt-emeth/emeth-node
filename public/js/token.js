@@ -101,9 +101,13 @@ function customGoToPageTransfers(page) {
     url: `${originUrl}/tokens/transfers/${tokenId}?page=${page}&limit=${limit}`,
     success: function (msg) {
       const { transfers, pages, currentPage, totalPage } = msg.data;
+      const parsedTransfers = transfers.map((transfer) => ({
+        ...transfer,
+        amount: formatAmount(transfer.amount / Math.pow(10, token.decimals)),
+      }));
       $('#tbody-transfers').children('tr').remove();
       $('#transfers .pagination').children('a').remove();
-      renderViewTransfers(transfers, pages, currentPage, totalPage);
+      renderViewTransfers(parsedTransfers, pages, currentPage, totalPage);
       $('#transfers-loading').hide();
     },
     error: function (error) {
