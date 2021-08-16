@@ -286,7 +286,6 @@ export const getHolders = async (req: Request, res: Response) => {
     const web3 = new Web3(process.env.BURN_URL_PROVIDER);
     const { page = 1, limit: limitStr } = req.query;
     const tokenId = req.params.id;
-    console.log('getHolders', tokenId);
     const token = await Erc20Tokens.findByAddress(tokenId);
     const tokenContract = new web3.eth.Contract(ERC20Abi as AbiItem[], tokenId);
     const totalSupply = await tokenContract.methods.totalSupply().call();
