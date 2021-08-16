@@ -5,8 +5,8 @@
  */
 
 $(document).ready(function () {
+  const originUrl = window.location.origin;
   if (token) {
-    const originUrl = window.location.origin;
     $('#transfers-loading').show();
     $.ajax({
       method: 'GET',
