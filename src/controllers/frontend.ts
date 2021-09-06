@@ -257,7 +257,19 @@ export const getTransfers = async (req: Request, res: Response) => {
     const limit = limitStr ? parseInt(limitStr as string) : SELECT_LIMIT[0];
     const offset = (+page - 1) * +limit;
 
-    const { total, transfers } = await Erc20Transfers.listTransfers(tokenId, false, offset, Number(limit));
+    const token = await Erc20Tokens.findByAddress(tokenId);
+
+    const { total, transfers: rawTransfers } = await Erc20Transfers.listTransfers(
+      tokenId,
+      false,
+      offset,
+      Number(limit)
+    );
+
+    const transfers = rawTransfers.map((t) => ({
+      ...t,
+      amount: hexToDecimal(t.amount, token.decimals),
+    }));
     const { pages, totalPage } = pagination(+page, total, +limit);
 
     return res.json({

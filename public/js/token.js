@@ -14,11 +14,8 @@ $(document).ready(function () {
       success: function (msg) {
         $('#transfers-loading').hide();
         const { transfers, pages, totalPage, total } = msg.data;
-        const parsedTransfers = transfers.map((transfer) => ({
-          ...transfer,
-          amount: formatAmount(transfer.amount / Math.pow(10, token.decimals)),
-        }));
-        renderViewTransfers(parsedTransfers, pages, 1, totalPage);
+
+        renderViewTransfers(transfers, pages, 1, totalPage);
         $('#transfers #title-transfers').text(`A total of ${total} transactions found`);
         $('#tbCustom_wrapper').trigger('resize');
       },
