@@ -23,6 +23,7 @@ interface EmethInterface extends ethers.utils.Interface {
   functions: {
     "ASSIGNER_FEE()": FunctionFragment;
     "DEPOSIT_PER_CAPACITY()": FunctionFragment;
+    "MAX_SLOT_GAS_PER_NODE()": FunctionFragment;
     "MIN_DEPOSIT()": FunctionFragment;
     "VERIFIER_FEE()": FunctionFragment;
     "addDeposit(uint256)": FunctionFragment;
@@ -35,15 +36,21 @@ interface EmethInterface extends ethers.utils.Interface {
     "currentSlotReward()": FunctionFragment;
     "decline(bytes16)": FunctionFragment;
     "detach()": FunctionFragment;
+    "estimateFee(uint256,uint256,uint256)": FunctionFragment;
+    "estimateGas(uint256,uint256)": FunctionFragment;
     "findAvailableNode(uint256)": FunctionFragment;
     "isAssigner(address)": FunctionFragment;
     "isVerifier(address)": FunctionFragment;
+    "jobAssignedCount(address)": FunctionFragment;
+    "jobAssignedHistory(address,uint256)": FunctionFragment;
     "jobAssigns(bytes16)": FunctionFragment;
     "jobDetails(bytes16)": FunctionFragment;
     "jobs(bytes16)": FunctionFragment;
     "lastJobAssigned(address)": FunctionFragment;
     "nodeAddresses(uint256)": FunctionFragment;
+    "nodeCount()": FunctionFragment;
     "nodeSlotCount(address)": FunctionFragment;
+    "nodeSlotUnique(address,uint256)": FunctionFragment;
     "nodeSlots(address,uint256)": FunctionFragment;
     "nodes(address)": FunctionFragment;
     "process(bytes16)": FunctionFragment;
@@ -53,6 +60,7 @@ interface EmethInterface extends ethers.utils.Interface {
     "request(bytes16,uint256,string,string,uint256,uint256,uint256)": FunctionFragment;
     "setAssigner(address)": FunctionFragment;
     "setAssignerFee(uint256)": FunctionFragment;
+    "setMaxSlotGasPerNode(uint256)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
     "setVerifierFee(uint256)": FunctionFragment;
     "slotBalances(uint256,address)": FunctionFragment;
@@ -61,6 +69,7 @@ interface EmethInterface extends ethers.utils.Interface {
     "startSlot()": FunctionFragment;
     "submit(bytes16,string)": FunctionFragment;
     "timeout(bytes16)": FunctionFragment;
+    "tokenAddress()": FunctionFragment;
     "update(uint256,uint256)": FunctionFragment;
     "updateJob(bytes16,address,uint256,uint256,uint256)": FunctionFragment;
     "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
@@ -77,6 +86,10 @@ interface EmethInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "DEPOSIT_PER_CAPACITY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MAX_SLOT_GAS_PER_NODE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -116,11 +129,27 @@ interface EmethInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "decline", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "detach", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "estimateFee",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "estimateGas",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "findAvailableNode",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "isAssigner", values: [string]): string;
   encodeFunctionData(functionFragment: "isVerifier", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "jobAssignedCount",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "jobAssignedHistory",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "jobAssigns",
     values: [BytesLike]
@@ -138,9 +167,14 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "nodeAddresses",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "nodeCount", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nodeSlotCount",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "nodeSlotUnique",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "nodeSlots",
@@ -177,6 +211,10 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "setAssignerFee",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxSlotGasPerNode",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setVerifierFee",
@@ -197,6 +235,10 @@ interface EmethInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "timeout", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "tokenAddress",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "update",
     values: [BigNumberish, BigNumberish]
@@ -248,6 +290,10 @@ interface EmethInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "MAX_SLOT_GAS_PER_NODE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MIN_DEPOSIT",
     data: BytesLike
   ): Result;
@@ -275,11 +321,27 @@ interface EmethInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "decline", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "detach", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "estimateFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "estimateGas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "findAvailableNode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isAssigner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isVerifier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "jobAssignedCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "jobAssignedHistory",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "jobAssigns", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "jobDetails", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "jobs", data: BytesLike): Result;
@@ -291,8 +353,13 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "nodeAddresses",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "nodeCount", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nodeSlotCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "nodeSlotUnique",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "nodeSlots", data: BytesLike): Result;
@@ -317,6 +384,10 @@ interface EmethInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setMaxSlotGasPerNode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setVerifier",
     data: BytesLike
   ): Result;
@@ -333,6 +404,10 @@ interface EmethInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "startSlot", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "submit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "update", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "updateJob", data: BytesLike): Result;
   decodeFunctionResult(
@@ -423,6 +498,10 @@ export class Emeth extends Contract {
     DEPOSIT_PER_CAPACITY(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     MIN_DEPOSIT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -522,6 +601,32 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    estimateFee(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "estimateFee(uint256,uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    estimateGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "estimateGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     findAvailableNode(
       _powerCapacity: BigNumberish,
       overrides?: CallOverrides
@@ -545,6 +650,28 @@ export class Emeth extends Contract {
       _addr: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    jobAssignedCount(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "jobAssignedCount(address)"(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    jobAssignedHistory(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "jobAssignedHistory(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     jobAssigns(
       arg0: BytesLike,
@@ -643,6 +770,10 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    nodeCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "nodeCount()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     nodeSlotCount(
       _node: string,
       overrides?: CallOverrides
@@ -652,6 +783,18 @@ export class Emeth extends Contract {
       _node: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    nodeSlotUnique(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "nodeSlotUnique(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     nodeSlots(
       arg0: string,
@@ -773,6 +916,16 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setMaxSlotGasPerNode(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setMaxSlotGasPerNode(uint256)"(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setVerifier(
       _addr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -856,6 +1009,10 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    tokenAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    "tokenAddress()"(overrides?: CallOverrides): Promise<[string]>;
 
     update(
       _totalCapacity: BigNumberish,
@@ -980,6 +1137,10 @@ export class Emeth extends Contract {
 
   "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+  MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
 
   "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1078,6 +1239,32 @@ export class Emeth extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  estimateFee(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
+    _gasPrice: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "estimateFee(uint256,uint256,uint256)"(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
+    _gasPrice: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  estimateGas(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "estimateGas(uint256,uint256)"(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   findAvailableNode(
     _powerCapacity: BigNumberish,
     overrides?: CallOverrides
@@ -1101,6 +1288,28 @@ export class Emeth extends Contract {
     _addr: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  jobAssignedCount(
+    _node: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "jobAssignedCount(address)"(
+    _node: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  jobAssignedHistory(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "jobAssignedHistory(address,uint256)"(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   jobAssigns(
     arg0: BytesLike,
@@ -1196,12 +1405,28 @@ export class Emeth extends Contract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   "nodeSlotCount(address)"(
     _node: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  nodeSlotUnique(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "nodeSlotUnique(address,uint256)"(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   nodeSlots(
     arg0: string,
@@ -1323,6 +1548,16 @@ export class Emeth extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setMaxSlotGasPerNode(
+    _maxSlotGas: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setMaxSlotGasPerNode(uint256)"(
+    _maxSlotGas: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setVerifier(
     _addr: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1406,6 +1641,10 @@ export class Emeth extends Contract {
     _jobId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  tokenAddress(overrides?: CallOverrides): Promise<string>;
+
+  "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
   update(
     _totalCapacity: BigNumberish,
@@ -1530,6 +1769,10 @@ export class Emeth extends Contract {
 
     "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
 
     "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1618,6 +1861,32 @@ export class Emeth extends Contract {
 
     "detach()"(overrides?: CallOverrides): Promise<boolean>;
 
+    estimateFee(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "estimateFee(uint256,uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    estimateGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "estimateGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     findAvailableNode(
       _powerCapacity: BigNumberish,
       overrides?: CallOverrides
@@ -1641,6 +1910,28 @@ export class Emeth extends Contract {
       _addr: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    jobAssignedCount(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "jobAssignedCount(address)"(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    jobAssignedHistory(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "jobAssignedHistory(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     jobAssigns(
       arg0: BytesLike,
@@ -1739,12 +2030,28 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "nodeSlotCount(address)"(
       _node: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    nodeSlotUnique(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "nodeSlotUnique(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     nodeSlots(
       arg0: string,
@@ -1857,6 +2164,16 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    setMaxSlotGasPerNode(
+      _maxSlotGas: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setMaxSlotGasPerNode(uint256)"(
+      _maxSlotGas: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     setVerifier(_addr: string, overrides?: CallOverrides): Promise<void>;
 
     "setVerifier(address)"(
@@ -1934,6 +2251,10 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    tokenAddress(overrides?: CallOverrides): Promise<string>;
+
+    "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
     update(
       _totalCapacity: BigNumberish,
@@ -2125,6 +2446,10 @@ export class Emeth extends Contract {
 
     "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
 
     "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2223,6 +2548,32 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    estimateFee(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "estimateFee(uint256,uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    estimateGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "estimateGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     findAvailableNode(
       _powerCapacity: BigNumberish,
       overrides?: CallOverrides
@@ -2244,6 +2595,28 @@ export class Emeth extends Contract {
 
     "isVerifier(address)"(
       _addr: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    jobAssignedCount(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "jobAssignedCount(address)"(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    jobAssignedHistory(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "jobAssignedHistory(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2288,10 +2661,26 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "nodeSlotCount(address)"(
       _node: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    nodeSlotUnique(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "nodeSlotUnique(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2396,6 +2785,16 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setMaxSlotGasPerNode(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setMaxSlotGasPerNode(uint256)"(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setVerifier(
       _addr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2472,6 +2871,10 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    tokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "tokenAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     update(
       _totalCapacity: BigNumberish,
@@ -2601,6 +3004,14 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    MAX_SLOT_GAS_PER_NODE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "MAX_SLOT_GAS_PER_NODE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     MIN_DEPOSIT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2701,6 +3112,32 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    estimateFee(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "estimateFee(uint256,uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      _gasPrice: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    estimateGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "estimateGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     findAvailableNode(
       _powerCapacity: BigNumberish,
       overrides?: CallOverrides
@@ -2728,6 +3165,28 @@ export class Emeth extends Contract {
 
     "isVerifier(address)"(
       _addr: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    jobAssignedCount(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "jobAssignedCount(address)"(
+      _node: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    jobAssignedHistory(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "jobAssignedHistory(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2781,6 +3240,10 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    nodeCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "nodeCount()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     nodeSlotCount(
       _node: string,
       overrides?: CallOverrides
@@ -2788,6 +3251,18 @@ export class Emeth extends Contract {
 
     "nodeSlotCount(address)"(
       _node: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    nodeSlotUnique(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "nodeSlotUnique(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2895,6 +3370,16 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setMaxSlotGasPerNode(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setMaxSlotGasPerNode(uint256)"(
+      _maxSlotGas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setVerifier(
       _addr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2974,6 +3459,10 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    tokenAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "tokenAddress()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     update(
       _totalCapacity: BigNumberish,

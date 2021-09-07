@@ -9,6 +9,10 @@ import logger, { LoggerMiddlewareArguments } from '../middlewares/logger'
 import wallet from '../middlewares/wallet'
 import emethStatusWatcher from '../middlewares/emeth-status-watcher'
 import jobExecutor from '../middlewares/job-executor'
+import cleaner from '../middlewares/cleaner'
+import recover from '../middlewares/recover'
+import masterApi from '../middlewares/masterApi'
+import initData from '../middlewares/init-data'
 
 const master: CommandModule<{
   port: number
@@ -30,61 +34,23 @@ const master: CommandModule<{
           type: 'number',
           default: 5000,
           description: 'Listen port'
+        },
+        emethScanInterval: {
+          type: 'number',
+          default: 1000,
+          description: 'emetn event scan interval'
         }
       })
       .middleware([database, wallet, contracts])
       .middleware(logger)
+      .middleware(initData)
+      .middleware(masterApi)
       .middleware(emethStatusWatcher)
+      .middleware(cleaner)
+      .middleware(recover)
       .middleware(jobExecutor)
   },
-  handler: async (argv) => {
-    const app = express()
-
-    app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*')
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-      next()
-    })
-
-    app.use(express.json())
-    app.use(express.urlencoded({ extended: true }))
-
-    const router = express.Router()
-
-    router.post('/api/v1/connect', (req, res, next) => {
-      (async () => {
-        const worker = await argv.db('workers').where({
-          ipAddress: req.body.ipAddress,
-          port: req.body.port
-        }).first()
-
-        if (worker != null) {
-          await argv.db('workers').update({
-            batchSize: req.body.batchSize,
-            powerCapacity: req.body.powerCapacity
-          }).where({
-            ipAddress: req.body.ipAddress,
-            port: req.body.port
-          })
-        } else {
-          await argv.db('workers').insert({
-            ipAddress: req.body.ipAddress,
-            port: req.body.port,
-            batchSize: req.body.batchSize,
-            powerCapacity: req.body.powerCapacity
-          })
-        }
-
-        res.send({ result: 'OK' })
-      })().catch(next)
-    })
-
-    app.use(router)
-
-    app.listen(argv.port, () => {
-      console.log(`Master listening on port ${argv.port}!`)
-    }).timeout = 1000 * 60 * 30
-  }
+  handler: (argv) => {}
 }
 
 export = master

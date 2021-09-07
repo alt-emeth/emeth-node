@@ -7,6 +7,7 @@ import { CommandModule } from 'yargs'
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts'
 import database, { DatabaseMiddlewareArguments } from '../middlewares/database'
 import wallet from '../middlewares/wallet'
+import { exit } from 'process'
 
 let db: Knex
 
@@ -52,6 +53,8 @@ const attach: CommandModule<{} & DatabaseMiddlewareArguments & ContractsMiddlewa
     await (await emeth.functions.attach(totalDeposit, totalPowerCapacity, maxParallelism, {
       gasLimit: 4000000
     })).wait(1)
+
+    exit()
   }
 }
 

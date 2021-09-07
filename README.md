@@ -93,13 +93,13 @@ $ vi src/config/master.json
 | --------- | ---------------------------------------- | ---------------------------------------- |
 | emethContractAddress | Emeth contract address |
 | tokenContractAddress | Token contract address |
-| endpoint | Ethereum node endpoint(Web socket) |
+| endpoint | Ethereum node endpoint(https) |
 | privateKey | Your Ethereum account private key |
 | storageApi | Emeth storage api endpoint |
 | batchSize | Batch size |
 | n_epochs | Epoch num |
 | device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) | Since master does not high perform calculations that require GPU, basically 'cpu' is recommended as the setting value.
-| myIp | Master node's IP address (127.0.0.1) for local master/worker connection |
+| myIp | Master node's IP address for master/worker connection |
 
 [worker node]
 ```
@@ -109,11 +109,9 @@ $ vi src/config/worker.json
 ```
 | Parameter | Description |
 | --------- | ---------------------------------------- |
-| batchSize | Batch size |
-| n_epochs | Epoch num |
 | device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
-| myIp | Worker node's IP address (127.0.0.1) for local master/worker connection |
-| masterIp | Master node's IP address (127.0.0.1) for local master/worker connection |
+| myIp | Worker node's IP address for master/worker connection |
+| masterIp | Master node's IP address for master/worker connection |
 | powerCapacity | Power capacity |
 
 ### Install packages

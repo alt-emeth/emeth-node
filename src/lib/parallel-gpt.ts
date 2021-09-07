@@ -143,7 +143,7 @@ export async function launchMasterNode (
       const json = JSON.parse(line)
 
       if (json.status === 'COMPLETED' && !completed) {
-        logger.info('JobId:${jobId}, MN.py has completed')
+        logger.info(`JobId:${jobId}, MN.py has completed`)
 
         completed = true
         emitter.emitAsync('completed', json.fileName)

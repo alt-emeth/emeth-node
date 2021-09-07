@@ -4,86 +4,100 @@ import { Arguments } from 'yargs'
 import { ContractsMiddlewareArguments } from './contracts'
 import { DatabaseMiddlewareArguments } from './database'
 import watchContractEvent from '../lib/watch-contract-event'
-import { LastWatchedBlock } from '../types/tables'
+import { WalletMiddlewareArguments } from './wallet'
+import { JobStatus, LastWatchedBlock } from '../types/tables'
+import { Logger } from 'log4js'
+import interval from 'interval-promise'
+import delay from 'delay'
 
-export default function emethStatusWatcher (args: Arguments): void {
-  const contracts = (args as unknown as ContractsMiddlewareArguments).contracts
+const scanAssignedJob = async(args: Arguments) => {
+  const {emeth} = (args as unknown as ContractsMiddlewareArguments).contracts
+  const wallet = (args as unknown as WalletMiddlewareArguments).wallet
   const db = (args as unknown as DatabaseMiddlewareArguments).db
+  const logger = args.logger as Logger
+  const savedLastWatchedBlock = await db('lastWatchedBlock').first();
+  let lastWatchedBlock: LastWatchedBlock
+  if(savedLastWatchedBlock === undefined) {
+    lastWatchedBlock = {blockNumber: -1}
+  } else {
+    lastWatchedBlock = savedLastWatchedBlock
+  }
 
-  return db('lastWatchedBlock').first().then((savedLastWatchedBlock) => {
-    let lastWatchedBlock: LastWatchedBlock
-    if (savedLastWatchedBlock === undefined) {
-      lastWatchedBlock = {
-        blockNumber: 0
-      }
-    } else {
-      lastWatchedBlock = savedLastWatchedBlock
-    }
+  const fromBlock = lastWatchedBlock.blockNumber + 1
 
-    const contractEventWatcher = watchContractEvent(
-      contracts.emeth,
-      contracts.emeth.filters.Status(null, null, null),
-      lastWatchedBlock.blockNumber
-    )
+  logger.info(`Start Scan Status event from ${fromBlock}`)
 
-    let trx: Knex.Transaction
+  const events = await emeth.queryFilter(emeth.filters.Status(null, null, null), fromBlock)
 
-    contractEventWatcher.on('startBlock', async (blockNumber) => {
-      trx = await db.transaction()
-    })
+  for (let i=0; i<events.length; i++) {
+    const event = events[i]
 
-    contractEventWatcher.on('event', async (event) => {
-      if (event.args == null) { return }
+    const jobId = event.args.jobId
 
-      const jobId = event.args.jobId
-      const jobIdHex = (event.args.jobId as Buffer).toString('hex')
+    logger.info(`JobId:${jobId}, assignedNode:${event.args.nodeAddress}, my address: ${wallet.address}`)
+    logger.info(`JobId:${jobId}, job status:${event.args.status}`)
 
-      const jobsResult = await contracts.emeth.jobs(jobId)
-      if (!jobsResult.status.eq(1)) {
-        console.log(`This is not assigned status :${jobIdHex}`)
-        return
-      }
+    const trx = await db.transaction()
 
-      const jobAssign = await contracts.emeth.jobAssigns(jobId)
-      if (jobAssign.node !== await contracts.emeth.signer.getAddress()) {
-        console.log(`This is not assigned to me:${jobIdHex}`)
-        return
-      }
+    if (event.args.nodeAddress === wallet.address) {
 
-      const job = await trx('jobs').where({ jobId: jobIdHex }).first()
+      const assignedBlock = (event.args.status.eq(JobStatus.ASSIGNED))? event.blockNumber : undefined
 
-      if (job != null && job.status == 1) {
-        console.log(`Already queued :${jobIdHex}`)
-      } else if(job != null) {
-        await trx('jobs').where({ jobId:jobIdHex }).update({
-          status: 1,
-          updatedAt: new Date().getTime()
-        })
-        console.log(`Updated job :${jobIdHex}`)
+      const job = await emeth.jobs(jobId)
+      const jobAssign = await emeth.jobAssigns(jobId)
+
+      logger.info(`JobId:${jobId}, Latest assigned address:${jobAssign.node}`)
+      logger.info(`JobId:${jobId}, Latest job status:${job.status}`)
+
+      const sqliteJob = await trx('jobs').where({ jobId }).first()
+
+      if(sqliteJob !== undefined) {
+        logger.info(`JobId:${jobId}, Queued job assigned address:${sqliteJob.assignedNode}`)
+        logger.info(`JobId:${jobId}, Queued job status:${sqliteJob.status}`)
+
+        if(!job.status.eq(sqliteJob.status) || jobAssign.node != sqliteJob.assignedNode) {
+          await trx('jobs').where({ jobId }).update({
+            status: job.status.toNumber(),
+            assignedNode: jobAssign.node,
+            assignedBlock,
+            updatedAt: new Date().getTime()
+          })
+
+          logger.info(`Updated queued job :${jobId}`)
+        }
       } else {
         await trx('jobs').insert({
-          jobId: jobIdHex,
+          jobId,
           assignedNode: jobAssign.node,
-          status: 1,
+          status: job.status.toNumber(),
+          assignedBlock,
           numOfAttempt: 0,
           createdAt: new Date().getTime(),
           updatedAt: new Date().getTime()
         })
-        console.log(`Queued job :${jobIdHex}`)
+
+        logger.info(`Queued job :${jobId}`)
       }
-    })
+    }
 
-    contractEventWatcher.on('endBlock', async (blockNumber) => {
-      lastWatchedBlock.blockNumber = blockNumber
+    lastWatchedBlock.blockNumber = event.blockNumber
+    if (lastWatchedBlock.id != null) {
+      await trx('lastWatchedBlock').update(lastWatchedBlock)
+    } else {
+      [lastWatchedBlock.id] = await trx('lastWatchedBlock').insert(lastWatchedBlock)
+    }
 
-      if (lastWatchedBlock.id != null) {
-        await trx('lastWatchedBlock').update(lastWatchedBlock)
-      } else {
-        [lastWatchedBlock.id] = await trx('lastWatchedBlock').insert(lastWatchedBlock)
-      }
+    await trx.commit()
+  }
 
-      await trx.commit()
-    })
+  logger.info(`End Scan Status event.`)
+}
+export default async function emethStatusWatcher (args: Arguments): Promise<void> {
+  await scanAssignedJob(args)
+  interval(async() => {
+    await scanAssignedJob(args)
+  }, 10000 as number, {
+    stopOnError: false
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   }) as unknown as void
 }

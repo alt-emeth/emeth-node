@@ -1,5 +1,5 @@
 /**
- *Submitted for verification at Etherscan.io on 2021-07-21
+ *Submitted for verification at Etherscan.io on 2021-08-01
 */
 
 // SPDX-License-Identifier: MIT
@@ -81,7 +81,7 @@ interface IERC20 {
     function burn(uint256 _value) external returns (bool);
 }
 
-contract Emeth is AssignerRole, VerifierRole {
+contract EmethCore is AssignerRole, VerifierRole {
     using SafeMath for uint256;
 
     // Constants
@@ -101,12 +101,13 @@ contract Emeth is AssignerRole, VerifierRole {
     uint256 constant TIMEOUT_PENALTY = 10000000000000000000; // 10 EMT
     uint256 public constant MIN_DEPOSIT = 1000000000000000000000; // 10,000 * 0.1 EMT = 1,000 EMT
     uint256 public constant DEPOSIT_PER_CAPACITY = 100000000000000000; // 0.1 EMT
+    uint256 public MAX_SLOT_GAS_PER_NODE = 4500;
     uint256 public ASSIGNER_FEE = 0; // 0 EMT
     uint256 public VERIFIER_FEE = 0; // 0 EMT
 
     // EMT
-    address constant tokenAddress = 0x8Eb44f2e527DBa1cC8e8Ec2D59C9Aaf5aB1a8984;
-    uint256 constant DECIMAL_FACTOR = 10**18;
+    address immutable public tokenAddress;
+    uint256 constant DECIMAL_FACTOR = 1e18;
     uint256 constant BASE_SLOT_REWARD = 12000 * 24 * DECIMAL_FACTOR; // 12,000 EMT x 24
     uint256 constant SLOT_INTERVAL = 24 hours;
     uint256 constant DECREMENT_PER_SLOT = 600 * 24 * DECIMAL_FACTOR / 365; // 600 EMT
@@ -116,7 +117,8 @@ contract Emeth is AssignerRole, VerifierRole {
     mapping (uint256 => uint256) private slotTotalGas; // (slotNumber => totalGas)
     mapping (uint256 => mapping(address => uint256)) public slotGas; // (slotNumber => (nodeAddress => reward))
     mapping (uint256 => mapping(address => uint256)) public slotBalances; // (slotNumber => (nodeAddress => reward))
-    mapping (address => uint256[]) public nodeSlots; // (nodeAddress => listOfSlots)
+    mapping (address => uint256[]) public nodeSlots; // (nodeAddress => listOfSlots) for iteration
+    mapping (address => mapping(uint256 => bool)) public nodeSlotUnique; // (nodeAddress => (slot => bool)) for unique check
 
     // Nodes
     mapping(address => Node) public nodes;
@@ -127,6 +129,7 @@ contract Emeth is AssignerRole, VerifierRole {
     mapping(bytes16 => JobDetail) public jobDetails;
     mapping(bytes16 => JobAssign) public jobAssigns;
     mapping(address => bytes16) public lastJobAssigned;
+    mapping(address => bytes16[]) public jobAssignedHistory;
 
     // Events
     event Attach(address indexed nodeAddress, uint256 deposit);
@@ -178,7 +181,8 @@ contract Emeth is AssignerRole, VerifierRole {
     }
 
     // Constructor
-    constructor() {
+    constructor(address _tokenAddress) {
+        tokenAddress = _tokenAddress;
         startSlot = block.timestamp.div(SLOT_INTERVAL);
     }
 
@@ -349,7 +353,7 @@ contract Emeth is AssignerRole, VerifierRole {
 
         job.status = DECLINED;
         lastJobAssigned[jobAssign.node] = 0;
-        
+
         // Penalty if it's already being processed
         if(job.status == PROCESSING) {
             job.status = TIMEOUT;
@@ -411,6 +415,7 @@ contract Emeth is AssignerRole, VerifierRole {
         jobAssign.timeLimit = _timeLimit;
         jobAssign.gas = _estimatedGas;
         lastJobAssigned[jobAssign.node] = _jobId;
+        jobAssignedHistory[jobAssign.node].push(_jobId);
 
         // Lock Capacity
         uint256 adjustedCapacity = _adjustedCapacity(requiredCapacity, _node);
@@ -449,7 +454,6 @@ contract Emeth is AssignerRole, VerifierRole {
         require(job.status == SUBMITTED, "Job result is not submitted");
 
         job.status = VERIFIED;
-        lastJobAssigned[jobAssign.node] = 0;
 
         // Put in Reward Slot
         uint256 slot = _putSlotReward(_jobId);
@@ -579,6 +583,14 @@ contract Emeth is AssignerRole, VerifierRole {
         return nodeSlots[_node].length;
     }
 
+    function jobAssignedCount(address _node) external view returns (uint256) {
+        return jobAssignedHistory[_node].length;
+    }
+
+    function nodeCount() external view returns (uint256) {
+        return nodeAddresses.length;
+    }
+
     function slots(uint256 _slot) external view returns (uint256 _totalGas, uint256 _totalReward) {
         return (slotTotalGas[_slot], slotReward(_slot));
     }
@@ -602,10 +614,15 @@ contract Emeth is AssignerRole, VerifierRole {
         address node = jobAssigns[_jobId].node;
         uint256 slot = block.timestamp.div(SLOT_INTERVAL);
 
-        slotTotalGas[slot] = slotTotalGas[slot].add(jobAssign.gas);
-        slotGas[slot][node] = slotGas[slot][node].add(jobAssign.gas);
-        slotBalances[slot][node] = slotBalances[slot][node].add(jobAssign.gas);
-        nodeSlots[node].push(slot);
+        if(slotGas[slot][node].add(jobAssign.gas) < MAX_SLOT_GAS_PER_NODE) {
+            slotTotalGas[slot] = slotTotalGas[slot].add(jobAssign.gas);
+            slotGas[slot][node] = slotGas[slot][node].add(jobAssign.gas);
+            slotBalances[slot][node] = slotBalances[slot][node].add(jobAssign.gas);
+            if(!nodeSlotUnique[node][slot]) {
+                nodeSlots[node].push(slot);
+                nodeSlotUnique[node][slot] = true;
+            }
+        }
 
         return slot;
     }
@@ -626,6 +643,11 @@ contract Emeth is AssignerRole, VerifierRole {
 
     function setVerifierFee(uint256 _fee) external returns (bool) {
         VERIFIER_FEE = _fee;
+        return true;
+    }
+
+    function setMaxSlotGasPerNode(uint256 _maxSlotGas) external returns (bool) {
+        MAX_SLOT_GAS_PER_NODE = _maxSlotGas;
         return true;
     }
 

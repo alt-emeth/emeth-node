@@ -112,3 +112,46 @@ export const putS3 = async (storageApi: string, wallet: ethers.Wallet, jobId: st
   logger.info(`JobId:${jobId}, Completed multipartUpload. ${fileName}`);
   return res.data.fileName
 }
+
+
+const deleteRecursive = (source:string, jobId:string, logger:Logger) => {
+  if(fs.existsSync(source)) {
+
+    if(fs.statSync(source).isDirectory()) {
+      const files = fs.readdirSync(source)
+
+      for (const file of files) {
+        fs.unlinkSync(source + '/' + file)
+        logger.info(`JobId:${jobId}, File deleted successfully. ${source + '/' + file}`)
+      }
+
+      fs.rmdirSync(source)
+      logger.info(`JobId:${jobId}, Directory deleted  successfully. ${source}`)
+
+    } else {
+      fs.unlinkSync(source)
+      logger.info(`JobId:${jobId}, File deleted successfully. ${source}`)
+    }
+
+  } else {
+    logger.info(`JobId:${jobId}, It is not exist. ${source}`)
+  }
+}
+
+export const clean = (jobId:string, parallelGPTPath:string, logger:Logger) => {
+  const trainDataDir = path.join(parallelGPTPath, 'data', jobId)
+  const splitDataDir = path.join(parallelGPTPath, 'split', jobId)
+  const outputDir = path.join(parallelGPTPath, 'model', jobId)
+  const workerIpListFile = path.join(parallelGPTPath, 'worker_ip_list', `${jobId}.txt`)
+  const datasetCache = path.join(parallelGPTPath, 'dataset_cache', jobId)
+  const wnLogFile = path.join(parallelGPTPath, 'wn_log', `${jobId}.log`)
+  const mnLogFile = path.join(parallelGPTPath, 'mn_log', `${jobId}.log`)
+
+  deleteRecursive(trainDataDir, jobId, logger)
+  deleteRecursive(splitDataDir, jobId, logger)
+  deleteRecursive(outputDir, jobId, logger)
+  deleteRecursive(workerIpListFile, jobId, logger)
+  deleteRecursive(datasetCache, jobId, logger)
+  deleteRecursive(wnLogFile, jobId, logger)
+  deleteRecursive(mnLogFile, jobId, logger)
+}

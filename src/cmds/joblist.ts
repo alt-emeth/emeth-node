@@ -4,57 +4,50 @@ import { CommandModule } from 'yargs'
 
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts'
 import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet'
-import * as tables from '../types/tables';
+import database, { DatabaseMiddlewareArguments } from '../middlewares/database'
 import { exit } from 'process'
+import * as tables from '../types/tables';
+import { Knex } from 'knex'
+import { Wallet } from 'ethers'
 
-interface JobStatus {
-  [jobId: string] :{statusStr: string, assignedBlockNo: number|null}
-}
+let db: Knex
 
-const joblist: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewareArguments, {} & ContractsMiddlewareArguments & WalletMiddlewareArguments> = {
+const joblist: CommandModule<{} & DatabaseMiddlewareArguments & WalletMiddlewareArguments, {} & DatabaseMiddlewareArguments & WalletMiddlewareArguments> = {
   command: 'joblist',
   describe: 'assigned job list',
   builder: (yargs) => {
     return yargs
       .config('config', configPath => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
       .default('config', path.resolve(__dirname, '..', 'config', 'master.json'))
+      .default('dbpath', path.join(__dirname, '..', '..', 'emeth-node.sqlite3'))
       .string(['emethContractAddress', 'tokenContractAddress', 'privateKey'])
-      .middleware([wallet, contracts])
+      .middleware([database, wallet])
+      .middleware((args) => {
+        db = args.db
+      })
+      .onFinishCommand((): void => {
+        // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+        return db.destroy() as unknown as void
+      })
   },
   handler: async (args) => {
+    const wallet = args.wallet as Wallet
+    const db = (args as unknown as DatabaseMiddlewareArguments).db
+
     const jobStatusStr = Object.keys(tables.JobStatus).reduce((ret:any, key) => {
       if(tables.JobStatus[Number(key)] != null) {
         ret[Number(key)] = tables.JobStatus[Number(key)];
       }
       return ret;
     }, {});
-    const { emeth } = args.contracts
-    const wallet = args.wallet
-    const jobIds = []
-    const jobStatus:JobStatus = {}
-    const events = await emeth.queryFilter(emeth.filters.Status(null, null, null))
-    for (const event of events) {
-      const node = event.args.nodeAddress
-      if (node === wallet.address) {
-        const jobId = event.args.jobId
-        const status = event.args.status.toNumber()
-        const statusStr = jobStatusStr[status]
-        jobIds.push(jobId)
-        if(!jobStatus[jobId]) {
-          jobStatus[jobId] = {statusStr, assignedBlockNo: null}
-        } else {
-          jobStatus[jobId].statusStr = statusStr
-        }
-        if(status == tables.JobStatus.ASSIGNED) {
-          jobStatus[jobId].assignedBlockNo = event.blockNumber
-        }
-      }
+
+    const sqliteJobs = await db('jobs').where({assignedNode: wallet.address})
+
+    for (let i=0; i<sqliteJobs.length; i++) {
+      const job = sqliteJobs[i]
+      console.log("Assigned job:", job.jobId, ", Status:", jobStatusStr[job.status], ", AssignedBlock#:", job.assignedBlock);
     }
-    const uniqJobIds = Array.from(new Set(jobIds))
-    for (let i=0; i<uniqJobIds.length; i++) {
-      const jobId = uniqJobIds[i]
-      console.log("Assigned job:", jobId, ", Status:", jobStatus[jobId].statusStr, ", AssignedBlock#:", jobStatus[jobId].assignedBlockNo);
-    }
+
     exit()
   }
 }

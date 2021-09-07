@@ -11,19 +11,16 @@ import readline from 'readline';
 
 import { MODE } from '../lib/consistants'
 import logger, { LoggerMiddlewareArguments } from '../middlewares/logger'
+import { clean } from '../lib/storage'
 
 const worker: CommandModule<LoggerMiddlewareArguments & {
   powerCapacity: number
-  batchSize: number
-  n_epochs: number
   device: string
   masterIp: string
   myIp: string
   parallelGPTPath: string
 }, LoggerMiddlewareArguments & {
   powerCapacity: number
-  batchSize: number
-  n_epochs: number
   device: string
   masterIp: string
   myIp: string
@@ -122,6 +119,8 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
         const testDataFile = path.join(argv.parallelGPTPath,'split', jobId, req.body.test_data_file)
         const outputDir = path.join(argv.parallelGPTPath,'model', jobId) + '/'
         const masterPort = req.body.master_port as string
+        const batchSize = req.body.batchSize as string
+        const n_epochs = req.body.n_epochs as string
 
         const logFile = path.join(argv.parallelGPTPath, 'wn_log', `${jobId}.log`)
 
@@ -144,9 +143,9 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
           '--log_file', logFile,
           '--timeout', '300',
           '--test_data', testDataFile,
-          '--train_batch_size', argv.batchSize.toString(),
+          '--train_batch_size', batchSize.toString(),
           '--device', argv.device,
-          '--n_epochs', argv.n_epochs.toString(),
+          '--n_epochs', n_epochs.toString(),
           '--dataset_cache', datasetCache
         ]
 
@@ -230,6 +229,11 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
 
     router.post('/api/v1/upload', upload.single('file'), (req, res) => {
       res.send('Uploaded successfully :' + req.file.originalname)
+    })
+
+    router.post('/api/v1/clean', (req, res) => {
+      clean(req.body.jobId, argv.parallelGPTPath, argv.logger)
+      res.send({ result: 'OK' })
     })
 
     app.use(router)

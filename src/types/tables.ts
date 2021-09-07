@@ -12,6 +12,7 @@ export interface Job {
   jobId: string
   assignedNode: string
   status: JobStatus
+  assignedBlock?: number
   numOfAttempt: number
   createdAt: number
   updatedAt: number
@@ -29,7 +30,7 @@ export interface LastNodeSlotIndex {
 
 export interface Masterport {
   jobId: string
-  port: string
+  port: number
 }
 
 export interface Worker {
