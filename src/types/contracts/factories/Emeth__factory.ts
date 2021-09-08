@@ -461,59 +461,6 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_datasetSizeMB",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_algoComplexity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPrice",
-        type: "uint256",
-      },
-    ],
-    name: "estimateFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_datasetSizeMB",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_algoComplexity",
-        type: "uint256",
-      },
-    ],
-    name: "estimateGas",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
         name: "_powerCapacity",
         type: "uint256",
       },

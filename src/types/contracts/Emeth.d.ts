@@ -36,8 +36,6 @@ interface EmethInterface extends ethers.utils.Interface {
     "currentSlotReward()": FunctionFragment;
     "decline(bytes16)": FunctionFragment;
     "detach()": FunctionFragment;
-    "estimateFee(uint256,uint256,uint256)": FunctionFragment;
-    "estimateGas(uint256,uint256)": FunctionFragment;
     "findAvailableNode(uint256)": FunctionFragment;
     "isAssigner(address)": FunctionFragment;
     "isVerifier(address)": FunctionFragment;
@@ -128,14 +126,6 @@ interface EmethInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "decline", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "detach", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "estimateFee",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "estimateGas",
-    values: [BigNumberish, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "findAvailableNode",
     values: [BigNumberish]
@@ -320,14 +310,6 @@ interface EmethInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "decline", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "detach", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "estimateFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "estimateGas",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "findAvailableNode",
     data: BytesLike
@@ -600,32 +582,6 @@ export class Emeth extends Contract {
     "detach()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    estimateFee(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "estimateFee(uint256,uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    estimateGas(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "estimateGas(uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     findAvailableNode(
       _powerCapacity: BigNumberish,
@@ -1239,32 +1195,6 @@ export class Emeth extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  estimateFee(
-    _datasetSizeMB: BigNumberish,
-    _algoComplexity: BigNumberish,
-    _gasPrice: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "estimateFee(uint256,uint256,uint256)"(
-    _datasetSizeMB: BigNumberish,
-    _algoComplexity: BigNumberish,
-    _gasPrice: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  estimateGas(
-    _datasetSizeMB: BigNumberish,
-    _algoComplexity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "estimateGas(uint256,uint256)"(
-    _datasetSizeMB: BigNumberish,
-    _algoComplexity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   findAvailableNode(
     _powerCapacity: BigNumberish,
     overrides?: CallOverrides
@@ -1860,32 +1790,6 @@ export class Emeth extends Contract {
     detach(overrides?: CallOverrides): Promise<boolean>;
 
     "detach()"(overrides?: CallOverrides): Promise<boolean>;
-
-    estimateFee(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateFee(uint256,uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    estimateGas(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateGas(uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     findAvailableNode(
       _powerCapacity: BigNumberish,
@@ -2548,32 +2452,6 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    estimateFee(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateFee(uint256,uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    estimateGas(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "estimateGas(uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     findAvailableNode(
       _powerCapacity: BigNumberish,
       overrides?: CallOverrides
@@ -3110,32 +2988,6 @@ export class Emeth extends Contract {
 
     "detach()"(
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    estimateFee(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "estimateFee(uint256,uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      _gasPrice: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    estimateGas(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "estimateGas(uint256,uint256)"(
-      _datasetSizeMB: BigNumberish,
-      _algoComplexity: BigNumberish,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     findAvailableNode(
