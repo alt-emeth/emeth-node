@@ -131,6 +131,8 @@ class Trainer:
         self.device = device
         self.path = path
         self.vocab = vocab
+        self.epc = torch.from_numpy(np.array([0], dtype=np.float)).float()
+        self.lss = torch.from_numpy(np.array([0], dtype=np.float)).float()
         backend = 'tcp://'
         masterurl = backend+self.master+':'+self.port
         logging.info("running master %s", masterurl)
@@ -153,6 +155,11 @@ class Trainer:
             layer_weight = layer.detach()
             dist.broadcast(layer_weight, src=0)
 
+    def final_checkpoint(self):
+        # DataParallel wrappers keep raw model object in .module attribute
+        if os.path.exists(self.config.ckpt_path):
+            logging.info('{"status": "COMPLETED", "fileName":"%s"}', self.config.ckpt_path)
+
     def aggregate_gradient(self, layer_idx, gradient):
         self._grad_aggregate_buffer[layer_idx] = reduce((lambda x, y: x + y), gradient[1:])
 
@@ -162,17 +169,24 @@ class Trainer:
             dist.gather(dummpy_grad, self.grad_accumulator.gradient_aggregator[layer_idx], dst=0)
             self.aggregate_gradient(layer_idx=layer_idx, gradient=self.grad_accumulator.gradient_aggregator[layer_idx])
 
-    def save_checkpoint(self):
+    def save_checkpoint(self, optimizer, epoch):
         # DataParallel wrappers keep raw model object in .module attribute
         raw_model = self.model.module if hasattr(self.model, "module") else self.model
-        #logger.info("{status: COMPLETED, fileName:%s}", self.config.ckpt_path)
-        torch.save(raw_model.state_dict(), self.config.ckpt_path)
+        lss = self.lss
+        #logger.info(optimizer.param_groups)
+        #torch.save(raw_model.state_dict(), self.config.ckpt_path)
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': raw_model.state_dict(),
+            'loss': lss,
+            }, self.config.ckpt_path)
         logger.info("saving %s", self.config.ckpt_path)
         logging.info('{"status": "COMPLETED", "fileName":"%s"}', self.config.ckpt_path)
     
 
+
     def train(self):
-        model, config, device = self.model, self.config, self.device
+        model, config, device, epc, lss  = self.model, self.config, self.device, self.epc, self.lss
         param_optimizer = list(model.named_parameters())
         no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
@@ -195,43 +209,50 @@ class Trainer:
             for param in model.parameters():
                 torch.distributed.barrier()
                 param.data = torch.zeros(param.data.size()).to(device)
-        def average_gradients(model):
+        def average_gradients(model, epc, lss):
             """ Gradient averaging. """
             print("send tensor to master")
             size = float(dist.get_world_size()) - 1
             #group = dist.new_group([0])
             req = None
 
-            tlist = []
+            tlist = 0
             for param in model.parameters():
                 torch.distributed.barrier()
                 logging.info('{"param: %s"}', param)
                 dist.reduce(param.data, dst=0, op=dist.reduce_op.SUM)
+                dist.reduce(epc, dst=0, op=dist.reduce_op.SUM)
+                dist.reduce(lss, dst=0, op=dist.reduce_op.SUM)
                 #gather(param.data, dst = 0)
                 #dist.gather(param.data, gather_list=tlist)
                 #req.wait()
                 #dist.reduce(tensor, 0, op=dist.reduce_op.SUM, group=group)
                 #dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM, group=group)
+                epc /= size
                 param.data /= size
+                lss /= size
+                tlist+=1
                 torch.distributed.barrier()
                 dist.broadcast(param.data, src=0)
                 #torch.distributed.barrier()
                 #param.data = torch.zeros(param.data.size()).to(args.device)
+            epc /= tlist
+            lss /= tlist
 
         
         best_loss = float('inf')
         self.tokens = 0 # counter used for learning rate decay
         for epoch in range(config.max_epochs):
-            print(epoch)
+            #print(epoch)
             resetmodel(model)
             logging.info("waiting result")
             torch.distributed.barrier()
-            average_gradients(model)
+            average_gradients(model, epc, lss)
             logger.info("model received from worker")
-            logger.info(model)
+            #logger.info(model)
             #print(model)
             #sample = print_samples(model, enc, self.device,context_tokens=next(iter(loader)),batch_size=1, length=200, nsamples=1,temperature=1, top_k=40)
-       	self.save_checkpoint()        
+       	self.save_checkpoint(optimizer,self.epc)
 
 class CharDataset(Dataset):
 

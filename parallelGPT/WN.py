@@ -129,6 +129,7 @@ class Trainer:
         self.time = time
         self.path = path
         self.vocab = vocab
+        self.loss = 0
         backend = 'tcp://'
         masterurl = backend+self.master+':'+self.port
         print(torch.cuda.get_device_name(0))
@@ -170,11 +171,18 @@ class Trainer:
             new_state_dict.update(tmp_dict)
         self.network.load_state_dict(new_state_dict)
 
-    def save_checkpoint(self):
+    def save_checkpoint(self, optimizer, epoch):
         # DataParallel wrappers keep raw model object in .module attribute
         raw_model = self.model.module if hasattr(self.model, "module") else self.model
+        loss = self.loss
         logger.info("saving %s", self.config.ckpt_path)
-        torch.save(raw_model.state_dict(), self.config.ckpt_path)
+        #logger.info(optimizer.param_groups)
+        #torch.save(raw_model.state_dict(), self.config.ckpt_path)
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': raw_model.state_dict(),
+            'loss': loss,
+            }, self.config.ckpt_path)
     
 
     def train(self):
@@ -199,9 +207,9 @@ class Trainer:
             for param in model.parameters():
                 torch.distributed.barrier()
             print("master model reset")
-        def average_gradients(model):
+        def average_gradients(model, epoch, loss):
             """ Gradient averaging. """
-            
+            b = torch.from_numpy(np.array([epoch], dtype=np.float)).float()
             size = float(dist.get_world_size())
             #group = dist.new_group([0])
             print("send tensor to master")
@@ -210,6 +218,8 @@ class Trainer:
                 #print(param)
                 torch.distributed.barrier()
                 dist.reduce(param.data, dst=0, op=dist.reduce_op.SUM)
+                dist.reduce(b, dst=0, op=dist.reduce_op.SUM)
+                dist.reduce(loss, dst=0, op=dist.reduce_op.SUM)
                 #gather(param.data, dst=0)
                 #req.wait()
                 #dist.reduce(tensor, 0, op=dist.reduce_op.SUM, group=group)
@@ -225,7 +235,6 @@ class Trainer:
             
             loader = get_data_loader(data, enc, config.batch_size, 128, self.path)
             #loader = DataLoader(data, shuffle=True, pin_memory=True,batch_size=config.batch_size,num_workers=config.num_workers)
-
             losses = []
             tr_loss = 0
             nb_tr_steps = 0
@@ -270,12 +279,14 @@ class Trainer:
                         lr = config.learning_rate
                     #perplexity  = torch.exp(exp_average_loss)
                     # report progress
+                    losses=loss
                     pbar.set_description(f"epoch {epoch+1} iter {it}: train loss {loss.item():.5f}. lr {lr:e} perplexity {math.exp(exp_average_loss)}")
             
             if not is_train:
                 #test_loss = float(np.mean(losses))
                 print(loss)
                 exp_average_loss = loss.item() if exp_average_loss is None else 0.7*exp_average_loss+0.3*loss.item()
+                self.loss = exp_average_loss
                 #nb_steps += 1
                 #pbar.set_description = f"Eval loss: {exp_average_loss:.2e} ppl: {math.exp(exp_average_loss):.2e}"
                 logger.info("test loss: %f", exp_average_loss)
@@ -285,19 +296,19 @@ class Trainer:
             logging.info("done")
             #torch.distributed.barrier()
             #average_gradients(model)
-
+            return losses
         best_loss = float('inf')
         self.tokens = 0 # counter used for learning rate decay
         for epoch in range(config.max_epochs):
             resetmodel(model)
-            run_epoch('train')
+            lss = run_epoch('train')
             torch.distributed.barrier()
-            average_gradients(model)
+            average_gradients(model,epoch,lss)
             #self.save_checkpoint()
             #torch.distributed.barrier()
             if self.test_dataset is not None:
                 run_epoch('test')
-            self.save_checkpoint()
+            self.save_checkpoint(optimizer,epoch)
             # supports early stopping based on the test loss, or just save always if no test set is provided
             #good_model = self.test_dataset is None or test_loss < best_loss
             #if self.config.ckpt_path is not None and good_model:
