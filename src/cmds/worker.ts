@@ -121,7 +121,8 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
         const masterPort = req.body.master_port as string
         const batchSize = req.body.batchSize as string
         const n_epochs = req.body.n_epochs as string
-
+        const num_workers = req.body.num_workers as string
+        const rank = req.body.rank as string
         const logFile = path.join(argv.parallelGPTPath, 'wn_log', `${jobId}.log`)
 
         await makeDir(path.dirname(logFile))
@@ -137,7 +138,7 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
           'WN.py',
           '--train_data_file', trainDataFile,
           '--output_dir', outputDir,
-          '--rank', '1',
+          '--rank', rank,
           '--master_ip', argv.masterIp,
           '--master_port', masterPort,
           '--log_file', logFile,
@@ -146,7 +147,8 @@ const worker: CommandModule<LoggerMiddlewareArguments & {
           '--train_batch_size', batchSize.toString(),
           '--device', argv.device,
           '--n_epochs', n_epochs.toString(),
-          '--dataset_cache', datasetCache
+          '--dataset_cache', datasetCache,
+          '--num_workers', num_workers.toString()
         ]
 
         child = spawn('python3', args, {

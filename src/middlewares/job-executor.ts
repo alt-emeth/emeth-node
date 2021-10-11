@@ -132,7 +132,9 @@ export const jobExecute = async(
         master_port: masterPort,
         jobId,
         batchSize,
-        n_epochs
+        n_epochs,
+        num_workers: usedWorkers.length,
+        rank: index
       }
 
       await axios.post(`http://${worker.ipAddress}:3000/api/v1/ready`, json)
@@ -161,6 +163,7 @@ export const jobExecute = async(
       device as string,
       n_epochs as number,
       datasetCache as string,
+      usedWorkers.length,
       {
         logger,
         parallelGPTPath

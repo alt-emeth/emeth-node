@@ -73,6 +73,7 @@ export async function launchMasterNode (
   device: string,
   n_epochs: number,
   datasetCache: string,
+  num_workers: number,
   options: {
     logger?: Logger
     parallelGPTPath?: string
@@ -106,7 +107,8 @@ export async function launchMasterNode (
     '--train_batch_size', trainBatchSize.toString(),
     '--device', device,
     '--n_epochs', n_epochs.toString(),
-    '--dataset_cache', datasetCache
+    '--dataset_cache', datasetCache,
+    '--num_workers', num_workers.toString(),
   ]
 
   logger.info(`Execute python3. command: python3 ${args.join(' ')}`)

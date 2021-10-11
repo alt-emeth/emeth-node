@@ -120,7 +120,7 @@ class ModelBuffer(object):
 
 class Trainer:
 
-    def __init__(self, model,path, train_dataset, test_dataset, config, master, port, time,device,vocab):
+    def __init__(self, model,path, train_dataset, test_dataset, config, master, port, time,device,vocab,num_workers):
         self.model = model
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
@@ -131,12 +131,13 @@ class Trainer:
         self.device = device
         self.path = path
         self.vocab = vocab
+        self.num_workers = num_workers
         self.epc = torch.from_numpy(np.array([0], dtype=np.float)).float()
         self.lss = torch.from_numpy(np.array([0], dtype=np.float)).float()
         backend = 'tcp://'
         masterurl = backend+self.master+':'+self.port
         logging.info("running master %s", masterurl)
-        dist.init_process_group(backend='gloo',init_method=masterurl,world_size=2,rank=0, timeout=timedelta(seconds=self.time))
+        dist.init_process_group(backend='gloo',init_method=masterurl,world_size=self.num_workers,rank=0, timeout=timedelta(seconds=self.time))
         # take over whatever gpus are on the system
         self.device = device
         if torch.cuda.is_available():
@@ -378,6 +379,7 @@ def main():
     parser.add_argument("--dataset_cache", type=str, default='./dataset_cache_gist', help="Path or url of the dataset cache")
     parser.add_argument("--train_batch_size", type=int, default=16, help="Batch size for training")
     parser.add_argument("--n_epochs", type=int, default=20, help="Number of training epochs")
+    parser.add_argument("--num_workers", type=int, default=2, help="Number of training epochs")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
     args = parser.parse_args()
     logging.basicConfig(filename=sys.argv[12],
@@ -435,11 +437,12 @@ def main():
     model.apply(weights_init)
     out = sys.argv[4] + 'checkpoint.pt'
     nepoch = int(sys.argv[22])
+    num_workers = int(sys.argv[26]) + 1
     try:
         tconf = TrainerConfig(max_epochs=nepoch, batch_size=int(sys.argv[18]), learning_rate=2.5e-4,
                       lr_decay=True, warmup_tokens=512*20, final_tokens=nepoch*vocab_size*block_size,
                       num_workers=16, ckpt_path = out)
-        trainer = Trainer(model,sys.argv[4], sys.argv[2], sys.argv[16], tconf, sys.argv[10], sys.argv[8],int(sys.argv[14]), devicename,train_dataset.data_size)
+        trainer = Trainer(model,sys.argv[4], sys.argv[2], sys.argv[16], tconf, sys.argv[10], sys.argv[8],int(sys.argv[14]), devicename,train_dataset.data_size,num_workers)
         trainer.train()
     except RuntimeError as err:
         logging.info('{"status": "FAILED", "error":"%s"}', err)
