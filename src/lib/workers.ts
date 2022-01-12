@@ -3,58 +3,48 @@ import FormData from 'form-data'
 import fs from 'fs'
 import { Knex } from 'knex'
 
-import { MODE } from './consistants'
+import { COOPERATIVE } from './consistants'
 import { Emeth } from '../types/contracts'
 import { Worker } from '../types/tables'
-import { BigNumber } from 'ethers'
+import { BigNumber, Wallet } from 'ethers'
+import path from 'path'
+import delay from 'delay'
+import os from 'os'
+import { Logger } from 'log4js'
+import { sign } from './crypto'
+import { IAuth } from '../types/api'
 
-const computeRequiredPowerCapacity = (jobAssign: ReturnType<Emeth['jobAssigns']> extends Promise<infer T> ? T : never): number => {
-  return jobAssign.gas.mul(BigNumber.from(1000000)).div(jobAssign.timeLimit).toNumber();
-}
-
-export async function killWorkers (workers: Worker[]): Promise<void> {
+export async function killWorkers (workers: Worker[], wallet:Wallet): Promise<void> {
   for (const worker of workers) {
-    await axios.post(`http://${worker.ipAddress}:3000/api/v1/kill`)
+    const timestamp = new Date().getTime()
+    const sig = await sign(['uint256'], [timestamp], wallet)
+  
+    await axios.post(`${worker.url}/api/v1/kill`, {
+      auth: {
+        sig,
+        timestamp
+      } as IAuth
+    })
   }
 }
-export async function findAvailableWorkers (knex: Knex): Promise<Worker[]> {
-  const availables: Worker[] = []
 
-  const workers: Worker[] = await knex('workers')
-  for (const worker of workers) {
-    try {
-      const status = await (await axios.get(`http://${worker.ipAddress}:3000/api/v1/mode`, { timeout: 1000 * 30 })).data
-
-      if (status.result === MODE.None) {
-        availables.push(worker)
-      }
-    } catch (e) {
-      console.log(e)
-
-      await knex('workers').delete().where({ ipAddress: worker.ipAddress })
-    }
-  }
-  return availables
-}
-
-export function collectCandidateWorkerInfo (workers: Worker[], jobAssign: ReturnType<Emeth['jobAssigns']> extends Promise<infer T> ? T : never): {
-  requiredPowerCapacity: number
-  havingPowerCapacity: number
+export function collectCandidateWorkerInfo (
+  workers: Worker[], 
+  requiredPowerCapacity:number): {
   candidateWorkers: Worker[]
   candidateWorkerPowerCapacity: number} {
-  const requiredPowerCapacity = computeRequiredPowerCapacity(jobAssign)
-  const havingPowerCapacity = workers.reduce((accumulator, worker) => accumulator + worker.powerCapacity, 0)
 
   const cloned: Worker[] = JSON.parse(JSON.stringify(workers))
   cloned.sort((a, b) => {
-    return a.powerCapacity - b.powerCapacity
+    return b.power_capacity - a.power_capacity
   })
 
   const candidateWorkers: Worker[] = []
 
   let candidateWorkerPowerCapacity = 0
+
   for (const worker of cloned) {
-    candidateWorkerPowerCapacity += worker.powerCapacity
+    candidateWorkerPowerCapacity += worker.power_capacity
     candidateWorkers.push(worker)
 
     if (candidateWorkerPowerCapacity >= requiredPowerCapacity) {
@@ -62,19 +52,76 @@ export function collectCandidateWorkerInfo (workers: Worker[], jobAssign: Return
     }
   }
 
-  return { requiredPowerCapacity, havingPowerCapacity, candidateWorkerPowerCapacity, candidateWorkers }
+  return { candidateWorkerPowerCapacity, candidateWorkers }
 }
 
-export async function uploadFileToWorker (filename: string, worker: Worker, jobId: string): Promise<void> {
+export async function uploadFileToWorker (filename: string, worker: Worker, jobId: string, wallet:Wallet): Promise<void> {
+  const timestamp = new Date().getTime()
+  const sig = await sign(['uint256'], [timestamp], wallet)
+
   const file = fs.createReadStream(filename)
 
+  const auth = {sig, timestamp}
+  const data = {
+    jobId,
+    auth
+  }
   const form = new FormData()
-  form.append('jobId', jobId)
+  form.append('data', JSON.stringify(data))
   form.append('file', file)
 
-  await axios.post(`http://${worker.ipAddress}:3000/api/v1/upload`, form, {
+  await axios.post(`${worker.url}/api/v1/upload`, form, {
     headers: form.getHeaders(),
     maxContentLength: Infinity,
     maxBodyLength: Infinity
   })
+}
+
+export async function processWorker(
+  usedWorkers:Worker[], 
+  splitDataDir:string, 
+  testDataFile:string, 
+  jobId:string, 
+  masterPort:number,
+  batchSize:number,
+  n_epochs:number,
+  timeLimit: number,
+  workerIpListFile:string,
+  wallet: Wallet
+  ) {
+  let index = 0
+  for (const worker of usedWorkers) {
+    // send data to worker
+    index++
+
+    const workerDataFile = path.join(splitDataDir, `train${index}.txt`)
+
+    await uploadFileToWorker(workerDataFile, worker, jobId, wallet)
+    await uploadFileToWorker(testDataFile, worker, jobId, wallet)
+
+    const timestamp = new Date().getTime()
+    const sig = await sign(['uint256'], [timestamp], wallet)
+
+    // process worker
+    const json = {
+      train_data_file: `train${index}.txt`,
+      test_data_file: 'valid.txt',
+      master_port: masterPort,
+      jobId,
+      batchSize,
+      n_epochs,
+      num_workers: usedWorkers.length,
+      rank: index,
+      timeLimit,
+      auth: {
+        sig,
+        timestamp
+      } as IAuth
+    }
+
+    await axios.post(`${worker.url}/api/v1/process`, json)
+
+  }
+
+  fs.writeFileSync(workerIpListFile, usedWorkers.map(worker => new URL(worker.url).hostname).join(os.EOL))
 }

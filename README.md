@@ -29,7 +29,7 @@ $ cd parallelGPT
 $ pip3 install -r requirementgpu.txt
 ```
 
-### GPU seetup
+### GPU setup
 Check CUDA
 ```
 $ nvidia-smi
@@ -99,7 +99,14 @@ $ vi src/config/master.json
 | batchSize | Batch size |
 | n_epochs | Epoch num |
 | device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) | Since master does not high perform calculations that require GPU, basically 'cpu' is recommended as the setting value.
-| myIp | Master node's IP address for master/worker connection |
+| my_url | Master node's endpoint(FQDN) for master/worker connection |
+| worker_whitelist | worker whiltelist(ip address) for master/worker connection. It can be grant permission to anywhere server by asterisk of wild card. | Default is * (anywhere).
+| jsonrpc_whitelist | You can operate commands from the outside by sending a json rpc request from the allowed whitelist here. | Default is 127.0.0.1 (local). 
+| external_db | MySql connection information (optional). | By specifying the connection information of MySql here, you can save queue that controls the execution order of jobs to an external MySql. If omitted, it will be queued as local sqlite3 data.
+| cooperative | '1v1' (Assign one worker to one job) or 'nvm' (Assign worker(s) who meets the required power capacity for one job) | Default is 'nvm'.
+| board_url | board server endpoint(FQDN)
+| min_fee | minimum fee for job matching | Default is 10000000000000000000
+| max_fee | maximum fee for job matching | Default is 30000000000000000000
 
 [worker node]
 ```
@@ -107,12 +114,14 @@ $ cd ~/emeth-worker
 $ cp src/config/worker.json.example src/config/worker.json
 $ vi src/config/worker.json
 ```
-| Parameter | Description |
-| --------- | ---------------------------------------- |
+| Parameter | Description | Memo |
+| --------- | ---------------------------------------- | ---------------------------------------- |
 | device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) |
-| myIp | Worker node's IP address for master/worker connection |
-| masterIp | Master node's IP address for master/worker connection |
+| my_url | Worker node's endpoint(FQDN) for master/worker connection |
+| master_node_url | Master node's endpoint(FQDN) for master/worker connection |
 | powerCapacity | Power capacity |
+| privateKey | Ethereum account private key(Optional) | If omitted, a random account will be generated at the first startup, and it will be reused thereafter.
+| timeout | If the process stops in the phases during learning, time out and it move to the next job. You can specify the milliseconds before timeout in here. | "wait_data" (Waiting recieve dataset). Default is 300000. "idle" (Idling python process). Default is 600000. "learning" (Learning job). Default is 10000. "checkpoint" (Waiting synchronize the intermediate results with the master and move on to the next epoch). Default is 1200000.
 
 ### Install packages
 Both for master and worker
@@ -157,18 +166,6 @@ Execute under worker node directory.
 node dist/cli.js worker
 ```
 
-### Attach
-Execute under master node directory after starting master and worker.
-```
-node dist/cli.js attach
-```
-
-### Dettach
-Execute under master node directory.
-```
-node dist/cli.js dettach
-```
-
 ### Withdraw
 Execute under master node directory.
 ```
@@ -180,3 +177,28 @@ Execute under master node directory.
 ```
 node dist/cli.js joblist
 ```
+
+### JSON RPC
+You can operate commands from the outside by sending a json rpc request to the master node.
+
+```
+{master_node_url}/api/json-rpc
+```
+
+```
+--> {
+	"jsonrpc": "2.0",
+	"method": "disconnect",
+	"params": {"workerAddress": '0x...'},
+	"id": 1
+    }
+<-- {
+	"jsonrpc": "2.0",
+	"result": "disconnected",
+	"id": 1
+    }
+```
+
+| Method | Description | Params |
+| --------- | ---------------------------------------- | ---------------------------------------- |
+| disconnect | Disconnects the specified worker of eth address from master. eth address is the account specified in worker.json or the account randomly generated at the first startup. | {"workerAddress": worker's eth address}

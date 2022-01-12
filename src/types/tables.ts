@@ -1,48 +1,60 @@
 declare module 'knex/types/tables' {
   interface Tables {
     jobs: Job
-    lastWatchedBlock: LastWatchedBlock
+    contributions: Contributions
     masterports: Masterport
     workers: Worker
-    lastNodeSlotIndex: LastNodeSlotIndex
+    last_node_slot_index: LastNodeSlotIndex
+    health_check: HealthCheck
+    last_watched_job_index: LastWacthedJobIndex
   }
 }
 
 export interface Job {
-  jobId: string
-  assignedNode: string
+  job_id: string
+  data_size_mb: number
+  program_id: number
   status: JobStatus
-  assignedBlock?: number
-  numOfAttempt: number
-  createdAt: number
-  updatedAt: number
+  num_attempt: number
 }
 
-export interface LastWatchedBlock {
-  id?: number
-  blockNumber: number
+export interface Contributions {
+  job_id: string
+  num_attempt:number
+  worker_address: string
+  master_address: string
+  status:number
+  started_at: number
+  ended_at: number
+  contribution: number
+}
+
+export interface LastWacthedJobIndex {
+  job_index: number
 }
 
 export interface LastNodeSlotIndex {
-  id?: number
-  slotIndex: number
+  slot_index: number
 }
 
 export interface Masterport {
-  jobId: string
+  job_id: string
   port: number
 }
 
 export interface Worker {
-  ipAddress: string
-  port: number
-  batchSize: number
-  powerCapacity: number
+  url: string
+  address: string
+  power_capacity: number
+}
+
+export interface HealthCheck {
+  checked_at: number
 }
 
 export enum JobStatus {
   REQUESTED = 0,
-  ASSIGNED = 1,
+  // ASSIGNED = 1,
   PROCESSING = 2,
   SUBMITTED = 3,
   VERIFIED = 4,
@@ -51,4 +63,11 @@ export enum JobStatus {
   TIMEOUT = 7,
   FAILED = 8,
   DECLINED = 9
+}
+
+export enum ContributionStatus {
+  NONE = 0,
+  VERIFIED = 1,
+  FAILED = 2,
+  DISCONNECTED = 3
 }

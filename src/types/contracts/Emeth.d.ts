@@ -21,99 +21,73 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface EmethInterface extends ethers.utils.Interface {
   functions: {
-    "ASSIGNER_FEE()": FunctionFragment;
-    "DEPOSIT_PER_CAPACITY()": FunctionFragment;
-    "MAX_SLOT_GAS_PER_NODE()": FunctionFragment;
-    "MIN_DEPOSIT()": FunctionFragment;
-    "VERIFIER_FEE()": FunctionFragment;
-    "addDeposit(uint256)": FunctionFragment;
-    "assign(bytes16,address,uint256,uint256)": FunctionFragment;
-    "assigner()": FunctionFragment;
-    "attach(uint256,uint256,uint256)": FunctionFragment;
     "cancel(bytes16)": FunctionFragment;
-    "checkAvailability(uint256)": FunctionFragment;
+    "decline(bytes16)": FunctionFragment;
+    "process(bytes16)": FunctionFragment;
+    "rejectResult(bytes16)": FunctionFragment;
+    "request(bytes16,uint256,string,string,uint256,uint256)": FunctionFragment;
+    "setVerifier(address)": FunctionFragment;
+    "submit(bytes16,string)": FunctionFragment;
+    "timeout(bytes16)": FunctionFragment;
+    "verify(bytes16,uint256)": FunctionFragment;
+    "withdrawSlotReward(uint256)": FunctionFragment;
     "currentSlot()": FunctionFragment;
     "currentSlotReward()": FunctionFragment;
-    "decline(bytes16)": FunctionFragment;
-    "detach()": FunctionFragment;
-    "findAvailableNode(uint256)": FunctionFragment;
-    "isAssigner(address)": FunctionFragment;
+    "DECLINE_PENALTY_RATE()": FunctionFragment;
+    "DEPOSIT_RATE()": FunctionFragment;
+    "emtToken()": FunctionFragment;
+    "FAILED_PENALTY_RATE()": FunctionFragment;
+    "getEstimatedGas(uint256,uint256)": FunctionFragment;
     "isVerifier(address)": FunctionFragment;
     "jobAssignedCount(address)": FunctionFragment;
     "jobAssignedHistory(address,uint256)": FunctionFragment;
     "jobAssigns(bytes16)": FunctionFragment;
     "jobDetails(bytes16)": FunctionFragment;
+    "jobIndexes(uint256)": FunctionFragment;
     "jobs(bytes16)": FunctionFragment;
-    "lastJobAssigned(address)": FunctionFragment;
-    "nodeAddresses(uint256)": FunctionFragment;
-    "nodeCount()": FunctionFragment;
+    "MAX_SLOT_GAS_PER_NODE()": FunctionFragment;
     "nodeSlotCount(address)": FunctionFragment;
-    "nodeSlotUnique(address,uint256)": FunctionFragment;
     "nodeSlots(address,uint256)": FunctionFragment;
-    "nodes(address)": FunctionFragment;
-    "process(bytes16)": FunctionFragment;
-    "rejectJob(bytes16)": FunctionFragment;
-    "rejectResult(bytes16)": FunctionFragment;
-    "removeDeposit(uint256)": FunctionFragment;
-    "request(bytes16,uint256,string,string,uint256,uint256,uint256)": FunctionFragment;
-    "setAssigner(address)": FunctionFragment;
-    "setAssignerFee(uint256)": FunctionFragment;
-    "setMaxSlotGasPerNode(uint256)": FunctionFragment;
-    "setVerifier(address)": FunctionFragment;
-    "setVerifierFee(uint256)": FunctionFragment;
+    "nodeSlotUnique(address,uint256)": FunctionFragment;
     "slotBalances(uint256,address)": FunctionFragment;
     "slotGas(uint256,address)": FunctionFragment;
     "slots(uint256)": FunctionFragment;
     "startSlot()": FunctionFragment;
-    "submit(bytes16,string)": FunctionFragment;
-    "timeout(bytes16)": FunctionFragment;
-    "tokenAddress()": FunctionFragment;
-    "update(uint256,uint256)": FunctionFragment;
-    "updateJob(bytes16,address,uint256,uint256,uint256)": FunctionFragment;
-    "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "updateJobDetail(bytes16,uint256,string,string,string)": FunctionFragment;
-    "updateNode(address,bool,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "TIMEOUT_PENALTY_RATE()": FunctionFragment;
     "verifier()": FunctionFragment;
-    "verify(bytes16)": FunctionFragment;
-    "withdrawSlotReward(uint256)": FunctionFragment;
+    "VERIFIER_FEE()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "ASSIGNER_FEE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DEPOSIT_PER_CAPACITY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MAX_SLOT_GAS_PER_NODE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MIN_DEPOSIT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "VERIFIER_FEE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addDeposit",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assign",
-    values: [BytesLike, string, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "assigner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "attach",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "cancel", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "decline", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "process", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "checkAvailability",
+    functionFragment: "rejectResult",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "request",
+    values: [
+      BytesLike,
+      BigNumberish,
+      string,
+      string,
+      BigNumberish,
+      BigNumberish
+    ]
+  ): string;
+  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "submit",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(functionFragment: "timeout", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "verify",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawSlotReward",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -124,13 +98,23 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "currentSlotReward",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "decline", values: [BytesLike]): string;
-  encodeFunctionData(functionFragment: "detach", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "findAvailableNode",
-    values: [BigNumberish]
+    functionFragment: "DECLINE_PENALTY_RATE",
+    values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "isAssigner", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "DEPOSIT_RATE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "emtToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "FAILED_PENALTY_RATE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getEstimatedGas",
+    values: [BigNumberish, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "isVerifier", values: [string]): string;
   encodeFunctionData(
     functionFragment: "jobAssignedCount",
@@ -148,67 +132,26 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "jobDetails",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "jobs", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "lastJobAssigned",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nodeAddresses",
+    functionFragment: "jobIndexes",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "nodeCount", values?: undefined): string;
+  encodeFunctionData(functionFragment: "jobs", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "MAX_SLOT_GAS_PER_NODE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "nodeSlotCount",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "nodeSlotUnique",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "nodeSlots",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "nodes", values: [string]): string;
-  encodeFunctionData(functionFragment: "process", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "rejectJob",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "rejectResult",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeDeposit",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "request",
-    values: [
-      BytesLike,
-      BigNumberish,
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(functionFragment: "setAssigner", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "setAssignerFee",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxSlotGasPerNode",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "setVerifierFee",
-    values: [BigNumberish]
+    functionFragment: "nodeSlotUnique",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "slotBalances",
@@ -221,83 +164,32 @@ interface EmethInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "slots", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "startSlot", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "submit",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(functionFragment: "timeout", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "tokenAddress",
+    functionFragment: "TIMEOUT_PENALTY_RATE",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "update",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateJob",
-    values: [BytesLike, string, BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateJobAssign",
-    values: [
-      BytesLike,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateJobDetail",
-    values: [BytesLike, BigNumberish, string, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateNode",
-    values: [
-      string,
-      boolean,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ]
-  ): string;
   encodeFunctionData(functionFragment: "verifier", values?: undefined): string;
-  encodeFunctionData(functionFragment: "verify", values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "withdrawSlotReward",
-    values: [BigNumberish]
+    functionFragment: "VERIFIER_FEE",
+    values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "ASSIGNER_FEE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "DEPOSIT_PER_CAPACITY",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "MAX_SLOT_GAS_PER_NODE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "MIN_DEPOSIT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "VERIFIER_FEE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "addDeposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "assign", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "assigner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "attach", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "decline", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "process", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "checkAvailability",
+    functionFragment: "rejectResult",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "request", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setVerifier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "submit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawSlotReward",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -308,13 +200,23 @@ interface EmethInterface extends ethers.utils.Interface {
     functionFragment: "currentSlotReward",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "decline", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "detach", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "findAvailableNode",
+    functionFragment: "DECLINE_PENALTY_RATE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "isAssigner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "DEPOSIT_RATE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "emtToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "FAILED_PENALTY_RATE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getEstimatedGas",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isVerifier", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "jobAssignedCount",
@@ -326,55 +228,19 @@ interface EmethInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "jobAssigns", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "jobDetails", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "jobIndexes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "jobs", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "lastJobAssigned",
+    functionFragment: "MAX_SLOT_GAS_PER_NODE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "nodeAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "nodeCount", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nodeSlotCount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "nodeSlots", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nodeSlotUnique",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "nodeSlots", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nodes", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "process", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "rejectJob", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "rejectResult",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "request", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAssigner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAssignerFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxSlotGasPerNode",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVerifier",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVerifierFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -384,49 +250,29 @@ interface EmethInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "slotGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "slots", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "startSlot", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "submit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "tokenAddress",
+    functionFragment: "TIMEOUT_PENALTY_RATE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "update", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateJob", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateJobAssign",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateJobDetail",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "updateNode", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "verifier", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawSlotReward",
+    functionFragment: "VERIFIER_FEE",
     data: BytesLike
   ): Result;
 
   events: {
-    "Attach(address,uint256)": EventFragment;
     "Cancel(bytes16)": EventFragment;
-    "Detach(address)": EventFragment;
     "Penalty(address,uint256)": EventFragment;
     "Request(address,bytes16,uint256,uint256)": EventFragment;
     "Reward(address,uint256,uint256)": EventFragment;
     "Status(bytes16,address,uint256)": EventFragment;
-    "Update(address,uint256,uint256,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Attach"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Cancel"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Detach"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Penalty"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Request"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reward"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Status"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Update"): EventFragment;
 }
 
 export class Emeth extends Contract {
@@ -473,70 +319,6 @@ export class Emeth extends Contract {
   interface: EmethInterface;
 
   functions: {
-    ASSIGNER_FEE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "ASSIGNER_FEE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    DEPOSIT_PER_CAPACITY(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    MIN_DEPOSIT(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    VERIFIER_FEE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    addDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "addDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    assign(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "assign(bytes16,address,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    assigner(overrides?: CallOverrides): Promise<[string]>;
-
-    "assigner()"(overrides?: CallOverrides): Promise<[string]>;
-
-    attach(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "attach(uint256,uint256,uint256)"(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     cancel(
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -546,24 +328,6 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    checkAvailability(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "checkAvailability(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    currentSlot(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "currentSlot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    currentSlotReward(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "currentSlotReward()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     decline(
       _jobId: BytesLike,
@@ -575,30 +339,135 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    detach(
+    process(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "detach()"(
+    "process(bytes16)"(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    findAvailableNode(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    rejectResult(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "findAvailableNode(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    "rejectResult(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    isAssigner(_addr: string, overrides?: CallOverrides): Promise<[boolean]>;
+    request(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "isAssigner(address)"(
+    "request(bytes16,uint256,string,string,uint256,uint256)"(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setVerifier(
       _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setVerifier(address)"(
+      _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    submit(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "submit(bytes16,string)"(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    timeout(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "timeout(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    verify(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "verify(bytes16,uint256)"(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawSlotReward(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawSlotReward(uint256)"(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    currentSlot(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "currentSlot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    currentSlotReward(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "currentSlotReward()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    DECLINE_PENALTY_RATE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "DECLINE_PENALTY_RATE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    DEPOSIT_RATE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "DEPOSIT_RATE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    emtToken(overrides?: CallOverrides): Promise<[string]>;
+
+    "emtToken()"(overrides?: CallOverrides): Promise<[string]>;
+
+    FAILED_PENALTY_RATE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "FAILED_PENALTY_RATE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getEstimatedGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    ): Promise<[BigNumber]>;
+
+    "getEstimatedGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     isVerifier(_addr: string, overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -635,11 +504,11 @@ export class Emeth extends Contract {
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         node: string;
-        timeLimit: BigNumber;
+        deposit: BigNumber;
         gas: BigNumber;
-        gasPrice: BigNumber;
-        lockedCapacity: BigNumber;
-        retryCount: BigNumber;
+        startedAt: BigNumber;
+        submittedAt: BigNumber;
+        verifiedAt: BigNumber;
       }
     >;
 
@@ -649,11 +518,11 @@ export class Emeth extends Contract {
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         node: string;
-        timeLimit: BigNumber;
+        deposit: BigNumber;
         gas: BigNumber;
-        gasPrice: BigNumber;
-        lockedCapacity: BigNumber;
-        retryCount: BigNumber;
+        startedAt: BigNumber;
+        submittedAt: BigNumber;
+        verifiedAt: BigNumber;
       }
     >;
 
@@ -681,17 +550,28 @@ export class Emeth extends Contract {
       }
     >;
 
+    jobIndexes(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "jobIndexes(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     jobs(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+      [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
         exist: boolean;
         jobId: string;
         owner: string;
+        deadline: BigNumber;
+        fee: BigNumber;
         status: BigNumber;
         requestedAt: BigNumber;
-        assignedAt: BigNumber;
       }
     >;
 
@@ -699,36 +579,20 @@ export class Emeth extends Contract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+      [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
         exist: boolean;
         jobId: string;
         owner: string;
+        deadline: BigNumber;
+        fee: BigNumber;
         status: BigNumber;
         requestedAt: BigNumber;
-        assignedAt: BigNumber;
       }
     >;
 
-    lastJobAssigned(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "lastJobAssigned(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    nodeAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "nodeAddresses(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    nodeCount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "nodeCount()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     nodeSlotCount(
       _node: string,
@@ -737,6 +601,18 @@ export class Emeth extends Contract {
 
     "nodeSlotCount(address)"(
       _node: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    nodeSlots(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "nodeSlots(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -751,156 +627,6 @@ export class Emeth extends Contract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    nodeSlots(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "nodeSlots(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    nodes(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        active: boolean;
-        totalCapacity: BigNumber;
-        lockedCapacity: BigNumber;
-        workers: BigNumber;
-        deposit: BigNumber;
-      }
-    >;
-
-    "nodes(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        active: boolean;
-        totalCapacity: BigNumber;
-        lockedCapacity: BigNumber;
-        workers: BigNumber;
-        deposit: BigNumber;
-      }
-    >;
-
-    process(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "process(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    rejectJob(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "rejectJob(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    rejectResult(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "rejectResult(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    removeDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "removeDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    request(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "request(bytes16,uint256,string,string,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setAssigner(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setAssigner(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setAssignerFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setAssignerFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxSlotGasPerNode(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setMaxSlotGasPerNode(uint256)"(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setVerifier(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setVerifier(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setVerifierFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setVerifierFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     slotBalances(
       arg0: BigNumberish,
@@ -944,210 +670,18 @@ export class Emeth extends Contract {
 
     "startSlot()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    submit(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    TIMEOUT_PENALTY_RATE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "submit(bytes16,string)"(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    timeout(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "timeout(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    "tokenAddress()"(overrides?: CallOverrides): Promise<[string]>;
-
-    update(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "update(uint256,uint256)"(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateJob(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "updateJob(bytes16,address,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateJobAssign(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateJobDetail(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "updateJobDetail(bytes16,uint256,string,string,string)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateNode(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "updateNode(address,bool,uint256,uint256,uint256,uint256)"(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "TIMEOUT_PENALTY_RATE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     verifier(overrides?: CallOverrides): Promise<[string]>;
 
     "verifier()"(overrides?: CallOverrides): Promise<[string]>;
 
-    verify(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    VERIFIER_FEE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "verify(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    withdrawSlotReward(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "withdrawSlotReward(uint256)"(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
-
-  ASSIGNER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "ASSIGNER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  DEPOSIT_PER_CAPACITY(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  addDeposit(
-    _amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "addDeposit(uint256)"(
-    _amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  assign(
-    _jobId: BytesLike,
-    _node: string,
-    _estimatedGas: BigNumberish,
-    _timeLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "assign(bytes16,address,uint256,uint256)"(
-    _jobId: BytesLike,
-    _node: string,
-    _estimatedGas: BigNumberish,
-    _timeLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  assigner(overrides?: CallOverrides): Promise<string>;
-
-  "assigner()"(overrides?: CallOverrides): Promise<string>;
-
-  attach(
-    _amount: BigNumberish,
-    _totalCapacity: BigNumberish,
-    _workers: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "attach(uint256,uint256,uint256)"(
-    _amount: BigNumberish,
-    _totalCapacity: BigNumberish,
-    _workers: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   cancel(
     _jobId: BytesLike,
@@ -1159,24 +693,6 @@ export class Emeth extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  checkAvailability(
-    _powerCapacity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "checkAvailability(uint256)"(
-    _powerCapacity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  currentSlot(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "currentSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  currentSlotReward(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "currentSlotReward()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   decline(
     _jobId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1187,30 +703,135 @@ export class Emeth extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  detach(
+  process(
+    _jobId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "detach()"(
+  "process(bytes16)"(
+    _jobId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  findAvailableNode(
-    _powerCapacity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  rejectResult(
+    _jobId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "findAvailableNode(uint256)"(
-    _powerCapacity: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  "rejectResult(bytes16)"(
+    _jobId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  isAssigner(_addr: string, overrides?: CallOverrides): Promise<boolean>;
+  request(
+    _jobId: BytesLike,
+    _programId: BigNumberish,
+    _dataset: string,
+    _param: string,
+    _fee: BigNumberish,
+    _deadline: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "isAssigner(address)"(
+  "request(bytes16,uint256,string,string,uint256,uint256)"(
+    _jobId: BytesLike,
+    _programId: BigNumberish,
+    _dataset: string,
+    _param: string,
+    _fee: BigNumberish,
+    _deadline: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setVerifier(
     _addr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setVerifier(address)"(
+    _addr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  submit(
+    _jobId: BytesLike,
+    _result: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "submit(bytes16,string)"(
+    _jobId: BytesLike,
+    _result: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  timeout(
+    _jobId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "timeout(bytes16)"(
+    _jobId: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  verify(
+    _jobId: BytesLike,
+    _gas: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "verify(bytes16,uint256)"(
+    _jobId: BytesLike,
+    _gas: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawSlotReward(
+    _slot: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawSlotReward(uint256)"(
+    _slot: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  currentSlot(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "currentSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  currentSlotReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "currentSlotReward()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  DECLINE_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "DECLINE_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  DEPOSIT_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "DEPOSIT_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  emtToken(overrides?: CallOverrides): Promise<string>;
+
+  "emtToken()"(overrides?: CallOverrides): Promise<string>;
+
+  FAILED_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "FAILED_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getEstimatedGas(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<boolean>;
+  ): Promise<BigNumber>;
+
+  "getEstimatedGas(uint256,uint256)"(
+    _datasetSizeMB: BigNumberish,
+    _algoComplexity: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   isVerifier(_addr: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -1247,11 +868,11 @@ export class Emeth extends Contract {
   ): Promise<
     [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
       node: string;
-      timeLimit: BigNumber;
+      deposit: BigNumber;
       gas: BigNumber;
-      gasPrice: BigNumber;
-      lockedCapacity: BigNumber;
-      retryCount: BigNumber;
+      startedAt: BigNumber;
+      submittedAt: BigNumber;
+      verifiedAt: BigNumber;
     }
   >;
 
@@ -1261,11 +882,11 @@ export class Emeth extends Contract {
   ): Promise<
     [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
       node: string;
-      timeLimit: BigNumber;
+      deposit: BigNumber;
       gas: BigNumber;
-      gasPrice: BigNumber;
-      lockedCapacity: BigNumber;
-      retryCount: BigNumber;
+      startedAt: BigNumber;
+      submittedAt: BigNumber;
+      verifiedAt: BigNumber;
     }
   >;
 
@@ -1293,17 +914,25 @@ export class Emeth extends Contract {
     }
   >;
 
+  jobIndexes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  "jobIndexes(uint256)"(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   jobs(
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
-    [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+    [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
       exist: boolean;
       jobId: string;
       owner: string;
+      deadline: BigNumber;
+      fee: BigNumber;
       status: BigNumber;
       requestedAt: BigNumber;
-      assignedAt: BigNumber;
     }
   >;
 
@@ -1311,38 +940,37 @@ export class Emeth extends Contract {
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
-    [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+    [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
       exist: boolean;
       jobId: string;
       owner: string;
+      deadline: BigNumber;
+      fee: BigNumber;
       status: BigNumber;
       requestedAt: BigNumber;
-      assignedAt: BigNumber;
     }
   >;
 
-  lastJobAssigned(arg0: string, overrides?: CallOverrides): Promise<string>;
+  MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "lastJobAssigned(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  nodeAddresses(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-  "nodeAddresses(uint256)"(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   "nodeSlotCount(address)"(
     _node: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  nodeSlots(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "nodeSlots(address,uint256)"(
+    arg0: string,
+    arg1: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1357,156 +985,6 @@ export class Emeth extends Contract {
     arg1: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  nodeSlots(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "nodeSlots(address,uint256)"(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  nodes(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      active: boolean;
-      totalCapacity: BigNumber;
-      lockedCapacity: BigNumber;
-      workers: BigNumber;
-      deposit: BigNumber;
-    }
-  >;
-
-  "nodes(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<
-    [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      active: boolean;
-      totalCapacity: BigNumber;
-      lockedCapacity: BigNumber;
-      workers: BigNumber;
-      deposit: BigNumber;
-    }
-  >;
-
-  process(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "process(bytes16)"(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  rejectJob(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "rejectJob(bytes16)"(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  rejectResult(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "rejectResult(bytes16)"(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  removeDeposit(
-    _amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "removeDeposit(uint256)"(
-    _amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  request(
-    _jobId: BytesLike,
-    _programId: BigNumberish,
-    _dataset: string,
-    _param: string,
-    _gas: BigNumberish,
-    _gasPrice: BigNumberish,
-    _timeLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "request(bytes16,uint256,string,string,uint256,uint256,uint256)"(
-    _jobId: BytesLike,
-    _programId: BigNumberish,
-    _dataset: string,
-    _param: string,
-    _gas: BigNumberish,
-    _gasPrice: BigNumberish,
-    _timeLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setAssigner(
-    _addr: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setAssigner(address)"(
-    _addr: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setAssignerFee(
-    _fee: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setAssignerFee(uint256)"(
-    _fee: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxSlotGasPerNode(
-    _maxSlotGas: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setMaxSlotGasPerNode(uint256)"(
-    _maxSlotGas: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setVerifier(
-    _addr: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setVerifier(address)"(
-    _addr: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setVerifierFee(
-    _fee: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setVerifierFee(uint256)"(
-    _fee: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   slotBalances(
     arg0: BigNumberish,
@@ -1550,211 +1028,19 @@ export class Emeth extends Contract {
 
   "startSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  submit(
-    _jobId: BytesLike,
-    _result: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  TIMEOUT_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "submit(bytes16,string)"(
-    _jobId: BytesLike,
-    _result: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  timeout(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "timeout(bytes16)"(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenAddress(overrides?: CallOverrides): Promise<string>;
-
-  "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
-
-  update(
-    _totalCapacity: BigNumberish,
-    _workers: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "update(uint256,uint256)"(
-    _totalCapacity: BigNumberish,
-    _workers: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateJob(
-    _jobId: BytesLike,
-    _owner: string,
-    _status: BigNumberish,
-    _requestedAt: BigNumberish,
-    _assignedAt: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "updateJob(bytes16,address,uint256,uint256,uint256)"(
-    _jobId: BytesLike,
-    _owner: string,
-    _status: BigNumberish,
-    _requestedAt: BigNumberish,
-    _assignedAt: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateJobAssign(
-    _jobId: BytesLike,
-    _node: string,
-    _timeLimit: BigNumberish,
-    _gas: BigNumberish,
-    _gasPrice: BigNumberish,
-    _lockedCapacity: BigNumberish,
-    _retryCount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)"(
-    _jobId: BytesLike,
-    _node: string,
-    _timeLimit: BigNumberish,
-    _gas: BigNumberish,
-    _gasPrice: BigNumberish,
-    _lockedCapacity: BigNumberish,
-    _retryCount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateJobDetail(
-    _jobId: BytesLike,
-    _programId: BigNumberish,
-    _param: string,
-    _dataset: string,
-    _result: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "updateJobDetail(bytes16,uint256,string,string,string)"(
-    _jobId: BytesLike,
-    _programId: BigNumberish,
-    _param: string,
-    _dataset: string,
-    _result: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateNode(
-    _node: string,
-    _active: boolean,
-    _totalCapacity: BigNumberish,
-    _lockedCapacity: BigNumberish,
-    _workers: BigNumberish,
-    _deposit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "updateNode(address,bool,uint256,uint256,uint256,uint256)"(
-    _node: string,
-    _active: boolean,
-    _totalCapacity: BigNumberish,
-    _lockedCapacity: BigNumberish,
-    _workers: BigNumberish,
-    _deposit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "TIMEOUT_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   verifier(overrides?: CallOverrides): Promise<string>;
 
   "verifier()"(overrides?: CallOverrides): Promise<string>;
 
-  verify(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "verify(bytes16)"(
-    _jobId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  withdrawSlotReward(
-    _slot: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "withdrawSlotReward(uint256)"(
-    _slot: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    ASSIGNER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ASSIGNER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    DEPOSIT_PER_CAPACITY(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    addDeposit(
-      _amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "addDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    assign(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "assign(bytes16,address,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    assigner(overrides?: CallOverrides): Promise<string>;
-
-    "assigner()"(overrides?: CallOverrides): Promise<string>;
-
-    attach(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "attach(uint256,uint256,uint256)"(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     cancel(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
     "cancel(bytes16)"(
@@ -1762,15 +1048,97 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    checkAvailability(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    decline(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
-    "checkAvailability(uint256)"(
-      _powerCapacity: BigNumberish,
+    "decline(bytes16)"(
+      _jobId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<boolean>;
+
+    process(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    "process(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    rejectResult(
+      _jobId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "rejectResult(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    request(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "request(bytes16,uint256,string,string,uint256,uint256)"(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setVerifier(_addr: string, overrides?: CallOverrides): Promise<void>;
+
+    "setVerifier(address)"(
+      _addr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    submit(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "submit(bytes16,string)"(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    timeout(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    "timeout(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    verify(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "verify(bytes16,uint256)"(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    withdrawSlotReward(
+      _slot: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "withdrawSlotReward(uint256)"(
+      _slot: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     currentSlot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1780,33 +1148,33 @@ export class Emeth extends Contract {
 
     "currentSlotReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    decline(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+    DECLINE_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "decline(bytes16)"(
-      _jobId: BytesLike,
+    "DECLINE_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    DEPOSIT_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "DEPOSIT_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    emtToken(overrides?: CallOverrides): Promise<string>;
+
+    "emtToken()"(overrides?: CallOverrides): Promise<string>;
+
+    FAILED_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FAILED_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getEstimatedGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<BigNumber>;
 
-    detach(overrides?: CallOverrides): Promise<boolean>;
-
-    "detach()"(overrides?: CallOverrides): Promise<boolean>;
-
-    findAvailableNode(
-      _powerCapacity: BigNumberish,
+    "getEstimatedGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<string>;
-
-    "findAvailableNode(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    isAssigner(_addr: string, overrides?: CallOverrides): Promise<boolean>;
-
-    "isAssigner(address)"(
-      _addr: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<BigNumber>;
 
     isVerifier(_addr: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -1843,11 +1211,11 @@ export class Emeth extends Contract {
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         node: string;
-        timeLimit: BigNumber;
+        deposit: BigNumber;
         gas: BigNumber;
-        gasPrice: BigNumber;
-        lockedCapacity: BigNumber;
-        retryCount: BigNumber;
+        startedAt: BigNumber;
+        submittedAt: BigNumber;
+        verifiedAt: BigNumber;
       }
     >;
 
@@ -1857,11 +1225,11 @@ export class Emeth extends Contract {
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         node: string;
-        timeLimit: BigNumber;
+        deposit: BigNumber;
         gas: BigNumber;
-        gasPrice: BigNumber;
-        lockedCapacity: BigNumber;
-        retryCount: BigNumber;
+        startedAt: BigNumber;
+        submittedAt: BigNumber;
+        verifiedAt: BigNumber;
       }
     >;
 
@@ -1889,17 +1257,25 @@ export class Emeth extends Contract {
       }
     >;
 
+    jobIndexes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    "jobIndexes(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     jobs(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+      [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
         exist: boolean;
         jobId: string;
         owner: string;
+        deadline: BigNumber;
+        fee: BigNumber;
         status: BigNumber;
         requestedAt: BigNumber;
-        assignedAt: BigNumber;
       }
     >;
 
@@ -1907,36 +1283,20 @@ export class Emeth extends Contract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [boolean, string, string, BigNumber, BigNumber, BigNumber] & {
+      [boolean, string, string, BigNumber, BigNumber, BigNumber, BigNumber] & {
         exist: boolean;
         jobId: string;
         owner: string;
+        deadline: BigNumber;
+        fee: BigNumber;
         status: BigNumber;
         requestedAt: BigNumber;
-        assignedAt: BigNumber;
       }
     >;
 
-    lastJobAssigned(arg0: string, overrides?: CallOverrides): Promise<string>;
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "lastJobAssigned(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    nodeAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "nodeAddresses(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1944,18 +1304,6 @@ export class Emeth extends Contract {
       _node: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    nodeSlotUnique(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "nodeSlotUnique(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     nodeSlots(
       arg0: string,
@@ -1969,129 +1317,15 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nodes(
+    nodeSlotUnique(
       arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        active: boolean;
-        totalCapacity: BigNumber;
-        lockedCapacity: BigNumber;
-        workers: BigNumber;
-        deposit: BigNumber;
-      }
-    >;
+    ): Promise<boolean>;
 
-    "nodes(address)"(
+    "nodeSlotUnique(address,uint256)"(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        active: boolean;
-        totalCapacity: BigNumber;
-        lockedCapacity: BigNumber;
-        workers: BigNumber;
-        deposit: BigNumber;
-      }
-    >;
-
-    process(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
-
-    "process(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    rejectJob(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
-
-    "rejectJob(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    rejectResult(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "rejectResult(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    removeDeposit(
-      _amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "removeDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    request(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "request(bytes16,uint256,string,string,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    setAssigner(_addr: string, overrides?: CallOverrides): Promise<void>;
-
-    "setAssigner(address)"(
-      _addr: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAssignerFee(
-      _fee: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setAssignerFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    setMaxSlotGasPerNode(
-      _maxSlotGas: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setMaxSlotGasPerNode(uint256)"(
-      _maxSlotGas: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    setVerifier(_addr: string, overrides?: CallOverrides): Promise<void>;
-
-    "setVerifier(address)"(
-      _addr: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setVerifierFee(
-      _fee: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setVerifierFee(uint256)"(
-      _fee: BigNumberish,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2137,157 +1371,23 @@ export class Emeth extends Contract {
 
     "startSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    submit(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    TIMEOUT_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "submit(bytes16,string)"(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    timeout(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
-
-    "timeout(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tokenAddress(overrides?: CallOverrides): Promise<string>;
-
-    "tokenAddress()"(overrides?: CallOverrides): Promise<string>;
-
-    update(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "update(uint256,uint256)"(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    updateJob(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "updateJob(bytes16,address,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    updateJobAssign(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    updateJobDetail(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "updateJobDetail(bytes16,uint256,string,string,string)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    updateNode(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "updateNode(address,bool,uint256,uint256,uint256,uint256)"(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    "TIMEOUT_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     verifier(overrides?: CallOverrides): Promise<string>;
 
     "verifier()"(overrides?: CallOverrides): Promise<string>;
 
-    verify(_jobId: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+    VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "verify(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    withdrawSlotReward(
-      _slot: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "withdrawSlotReward(uint256)"(
-      _slot: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
-    Attach(
-      nodeAddress: string | null,
-      deposit: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { nodeAddress: string; deposit: BigNumber }
-    >;
-
     Cancel(
       jobId: BytesLike | null
     ): TypedEventFilter<[string], { jobId: string }>;
-
-    Detach(
-      nodeAddress: string | null
-    ): TypedEventFilter<[string], { nodeAddress: string }>;
 
     Penalty(
       nodeAddress: string | null,
@@ -2300,11 +1400,11 @@ export class Emeth extends Contract {
     Request(
       owner: string | null,
       jobId: BytesLike | null,
-      gas: null,
-      gasPrice: null
+      fee: null,
+      deadline: null
     ): TypedEventFilter<
       [string, string, BigNumber, BigNumber],
-      { owner: string; jobId: string; gas: BigNumber; gasPrice: BigNumber }
+      { owner: string; jobId: string; fee: BigNumber; deadline: BigNumber }
     >;
 
     Reward(
@@ -2324,88 +1424,9 @@ export class Emeth extends Contract {
       [string, string, BigNumber],
       { jobId: string; nodeAddress: string; status: BigNumber }
     >;
-
-    Update(
-      nodeAddress: string | null,
-      totalCapacity: null,
-      workers: null,
-      deposit: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber],
-      {
-        nodeAddress: string;
-        totalCapacity: BigNumber;
-        workers: BigNumber;
-        deposit: BigNumber;
-      }
-    >;
   };
 
   estimateGas: {
-    ASSIGNER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ASSIGNER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    DEPOSIT_PER_CAPACITY(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "DEPOSIT_PER_CAPACITY()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIN_DEPOSIT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    addDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "addDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    assign(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "assign(bytes16,address,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    assigner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "assigner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    attach(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "attach(uint256,uint256,uint256)"(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     cancel(
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2415,24 +1436,6 @@ export class Emeth extends Contract {
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    checkAvailability(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "checkAvailability(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    currentSlot(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "currentSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    currentSlotReward(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "currentSlotReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     decline(
       _jobId: BytesLike,
@@ -2444,28 +1447,133 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    detach(
+    process(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "detach()"(
+    "process(bytes16)"(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    findAvailableNode(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
+    rejectResult(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "findAvailableNode(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
+    "rejectResult(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    isAssigner(_addr: string, overrides?: CallOverrides): Promise<BigNumber>;
+    request(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "isAssigner(address)"(
+    "request(bytes16,uint256,string,string,uint256,uint256)"(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setVerifier(
       _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setVerifier(address)"(
+      _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    submit(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "submit(bytes16,string)"(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    timeout(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "timeout(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    verify(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "verify(bytes16,uint256)"(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdrawSlotReward(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawSlotReward(uint256)"(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    currentSlot(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "currentSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    currentSlotReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "currentSlotReward()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    DECLINE_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "DECLINE_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    DEPOSIT_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "DEPOSIT_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    emtToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "emtToken()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    FAILED_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FAILED_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getEstimatedGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getEstimatedGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2512,6 +1620,16 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    jobIndexes(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "jobIndexes(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     jobs(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     "jobs(bytes16)"(
@@ -2519,46 +1637,14 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    lastJobAssigned(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    MAX_SLOT_GAS_PER_NODE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "lastJobAssigned(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    nodeAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "nodeAddresses(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    nodeCount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nodeCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "MAX_SLOT_GAS_PER_NODE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     nodeSlotCount(_node: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "nodeSlotCount(address)"(
       _node: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    nodeSlotUnique(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "nodeSlotUnique(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2574,123 +1660,16 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nodes(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "nodes(address)"(
+    nodeSlotUnique(
       arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    process(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "process(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    rejectJob(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "rejectJob(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    rejectResult(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "rejectResult(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    removeDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "removeDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    request(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "request(bytes16,uint256,string,string,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setAssigner(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setAssigner(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setAssignerFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setAssignerFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMaxSlotGasPerNode(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setMaxSlotGasPerNode(uint256)"(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setVerifier(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setVerifier(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setVerifierFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setVerifierFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "nodeSlotUnique(address,uint256)"(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     slotBalances(
@@ -2728,220 +1707,20 @@ export class Emeth extends Contract {
 
     "startSlot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    submit(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    TIMEOUT_PENALTY_RATE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "submit(bytes16,string)"(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    timeout(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "timeout(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    tokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "tokenAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    update(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "update(uint256,uint256)"(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateJob(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "updateJob(bytes16,address,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateJobAssign(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateJobDetail(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "updateJobDetail(bytes16,uint256,string,string,string)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateNode(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "updateNode(address,bool,uint256,uint256,uint256,uint256)"(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "TIMEOUT_PENALTY_RATE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     verifier(overrides?: CallOverrides): Promise<BigNumber>;
 
     "verifier()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    verify(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    VERIFIER_FEE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "verify(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    withdrawSlotReward(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "withdrawSlotReward(uint256)"(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    ASSIGNER_FEE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "ASSIGNER_FEE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    DEPOSIT_PER_CAPACITY(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "DEPOSIT_PER_CAPACITY()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    MAX_SLOT_GAS_PER_NODE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "MAX_SLOT_GAS_PER_NODE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    MIN_DEPOSIT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "MIN_DEPOSIT()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    VERIFIER_FEE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    addDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "addDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    assign(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "assign(bytes16,address,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _estimatedGas: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    assigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "assigner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    attach(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "attach(uint256,uint256,uint256)"(
-      _amount: BigNumberish,
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     cancel(
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2950,26 +1729,6 @@ export class Emeth extends Contract {
     "cancel(bytes16)"(
       _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    checkAvailability(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "checkAvailability(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    currentSlot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "currentSlot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    currentSlotReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "currentSlotReward()"(
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     decline(
@@ -2982,31 +1741,143 @@ export class Emeth extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    detach(
+    process(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "detach()"(
+    "process(bytes16)"(
+      _jobId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    findAvailableNode(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
+    rejectResult(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "findAvailableNode(uint256)"(
-      _powerCapacity: BigNumberish,
-      overrides?: CallOverrides
+    "rejectResult(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    isAssigner(
+    request(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "request(bytes16,uint256,string,string,uint256,uint256)"(
+      _jobId: BytesLike,
+      _programId: BigNumberish,
+      _dataset: string,
+      _param: string,
+      _fee: BigNumberish,
+      _deadline: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVerifier(
       _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setVerifier(address)"(
+      _addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    submit(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "submit(bytes16,string)"(
+      _jobId: BytesLike,
+      _result: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    timeout(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "timeout(bytes16)"(
+      _jobId: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    verify(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "verify(bytes16,uint256)"(
+      _jobId: BytesLike,
+      _gas: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawSlotReward(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawSlotReward(uint256)"(
+      _slot: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    currentSlot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "currentSlot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    currentSlotReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "currentSlotReward()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isAssigner(address)"(
-      _addr: string,
+    DECLINE_PENALTY_RATE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "DECLINE_PENALTY_RATE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    DEPOSIT_RATE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "DEPOSIT_RATE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    emtToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "emtToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    FAILED_PENALTY_RATE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FAILED_PENALTY_RATE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getEstimatedGas(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getEstimatedGas(uint256,uint256)"(
+      _datasetSizeMB: BigNumberish,
+      _algoComplexity: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -3062,6 +1933,16 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    jobIndexes(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "jobIndexes(uint256)"(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     jobs(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -3072,29 +1953,13 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    lastJobAssigned(
-      arg0: string,
+    MAX_SLOT_GAS_PER_NODE(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "lastJobAssigned(address)"(
-      arg0: string,
+    "MAX_SLOT_GAS_PER_NODE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    nodeAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "nodeAddresses(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    nodeCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "nodeCount()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nodeSlotCount(
       _node: string,
@@ -3103,18 +1968,6 @@ export class Emeth extends Contract {
 
     "nodeSlotCount(address)"(
       _node: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    nodeSlotUnique(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "nodeSlotUnique(address,uint256)"(
-      arg0: string,
-      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -3130,126 +1983,16 @@ export class Emeth extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    nodes(
+    nodeSlotUnique(
       arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nodes(address)"(
+    "nodeSlotUnique(address,uint256)"(
       arg0: string,
+      arg1: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    process(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "process(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    rejectJob(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "rejectJob(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    rejectResult(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "rejectResult(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeDeposit(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "removeDeposit(uint256)"(
-      _amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    request(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "request(bytes16,uint256,string,string,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _dataset: string,
-      _param: string,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _timeLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAssigner(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setAssigner(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAssignerFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setAssignerFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxSlotGasPerNode(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setMaxSlotGasPerNode(uint256)"(
-      _maxSlotGas: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setVerifier(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setVerifier(address)"(
-      _addr: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setVerifierFee(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setVerifierFee(uint256)"(
-      _fee: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     slotBalances(
@@ -3290,144 +2033,20 @@ export class Emeth extends Contract {
 
     "startSlot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    submit(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    TIMEOUT_PENALTY_RATE(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "submit(bytes16,string)"(
-      _jobId: BytesLike,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    timeout(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "timeout(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "tokenAddress()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    update(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "update(uint256,uint256)"(
-      _totalCapacity: BigNumberish,
-      _workers: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateJob(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "updateJob(bytes16,address,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _owner: string,
-      _status: BigNumberish,
-      _requestedAt: BigNumberish,
-      _assignedAt: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateJobAssign(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "updateJobAssign(bytes16,address,uint256,uint256,uint256,uint256,uint256)"(
-      _jobId: BytesLike,
-      _node: string,
-      _timeLimit: BigNumberish,
-      _gas: BigNumberish,
-      _gasPrice: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _retryCount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateJobDetail(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "updateJobDetail(bytes16,uint256,string,string,string)"(
-      _jobId: BytesLike,
-      _programId: BigNumberish,
-      _param: string,
-      _dataset: string,
-      _result: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateNode(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "updateNode(address,bool,uint256,uint256,uint256,uint256)"(
-      _node: string,
-      _active: boolean,
-      _totalCapacity: BigNumberish,
-      _lockedCapacity: BigNumberish,
-      _workers: BigNumberish,
-      _deposit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "TIMEOUT_PENALTY_RATE()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     verifier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "verifier()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    verify(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    VERIFIER_FEE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "verify(bytes16)"(
-      _jobId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    withdrawSlotReward(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "withdrawSlotReward(uint256)"(
-      _slot: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    "VERIFIER_FEE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

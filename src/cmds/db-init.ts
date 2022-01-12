@@ -12,16 +12,16 @@ import { Wallet } from 'ethers'
 
 let db: Knex
 
-const joblist: CommandModule<{} & DatabaseMiddlewareArguments & WalletMiddlewareArguments, {} & DatabaseMiddlewareArguments & WalletMiddlewareArguments> = {
-  command: 'joblist',
-  describe: 'assigned job list',
+const dbInit: CommandModule<{} & DatabaseMiddlewareArguments & WalletMiddlewareArguments, {} & DatabaseMiddlewareArguments & WalletMiddlewareArguments> = {
+  command: 'db-init',
+  describe: 'database initilize',
   builder: (yargs) => {
     return yargs
       .config('config', configPath => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
       .default('config', path.resolve(__dirname, '..', 'config', 'master.json'))
       .default('dbpath', path.join(__dirname, '..', '..', 'emeth-node.sqlite3'))
       .string(['emethContractAddress', 'tokenContractAddress', 'privateKey'])
-      .middleware([database, wallet])
+      .middleware([database])
       .middleware((args) => {
         db = args.db
       })
@@ -31,29 +31,11 @@ const joblist: CommandModule<{} & DatabaseMiddlewareArguments & WalletMiddleware
       })
   },
   handler: async (args) => {
-    const wallet = args.wallet as Wallet
     const db = (args as unknown as DatabaseMiddlewareArguments).db
 
-    const jobStatusStr = Object.keys(tables.JobStatus).reduce((ret:any, key) => {
-      if(tables.JobStatus[Number(key)] != null) {
-        ret[Number(key)] = tables.JobStatus[Number(key)];
-      }
-      return ret;
-    }, {});
-
-    const sqliteJobs = await db('jobs')
-
-    for (let i=0; i<sqliteJobs.length; i++) {
-      const job = sqliteJobs[i]
-      console.log(
-        "Assigned job:", job.job_id, 
-        ", Status:", jobStatusStr[job.status], 
-        ", Size(MB):", job.data_size_mb,
-        ", num_attempt:", job.num_attempt)
-    }
-
-    exit()
+    await db.migrate.down()
+    await db.migrate.up()
   }
 }
 
-export = joblist
+export = dbInit

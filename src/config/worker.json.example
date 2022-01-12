@@ -1,6 +1,13 @@
 {
   "device": "",
-  "myIp": "",
-  "masterIp": "",
-  "powerCapacity": ""
+  "master_node_url": "",
+  "my_url": "",
+  "powerCapacity": "",
+  "privateKey": "",
+  "timeout": {
+    "wait_data": 300000,
+    "idle": 600000,
+    "learning": 10000,
+    "checkpoint": 1200000
+  }
 }

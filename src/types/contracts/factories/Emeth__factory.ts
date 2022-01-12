@@ -17,6 +17,44 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+    ],
+    name: "cancel",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+    ],
+    name: "decline",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_tokenAddress",
         type: "address",
@@ -24,25 +62,6 @@ const _abi = [
     ],
     stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "nodeAddress",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "deposit",
-        type: "uint256",
-      },
-    ],
-    name: "Attach",
-    type: "event",
   },
   {
     anonymous: false,
@@ -66,19 +85,6 @@ const _abi = [
         name: "nodeAddress",
         type: "address",
       },
-    ],
-    name: "Detach",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "nodeAddress",
-        type: "address",
-      },
       {
         indexed: false,
         internalType: "uint256",
@@ -88,6 +94,88 @@ const _abi = [
     ],
     name: "Penalty",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+    ],
+    name: "process",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+    ],
+    name: "rejectResult",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+      {
+        internalType: "uint256",
+        name: "_programId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "_dataset",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_param",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "_fee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_deadline",
+        type: "uint256",
+      },
+    ],
+    name: "request",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     anonymous: false,
@@ -107,13 +195,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "gas",
+        name: "fee",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "gasPrice",
+        name: "deadline",
         type: "uint256",
       },
     ],
@@ -146,6 +234,19 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_addr",
+        type: "address",
+      },
+    ],
+    name: "setVerifier",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -171,121 +272,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "nodeAddress",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "totalCapacity",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "workers",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "deposit",
-        type: "uint256",
-      },
-    ],
-    name: "Update",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "ASSIGNER_FEE",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "DEPOSIT_PER_CAPACITY",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "MAX_SLOT_GAS_PER_NODE",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "MIN_DEPOSIT",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "VERIFIER_FEE",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "addDeposit",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes16",
@@ -293,64 +279,12 @@ const _abi = [
         type: "bytes16",
       },
       {
-        internalType: "address",
-        name: "_node",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_estimatedGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_timeLimit",
-        type: "uint256",
+        internalType: "string",
+        name: "_result",
+        type: "string",
       },
     ],
-    name: "assign",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assigner",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_totalCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_workers",
-        type: "uint256",
-      },
-    ],
-    name: "attach",
+    name: "submit",
     outputs: [
       {
         internalType: "bool",
@@ -369,7 +303,31 @@ const _abi = [
         type: "bytes16",
       },
     ],
-    name: "cancel",
+    name: "timeout",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes16",
+        name: "_jobId",
+        type: "bytes16",
+      },
+      {
+        internalType: "uint256",
+        name: "_gas",
+        type: "uint256",
+      },
+    ],
+    name: "verify",
     outputs: [
       {
         internalType: "bool",
@@ -384,19 +342,19 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_powerCapacity",
+        name: "_slot",
         type: "uint256",
       },
     ],
-    name: "checkAvailability",
+    name: "withdrawSlotReward",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bool",
         name: "",
-        type: "uint256",
+        type: "bool",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -426,73 +384,79 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "decline",
+    inputs: [],
+    name: "DECLINE_PENALTY_RATE",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "uint256",
         name: "",
-        type: "bool",
+        type: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "detach",
+    name: "DEPOSIT_RATE",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "uint256",
         name: "",
-        type: "bool",
+        type: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "emtToken",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "FAILED_PENALTY_RATE",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "uint256",
-        name: "_powerCapacity",
+        name: "_datasetSizeMB",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_algoComplexity",
         type: "uint256",
       },
     ],
-    name: "findAvailableNode",
+    name: "getEstimatedGas",
     outputs: [
       {
-        internalType: "address",
+        internalType: "uint256",
         name: "",
-        type: "address",
+        type: "uint256",
       },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_addr",
-        type: "address",
-      },
-    ],
-    name: "isAssigner",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -574,7 +538,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "timeLimit",
+        name: "deposit",
         type: "uint256",
       },
       {
@@ -584,17 +548,17 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "gasPrice",
+        name: "startedAt",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "lockedCapacity",
+        name: "submittedAt",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "retryCount",
+        name: "verifiedAt",
         type: "uint256",
       },
     ],
@@ -638,6 +602,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "jobIndexes",
+    outputs: [
+      {
+        internalType: "bytes16",
+        name: "",
+        type: "bytes16",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes16",
         name: "",
         type: "bytes16",
@@ -662,6 +645,16 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "deadline",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "status",
         type: "uint256",
       },
@@ -670,56 +663,13 @@ const _abi = [
         name: "requestedAt",
         type: "uint256",
       },
-      {
-        internalType: "uint256",
-        name: "assignedAt",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "lastJobAssigned",
-    outputs: [
-      {
-        internalType: "bytes16",
-        name: "",
-        type: "bytes16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "nodeAddresses",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "nodeCount",
+    name: "MAX_SLOT_GAS_PER_NODE",
     outputs: [
       {
         internalType: "uint256",
@@ -762,30 +712,6 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "nodeSlotUnique",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
     name: "nodeSlots",
     outputs: [
       {
@@ -804,244 +730,21 @@ const _abi = [
         name: "",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    name: "nodes",
+    name: "nodeSlotUnique",
     outputs: [
       {
         internalType: "bool",
-        name: "active",
+        name: "",
         type: "bool",
-      },
-      {
-        internalType: "uint256",
-        name: "totalCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "lockedCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "workers",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "deposit",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "process",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "rejectJob",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "rejectResult",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "removeDeposit",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-      {
-        internalType: "uint256",
-        name: "_programId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "_dataset",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_param",
-        type: "string",
-      },
-      {
-        internalType: "uint256",
-        name: "_gas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_timeLimit",
-        type: "uint256",
-      },
-    ],
-    name: "request",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_addr",
-        type: "address",
-      },
-    ],
-    name: "setAssigner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_fee",
-        type: "uint256",
-      },
-    ],
-    name: "setAssignerFee",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_maxSlotGas",
-        type: "uint256",
-      },
-    ],
-    name: "setMaxSlotGasPerNode",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_addr",
-        type: "address",
-      },
-    ],
-    name: "setVerifier",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_fee",
-        type: "uint256",
-      },
-    ],
-    name: "setVerifierFee",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1130,254 +833,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-      {
-        internalType: "string",
-        name: "_result",
-        type: "string",
-      },
-    ],
-    name: "submit",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "timeout",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "tokenAddress",
+    name: "TIMEOUT_PENALTY_RATE",
     outputs: [
       {
-        internalType: "address",
+        internalType: "uint256",
         name: "",
-        type: "address",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_totalCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_workers",
-        type: "uint256",
-      },
-    ],
-    name: "update",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-      {
-        internalType: "address",
-        name: "_owner",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_status",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_requestedAt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_assignedAt",
-        type: "uint256",
-      },
-    ],
-    name: "updateJob",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-      {
-        internalType: "address",
-        name: "_node",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_timeLimit",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_gasPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_lockedCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_retryCount",
-        type: "uint256",
-      },
-    ],
-    name: "updateJobAssign",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-      {
-        internalType: "uint256",
-        name: "_programId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "_param",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_dataset",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_result",
-        type: "string",
-      },
-    ],
-    name: "updateJobDetail",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_node",
-        type: "address",
-      },
-      {
-        internalType: "bool",
-        name: "_active",
-        type: "bool",
-      },
-      {
-        internalType: "uint256",
-        name: "_totalCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_lockedCapacity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_workers",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_deposit",
-        type: "uint256",
-      },
-    ],
-    name: "updateNode",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1394,41 +859,16 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes16",
-        name: "_jobId",
-        type: "bytes16",
-      },
-    ],
-    name: "verify",
+    inputs: [],
+    name: "VERIFIER_FEE",
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
-        name: "_slot",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "withdrawSlotReward",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
 ];

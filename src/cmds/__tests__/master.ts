@@ -10,13 +10,10 @@ import request from 'supertest'
 import { Account } from 'web3-core/types'
 import { Contract } from 'web3-eth-contract'
 
-import attach from '../attach'
 import master from '../master'
 import contracts from '../../middlewares/contracts'
-import emethStatusWatcher from '../../middlewares/emeth-status-watcher'
-import jobExecutor from '../../middlewares/job-executor'
 import wallet from '../../middlewares/wallet'
-import * as migrations from '../../migrations'
+import * as migrations from '../../migrations/sqlite3'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require('solc')
@@ -150,10 +147,8 @@ time.sleep(5)
   await db.migrate.latest()
 
   await db('workers').insert({
-    ipAddress: '127.0.0.1',
-    port: 3000,
-    powerCapacity: 25000,
-    batchSize: 4
+    url: 'http://127.0.0.1:3000',
+    power_capacity: 25000
   })
 
   const attachArgs = {
@@ -168,7 +163,6 @@ time.sleep(5)
 
   await wallet(attachArgs)
   await contracts(attachArgs)
-  await attach.handler(attachArgs)
 
   const args = {
     _: [],
@@ -188,8 +182,6 @@ time.sleep(5)
 
   await wallet(args)
   await contracts(args)
-  await emethStatusWatcher(args)
-  await jobExecutor(args)
   await master.handler(args)
 })
 

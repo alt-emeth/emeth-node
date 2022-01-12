@@ -1,21 +1,14 @@
 import axios, { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
-import { joinSignature } from '@ethersproject/bytes'
 import fs from 'fs'
 import path from 'path'
 import { Logger } from 'log4js'
+import {sign} from './crypto'
 
 const FILE_CHUNK_SIZE = 10_000_000;
 interface Part {
   ETag: string
   PartNumber: number
-}
-
-async function sign (types: string[], values: any[], wallet: ethers.Wallet): Promise<string> {
-  const hash = ethers.utils.solidityKeccak256(types, values)
-  const signature = await wallet._signingKey().signDigest(hash)
-
-  return joinSignature(signature)
 }
 
 const writeStreamFile = async (url: string, fileName: string): Promise<void> => {
@@ -37,7 +30,7 @@ export const getS3 = async (storageApi: string, wallet: ethers.Wallet, jobId: st
   const timestamp = new Date().getTime()
   const signature = await sign(['string', 'uint256'], [jobId, timestamp], wallet)
 
-  const res = await axios.post(`http://${storageApi}:3000/api/v1/node/signed-get-url`, {
+  const res = await axios.post(`${storageApi}/api/v1/node/signed-get-url`, {
     sig: signature,
     address: wallet.address,
     jobId,
@@ -82,7 +75,7 @@ export const putS3 = async (storageApi: string, wallet: ethers.Wallet, jobId: st
   const stats = fs.statSync(fileName);
   const partNum = stats['size'] / FILE_CHUNK_SIZE;
   logger.info(`JobId:${jobId}, Start multiPartUpload. ${fileName}, size is ${stats['size']}, partNum is ${partNum}`);
-  const res = await axios.post(`http://${storageApi}:3000/api/v1/node/multipartUpload/getPutSignedUrls`, {
+  const res = await axios.post(`${storageApi}/api/v1/node/multipartUpload/getPutSignedUrls`, {
     sig: signature,
     jobId,
     address: wallet.address,
@@ -99,7 +92,7 @@ export const putS3 = async (storageApi: string, wallet: ethers.Wallet, jobId: st
   logger.info(`JobId:${jobId}, Signed url. ${fileName}, url num is ${Object.keys(urls).length}`);
   const parts:Part[] = await uploadParts(fileName, urls, jobId, logger);
   logger.info(`JobId:${jobId}, Completed parts upload. ${fileName}`);
-  await axios.post(`http://${storageApi}:3000/api/v1/node/multipartUpload/completeUpload`, {
+  await axios.post(`${storageApi}/api/v1/node/multipartUpload/completeUpload`, {
     jobId,
     address: wallet.address,
     parts,

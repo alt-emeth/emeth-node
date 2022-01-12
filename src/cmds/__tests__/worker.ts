@@ -56,14 +56,10 @@ time.sleep(5)
     device: 'cpu',
     logger: console as any,
     masterIp: '127.0.0.1',
-    myIp: '127.0.0.1',
     parallelGPTPath: fakeParallelGPTPath,
-    batchSize: 5,
-    powerCapacity: 25000,
-    n_epochs: 6
+    powerCapacity: 25000
   }
-
-  await worker.handler(args)
+  //await worker.handler(args)
 })
 
 test('Worker has "None" status', async () => {

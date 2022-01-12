@@ -183,6 +183,7 @@ class Trainer:
             }, self.config.ckpt_path)
         logger.info("saving %s", self.config.ckpt_path)
         logging.info('{"status": "COMPLETED", "fileName":"%s"}', self.config.ckpt_path)
+        #logging.info('{" status ":" COMPLETED "}')
     
 
 

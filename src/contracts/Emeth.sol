@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-08-01
-*/
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -81,12 +77,14 @@ interface IERC20 {
     function burn(uint256 _value) external returns (bool);
 }
 
-contract EmethCore is AssignerRole, VerifierRole {
+contract EmethCore is VerifierRole {
     using SafeMath for uint256;
+
+    address owner;
 
     // Constants
     uint256 constant REQUESTED = 0;
-    uint256 constant ASSIGNED = 1;
+    uint256 constant ASSIGNED = 1; // deprecated
     uint256 constant PROCESSING = 2;
     uint256 constant SUBMITTED = 3;
     uint256 constant VERIFIED = 4;
@@ -97,16 +95,21 @@ contract EmethCore is AssignerRole, VerifierRole {
     uint256 constant DECLINED = 9;
 
     // Paramters
-    uint256 constant MAX_RETRY_COUNT = 5;
-    uint256 constant TIMEOUT_PENALTY = 10000000000000000000; // 10 EMT
-    uint256 public constant MIN_DEPOSIT = 1000000000000000000000; // 10,000 * 0.1 EMT = 1,000 EMT
-    uint256 public constant DEPOSIT_PER_CAPACITY = 100000000000000000; // 0.1 EMT
-    uint256 public MAX_SLOT_GAS_PER_NODE = 4500;
-    uint256 public ASSIGNER_FEE = 0; // 0 EMT
-    uint256 public VERIFIER_FEE = 0; // 0 EMT
+    uint256 public TIMEOUT_PENALTY_RATE = 10000; // 10% of fee
+    uint256 public DECLINE_PENALTY_RATE = 10000; // 10% of fee
+    uint256 public FAILED_PENALTY_RATE = 100000; // 100% of fee
+    uint256 public DEPOSIT_RATE = 100000; // 100% of fee
+    uint256 public MAX_SLOT_GAS_PER_NODE = 9000;
+    uint256 public VERIFIER_FEE = 10000000000000000000; // 10 EMT
+
+    // Paramters (deprecated)
+    //uint256 constant TIMEOUT_PENALTY = 10000000000000000000; // 10 EMT
+    //uint256 public constant MIN_DEPOSIT = 10000000000000000000000; // 10,000 * 1 EMT = 10,000 EMT
+    //uint256 public constant DEPOSIT_PER_CAPACITY = 1000000000000000000; // 1 EMT
+    //uint256 public ASSIGNER_FEE = 0; // 0 EMT
 
     // EMT
-    address immutable public tokenAddress;
+    IERC20 immutable public emtToken;
     uint256 constant DECIMAL_FACTOR = 1e18;
     uint256 constant BASE_SLOT_REWARD = 12000 * 24 * DECIMAL_FACTOR; // 12,000 EMT x 24
     uint256 constant SLOT_INTERVAL = 24 hours;
@@ -121,22 +124,25 @@ contract EmethCore is AssignerRole, VerifierRole {
     mapping (address => mapping(uint256 => bool)) public nodeSlotUnique; // (nodeAddress => (slot => bool)) for unique check
 
     // Nodes
-    mapping(address => Node) public nodes;
-    address[] public nodeAddresses;
+    //mapping(address => Node) public nodes;
+    //address[] public nodeAddresses;
 
     // Jobs
+    // (required)
     mapping(bytes16 => Job) public jobs;
     mapping(bytes16 => JobDetail) public jobDetails;
     mapping(bytes16 => JobAssign) public jobAssigns;
-    mapping(address => bytes16) public lastJobAssigned;
-    mapping(address => bytes16[]) public jobAssignedHistory;
+
+    // (new)
+    bytes16[] public jobIndexes;
+
+    // (deprecated)
+    //mapping(address => bytes16) public lastJobAssigned;
+    //mapping(address => bytes16[]) public jobAssignedHistory;
 
     // Events
-    event Attach(address indexed nodeAddress, uint256 deposit);
-    event Detach(address indexed nodeAddress);
-    event Update(address indexed nodeAddress, uint256 totalCapacity, uint256 workers, uint256 deposit);
     event Penalty(address indexed nodeAddress, uint256 slashed);
-    event Request(address indexed owner, bytes16 indexed jobId, uint256 gas, uint256 gasPrice);
+    event Request(address indexed owner, bytes16 indexed jobId, uint256 fee, uint256 deadline);
     event Cancel(bytes16 indexed jobId);
     event Status(bytes16 indexed jobId, address nodeAddress, uint256 status);
     event Reward(address indexed nodeAddress, uint256 slot, uint256 gas);
@@ -146,9 +152,10 @@ contract EmethCore is AssignerRole, VerifierRole {
         bool exist;
         bytes16 jobId;
         address owner;
+        uint256 deadline;
+        uint256 fee;
         uint256 status; //0: requested, 1: assigned, 2: processing, 3: completed, 4: canceled
         uint256 requestedAt;
-        uint256 assignedAt;
     }
 
     struct JobDetail {
@@ -160,138 +167,58 @@ contract EmethCore is AssignerRole, VerifierRole {
 
     struct JobAssign {
         address node;
-        uint256 timeLimit;
+        uint256 deposit;
         uint256 gas;
-        uint256 gasPrice;
-        uint256 lockedCapacity;
-        uint256 retryCount;
+        uint256 startedAt;
+        uint256 submittedAt;
+        uint256 verifiedAt;
     }
 
-    struct Node {
-        bool active;
-        uint256 totalCapacity;
-        uint256 lockedCapacity;
-        uint256 workers;
-        uint256 deposit;
+    modifier onlyOwner() {
+        require(msg.sender == owner, 'insufficient privilege');
+        _;
     }
 
     modifier onlyAssignedNode(bytes16 _jobId) {
-        require(jobAssigns[_jobId].node == msg.sender, "Job is not assigned to your node");
+        require(jobAssigns[_jobId].node == msg.sender, "EmethCore: job is not assigned to your node");
+        _;
+    }
+
+    modifier onlyRequestedNode(bytes16 _jobId) {
+        require(jobs[_jobId].owner == msg.sender, "EmethCore: job is not requested by your node");
         _;
     }
 
     // Constructor
     constructor(address _tokenAddress) {
-        tokenAddress = _tokenAddress;
+        owner = msg.sender;
+        emtToken= IERC20(_tokenAddress);
         startSlot = block.timestamp.div(SLOT_INTERVAL);
     }
 
-    // Node Functions
-    function attach(uint256 _amount, uint256 _totalCapacity, uint256 _workers) external returns (bool) {
-        IERC20 token = IERC20(tokenAddress);
-        require(!nodes[msg.sender].active, "The node is already attached");
-        require(_amount >= MIN_DEPOSIT, "Deposit is lower than minDeposit");
-        require(_amount >= _totalCapacity.mul(DEPOSIT_PER_CAPACITY), "Insufficient amount for the specified totalCapacity");
-        require(_workers > 0, "Number of workers is required to be non-zero");
-        require(token.allowance(msg.sender, address(this)) >= _amount, "Insufficient allowance balance");
-        require(token.balanceOf(msg.sender) >= _amount, "Insufficient token balance"); 
-
-        token.transferFrom(msg.sender, address(this), _amount);
-
-        Node memory node = Node({
-            active: true,
-            totalCapacity: _totalCapacity,
-            lockedCapacity: 0,
-            workers: _workers,
-            deposit: _amount
-        });
-        nodes[msg.sender] = node;
-        nodeAddresses.push(msg.sender);
-
-        emit Attach(msg.sender, _amount);
-
-        return true;
-    }
-
-    function update(uint256 _totalCapacity, uint256 _workers) external returns (bool) {
-        Node storage node = nodes[msg.sender];
-        require(node.active, "The node is not attached");
-        require(node.deposit >= _totalCapacity.mul(DEPOSIT_PER_CAPACITY), "Insufficient amount for the specified totalCapacity");
-
-        node.totalCapacity = _totalCapacity;
-        node.workers = _workers;
-
-        emit Update(msg.sender, node.totalCapacity, node.workers, node.deposit);
-        return true;
-    }
-
-    function addDeposit(uint256 _amount) external returns (bool) {
-        Node storage node = nodes[msg.sender];
-        require(node.active, "The node is not attached");
-
-        IERC20 token = IERC20(tokenAddress);
-        require(node.active, "The node is not attached");
-        require(node.deposit > 0, "The node deposit is 0");
-        require(token.balanceOf(msg.sender) >= _amount, "Insufficient token balance"); 
-
-        token.transferFrom(msg.sender, address(this), _amount);
-        node.deposit = node.deposit.add(_amount);
-
-        emit Update(msg.sender, node.totalCapacity, node.workers, node.deposit);
-        return true;
-    }
-
-    function removeDeposit(uint256 _amount) external returns (bool) {
-        Node storage node = nodes[msg.sender];
-        require(node.active, "The node is not attached");
-
-        IERC20 token = IERC20(tokenAddress);
-        require(nodes[msg.sender].deposit.sub(_amount) >= MIN_DEPOSIT, "Cannot remove deposit below minDeposit");
-        require(nodes[msg.sender].deposit.sub(_amount) >= node.totalCapacity.mul(DEPOSIT_PER_CAPACITY), "Cannot remove deposit below the required deposit");
-        require(nodes[msg.sender].deposit.sub(nodes[msg.sender].lockedCapacity.mul(DEPOSIT_PER_CAPACITY)) >= _amount, "Insufficient fund to remove");
-
-        token.transfer(msg.sender, _amount);
-        nodes[msg.sender].deposit = nodes[msg.sender].deposit.sub(_amount);
-
-        emit Update(msg.sender, node.totalCapacity, node.workers, node.deposit);
-        return true;
-    }
-
-    function detach() external returns (bool) {
-        Node storage node = nodes[msg.sender];
-
-        IERC20 token = IERC20(tokenAddress);
-        require(node.active, "The node is not attached");
-        require(node.lockedCapacity == 0, "There is locked deposit");
-
-        uint256 amount = node.deposit;
-        node.deposit = 0;
-        token.transfer(msg.sender, amount);
-
-        node.active = false;
-
-        emit Detach(msg.sender);
-        return true;
-    }
-
-    // Job Functions
-    // Requester
-    function request(bytes16 _jobId, uint256 _programId, string calldata _dataset, string calldata _param, uint256 _gas, uint256 _gasPrice, uint256 _timeLimit) external returns (bool) {
+    // Functions for Requester
+    function request(
+        bytes16 _jobId,
+        uint256 _programId,
+        string calldata _dataset,
+        string calldata _param,
+        uint256 _fee,
+        uint256 _deadline
+    ) external returns (bool) {
         require(!jobs[_jobId].exist, "Job ID already exists");
 
-        uint256 fee = _gas.mul(_gasPrice);
-
-        IERC20 token = IERC20(tokenAddress);
-        require(token.balanceOf(msg.sender) >= fee);
-        token.transferFrom(msg.sender, address(this), fee);
+        require(emtToken.balanceOf(msg.sender) >= _fee, 'EmethCore: insufficient balance for fee');
+        require(emtToken.allowance(msg.sender, address(this)) >= _fee, 'EmethCore: insufficient allowance for fee');
+        emtToken.transferFrom(msg.sender, address(this), _fee);
 
         jobs[_jobId] = Job({
             exist: true,
             jobId: _jobId,
             owner: msg.sender,
+            deadline: _deadline,
+            fee: _fee,
             status: REQUESTED,
-            requestedAt: block.timestamp,
-            assignedAt: 0
+            requestedAt: block.timestamp
         });
 
         jobDetails[_jobId] = JobDetail({
@@ -303,42 +230,50 @@ contract EmethCore is AssignerRole, VerifierRole {
 
         jobAssigns[_jobId] = JobAssign({
             node: address(0),
-            timeLimit: _timeLimit,
-            gas: _gas,
-            gasPrice: _gasPrice,
-            lockedCapacity: 0,
-            retryCount: 0
+            deposit: 0,
+            gas: 0,
+            startedAt: 0,
+            submittedAt: 0,
+            verifiedAt: 0
         });
 
-        emit Request(msg.sender, _jobId, _gas, _gasPrice);
+        jobIndexes.push(_jobId);
+
+        emit Request(msg.sender, _jobId, _fee, _deadline);
         return true;
     }
 
-    function cancel(bytes16 _jobId) external returns (bool) {
+    function cancel(bytes16 _jobId) external onlyRequestedNode(_jobId) returns (bool) {
         Job storage job = jobs[_jobId];
-        JobAssign storage jobAssign = jobAssigns[_jobId];
 
-        require(job.exist, "Job doesn't exist");
-        require(job.owner == msg.sender, "Permission denied");
+        require(job.exist, "EmethCore: job doesn't exist");
         require(job.status == REQUESTED, "Job is already being processed or canceled");
-
-        uint256 refund = jobAssign.gas.mul(jobAssign.gasPrice);
 
         job.status = CANCELED;
 
-        IERC20 token = IERC20(tokenAddress);
-        token.transfer(msg.sender, refund);
+        emtToken.transfer(msg.sender, job.fee);
 
         emit Cancel(_jobId);
         return true;
     }
 
-    function process(bytes16 _jobId) external onlyAssignedNode(_jobId) returns (bool) {
+    // Functions for Node
+    function process(bytes16 _jobId) external returns (bool) {
         Job storage job = jobs[_jobId];
+        JobAssign storage jobAssign = jobAssigns[_jobId];
 
-        require(job.status == ASSIGNED);
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(job.status == REQUESTED);
+
+        uint256 deposit = job.fee * DEPOSIT_RATE / 100000;
+        require(emtToken.balanceOf(msg.sender) >= deposit, "EmethCore: insufficient balance for deposit");
+        require(emtToken.allowance(msg.sender, address(this)) >= deposit, "EmethCore: insufficient allowance for deposit");
+        emtToken.transferFrom(msg.sender, address(this), deposit);
 
         job.status = PROCESSING;
+        jobAssign.node = msg.sender;
+        jobAssign.deposit = deposit;
+        jobAssign.startedAt = block.timestamp;
 
         emit Status(_jobId, msg.sender, job.status);
         return true;
@@ -347,27 +282,20 @@ contract EmethCore is AssignerRole, VerifierRole {
     function decline(bytes16 _jobId) external onlyAssignedNode(_jobId) returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
-        Node storage node = nodes[jobAssign.node];
 
-        require(job.status == ASSIGNED || job.status == PROCESSING);
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(job.status == PROCESSING, "EmethCore: job is not being processed");
 
         job.status = DECLINED;
-        lastJobAssigned[jobAssign.node] = 0;
 
-        // Penalty if it's already being processed
-        if(job.status == PROCESSING) {
-            job.status = TIMEOUT;
+        // Fee Refund
+        emtToken.transfer(job.owner, job.fee);
 
-            // Tx Fee Refund
-            IERC20 token = IERC20(tokenAddress);
-            token.transfer(job.owner, jobAssign.gas.mul(jobAssign.gasPrice));
-
-            // Penalty
-            _burnDeposit(jobAssign.node, TIMEOUT_PENALTY);
+        // Deposit Refund with Penalty
+        uint256 penalty = job.fee * DECLINE_PENALTY_RATE / 100000;
+        if(penalty < jobAssign.deposit) {
+            emtToken.transfer(msg.sender, jobAssign.deposit - penalty);
         }
-
-        // Unlock Capacity
-        node.lockedCapacity = node.lockedCapacity.sub(jobAssign.lockedCapacity);
 
         emit Status(_jobId, jobAssign.node, job.status);
         return true;
@@ -377,92 +305,47 @@ contract EmethCore is AssignerRole, VerifierRole {
         Job storage job = jobs[_jobId];
         JobDetail storage jobDetail = jobDetails[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
-        Node storage node = nodes[jobAssign.node];
 
-        require(job.status == PROCESSING, "Job is not started processing");
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(job.status == PROCESSING, "EmethCore: job is not being processed");
 
         job.status = SUBMITTED;
         jobDetail.result = _result;
-
-        // Unlock Capacity
-        node.lockedCapacity = node.lockedCapacity.sub(jobAssign.lockedCapacity);
+        jobAssign.submittedAt = block.timestamp;
 
         emit Status(_jobId, msg.sender, job.status);
         return true;
     }
 
-    // Assigner
-    function assign(bytes16 _jobId, address _node, uint256 _estimatedGas, uint256 _timeLimit) external onlyAssigner returns (bool) {
-        Job storage job = jobs[_jobId];
-        JobAssign storage jobAssign = jobAssigns[_jobId];
-        Node storage node = nodes[_node];
-        uint256 requiredCapacity = _calculateCapacity(_estimatedGas, _timeLimit);
+    function withdrawSlotReward(uint256 _slot) external returns (bool) {
+        require(_slot < block.timestamp.div(SLOT_INTERVAL), "The slot has not been closed");
+        require(slotBalances[_slot][msg.sender] > 0, "The slot reward is empty");
 
-        require(job.status == REQUESTED, "Job status is not REQUESTED");
-        require(jobAssign.gas >= _estimatedGas, "Insufficient gas on the job");
-        require(node.totalCapacity.sub(node.lockedCapacity) >= requiredCapacity, "Insufficient available Capacity on the node");
+        uint256 reward = slotReward(_slot).mul(slotBalances[_slot][msg.sender]).div(slotTotalGas[_slot]);
+        emtToken.mint(msg.sender, reward);
 
-        //Refund gas
-        uint256 refund = jobAssign.gas.sub(_estimatedGas).mul(jobAssign.gasPrice);
-        if(refund > 0) {
-            IERC20 token = IERC20(tokenAddress);
-            token.transfer(job.owner, refund);
-        }
+        slotBalances[_slot][msg.sender] = 0;
 
-        job.status = ASSIGNED;
-        job.assignedAt = block.timestamp;
-        jobAssign.node = _node;
-        jobAssign.timeLimit = _timeLimit;
-        jobAssign.gas = _estimatedGas;
-        lastJobAssigned[jobAssign.node] = _jobId;
-        jobAssignedHistory[jobAssign.node].push(_jobId);
-
-        // Lock Capacity
-        uint256 adjustedCapacity = _adjustedCapacity(requiredCapacity, _node);
-        node.lockedCapacity = node.lockedCapacity.add(adjustedCapacity);
-        jobAssign.lockedCapacity = adjustedCapacity;
-
-        emit Status(_jobId, _node, job.status);
         return true;
     }
 
-    function rejectJob(bytes16 _jobId) external onlyAssigner returns (bool) {
+    // Functions for Verifier
+    function verify(bytes16 _jobId, uint256 _gas) external onlyVerifier returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
 
-        require(job.status == REQUESTED, "Job status is not REQUESTED");
-
-        job.status = REJECTED;
-
-        // Tx Fee Refund
-        uint256 refund = jobAssign.gas.mul(jobAssign.gasPrice).sub(ASSIGNER_FEE);
-        if(refund > 0) {
-            IERC20 token = IERC20(tokenAddress);
-            token.transfer(assigner, ASSIGNER_FEE);
-            token.transfer(job.owner, refund);
-        }
-
-        emit Status(_jobId, jobAssign.node, job.status);
-        return true;
-    }
-
-    // Verifier
-    function verify(bytes16 _jobId) external onlyVerifier returns (bool) {
-        Job storage job = jobs[_jobId];
-        JobAssign storage jobAssign = jobAssigns[_jobId];
-
-        require(job.status == SUBMITTED, "Job result is not submitted");
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(job.status == SUBMITTED, "EmethCore: job result is not submitted");
 
         job.status = VERIFIED;
+        jobAssign.gas = _gas;
 
         // Put in Reward Slot
         uint256 slot = _putSlotReward(_jobId);
 
         // Tx Fee
-        uint256 nodeFee = jobAssign.gas.mul(jobAssign.gasPrice).sub(VERIFIER_FEE);
-        IERC20 token = IERC20(tokenAddress);
-        token.transfer(verifier, VERIFIER_FEE);
-        token.transfer(jobAssign.node, nodeFee);
+        emtToken.transfer(verifier, VERIFIER_FEE);
+        emtToken.transfer(jobAssign.node, job.fee - VERIFIER_FEE);
 
         emit Status(_jobId, jobAssign.node, job.status);
         emit Reward(jobAssign.node, slot, jobAssign.gas);
@@ -473,28 +356,20 @@ contract EmethCore is AssignerRole, VerifierRole {
     function timeout(bytes16 _jobId) external onlyVerifier returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
-        Node storage node = nodes[jobAssign.node];
 
-        require(job.status == ASSIGNED || job.status == PROCESSING, "Job is not assigned");
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(job.status == PROCESSING, "EmethCore: job is not being processed");
 
-        if(jobAssign.retryCount > MAX_RETRY_COUNT) {
-            job.status = TIMEOUT;
+        job.status = TIMEOUT;
 
-            // Tx Fee Refund
-            IERC20 token = IERC20(tokenAddress);
-            token.transfer(job.owner, jobAssign.gas.mul(jobAssign.gasPrice));
-        }else{
-            job.status = REQUESTED; // Waiting for being re-assigned
+        // Tx Fee Refund
+        emtToken.transfer(job.owner, job.fee);
+
+        // Deposit Refund with Penalty
+        uint256 penalty = job.fee * TIMEOUT_PENALTY_RATE / 100000;
+        if(penalty < jobAssign.deposit) {
+            emtToken.transfer(jobAssign.node, jobAssign.deposit - penalty);
         }
-        lastJobAssigned[jobAssign.node] = 0;
-
-        // Penalty
-        _burnDeposit(jobAssign.node, TIMEOUT_PENALTY);
-
-        // Unlock Capacity
-        node.lockedCapacity = node.lockedCapacity.sub(jobAssign.lockedCapacity);
-
-        jobAssign.retryCount++;
 
         emit Status(_jobId, jobAssign.node, job.status);
         return true;
@@ -503,63 +378,29 @@ contract EmethCore is AssignerRole, VerifierRole {
     function rejectResult(bytes16 _jobId) external onlyVerifier returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
-        Node storage node = nodes[jobAssign.node];
 
-        require(jobs[_jobId].status == SUBMITTED, "Job result is not submitted");
+        require(job.exist, "EmethCore: job doesn't exist");
+        require(jobs[_jobId].status == SUBMITTED, "EmethCore: job result is not submitted");
 
         job.status = FAILED;
-        lastJobAssigned[jobAssign.node] = 0;
 
         // Tx Fee Refund
-        uint256 fee = jobAssign.gas.mul(jobAssign.gasPrice);
-        IERC20 token = IERC20(tokenAddress);
-        token.transfer(job.owner, fee);
+        emtToken.transfer(job.owner, job.fee);
 
-        // Penalty for the Node
-        node.deposit = node.deposit.sub(VERIFIER_FEE);
-        token.transfer(verifier, VERIFIER_FEE);
-        _burnDeposit(jobAssign.node, fee.sub(VERIFIER_FEE));
+        // Deposit Refund with Penalty
+        uint256 penalty = job.fee * FAILED_PENALTY_RATE / 100000 + VERIFIER_FEE;
+        if(penalty < jobAssign.deposit) {
+            emtToken.transfer(jobAssign.node, jobAssign.deposit - penalty);
+        }
 
         emit Status(_jobId, jobAssign.node, job.status);
         return true;
     }
 
-    // Public
-    function withdrawSlotReward(uint256 _slot) external returns (bool) {
-        require(_slot < block.timestamp.div(SLOT_INTERVAL), "The slot has not been closed");
-        require(slotBalances[_slot][msg.sender] > 0, "The slot reward is empty");
-
-        uint256 reward = slotReward(_slot).mul(slotBalances[_slot][msg.sender]).div(slotTotalGas[_slot]);
-        IERC20 token = IERC20(tokenAddress);
-        token.mint(msg.sender, reward);
-
-        slotBalances[_slot][msg.sender] = 0;
-
-        return true;
-    }
-
     // Utilities
-    function checkAvailability(uint256 _powerCapacity) public view returns (uint256) {
-        uint256 count = 0;
-        for(uint256 i = 0; i < nodeAddresses.length; i++) {
-            if(nodes[nodeAddresses[i]].totalCapacity - nodes[nodeAddresses[i]].lockedCapacity >= _powerCapacity) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    function findAvailableNode(uint256 _powerCapacity) public view returns (address) {
-        uint256 count = checkAvailability(_powerCapacity);
-        uint256 index = uint256(keccak256(abi.encode(block.timestamp))) % count;
-        address node;
-        for(uint256 i = 0; i < nodeAddresses.length; i++) {
-            if(nodes[nodeAddresses[i]].totalCapacity - nodes[nodeAddresses[i]].lockedCapacity >= _powerCapacity) {
-                if(index == 0) node = nodeAddresses[i]; 
-                index--;
-            }
-        }
-        return node;
+    // Public
+    function getEstimatedGas(uint256 _datasetSizeMB, uint256 _algoComplexity) external pure returns (uint256) {
+        return _datasetSizeMB.mul(_algoComplexity).div(1000);
     }
 
     function currentSlotReward() external view returns (uint256) {
@@ -568,6 +409,36 @@ contract EmethCore is AssignerRole, VerifierRole {
 
     function currentSlot() public view returns (uint256) {
         return block.timestamp.div(SLOT_INTERVAL);
+    }
+
+    function nodeSlotCount(address _node) external view returns (uint256) {
+        return nodeSlots[_node].length;
+    }
+
+    function slots(uint256 _slot) external view returns (uint256 _totalGas, uint256 _totalReward) {
+        return (slotTotalGas[_slot], slotReward(_slot));
+    }
+
+    // Private
+    function _putSlotReward(bytes16 _jobId) private returns (uint256) {
+        JobAssign storage jobAssign = jobAssigns[_jobId];
+        address node = jobAssigns[_jobId].node;
+        uint256 slot = block.timestamp.div(SLOT_INTERVAL);
+
+        uint256 gasCounted = jobAssign.gas;
+        if(slotGas[slot][node].add(jobAssign.gas) >= MAX_SLOT_GAS_PER_NODE) {
+            gasCounted = MAX_SLOT_GAS_PER_NODE - slotGas[slot][node];
+        }
+
+        slotTotalGas[slot] = slotTotalGas[slot].add(gasCounted);
+        slotGas[slot][node] = slotGas[slot][node].add(gasCounted);
+        slotBalances[slot][node] = slotBalances[slot][node].add(gasCounted);
+        if(!nodeSlotUnique[node][slot]) {
+            nodeSlots[node].push(slot);
+            nodeSlotUnique[node][slot] = true;
+        }
+
+        return slot;
     }
 
     function slotReward(uint256 _slot) private view returns (uint256) {
@@ -579,114 +450,4 @@ contract EmethCore is AssignerRole, VerifierRole {
         return reward;
     }
 
-    function nodeSlotCount(address _node) external view returns (uint256) {
-        return nodeSlots[_node].length;
-    }
-
-    function jobAssignedCount(address _node) external view returns (uint256) {
-        return jobAssignedHistory[_node].length;
-    }
-
-    function nodeCount() external view returns (uint256) {
-        return nodeAddresses.length;
-    }
-
-    function slots(uint256 _slot) external view returns (uint256 _totalGas, uint256 _totalReward) {
-        return (slotTotalGas[_slot], slotReward(_slot));
-    }
-
-    function _calculateDeposit(uint256 _gas, uint256 _timeLimit) private pure returns (uint256) {
-        return _calculateCapacity(_gas, _timeLimit).mul(DEPOSIT_PER_CAPACITY);
-    }
-
-    function _calculateCapacity(uint256 _gas, uint256 _timeLimit) private pure returns (uint256) {
-        return _gas.mul(1000000).div(_timeLimit);
-    }
-
-    function _adjustedCapacity(uint256 _requiredCapacity, address _node) private view returns (uint256) {
-        uint256 avgCapacity = nodes[_node].totalCapacity.div(nodes[_node].workers);
-        uint256 adjustedLockCapacity = _requiredCapacity.sub(1).div(avgCapacity).add(1).mul(avgCapacity);
-        return adjustedLockCapacity;
-    }
-
-    function _putSlotReward(bytes16 _jobId) private returns (uint256) {
-        JobAssign storage jobAssign = jobAssigns[_jobId];
-        address node = jobAssigns[_jobId].node;
-        uint256 slot = block.timestamp.div(SLOT_INTERVAL);
-
-        if(slotGas[slot][node].add(jobAssign.gas) < MAX_SLOT_GAS_PER_NODE) {
-            slotTotalGas[slot] = slotTotalGas[slot].add(jobAssign.gas);
-            slotGas[slot][node] = slotGas[slot][node].add(jobAssign.gas);
-            slotBalances[slot][node] = slotBalances[slot][node].add(jobAssign.gas);
-            if(!nodeSlotUnique[node][slot]) {
-                nodeSlots[node].push(slot);
-                nodeSlotUnique[node][slot] = true;
-            }
-        }
-
-        return slot;
-    }
-
-    function _burnDeposit(address _node, uint256 _amount) private returns (bool) {
-        uint256 burnAmount = nodes[_node].deposit >= _amount ? _amount : nodes[_node].deposit;
-        IERC20 token = IERC20(tokenAddress);
-        nodes[_node].deposit = nodes[_node].deposit.sub(burnAmount);
-        token.burn(burnAmount);
-        return true;
-    }
-
-    // Test Functions
-    function setAssignerFee(uint256 _fee) external returns (bool) {
-        ASSIGNER_FEE = _fee;
-        return true;
-    }
-
-    function setVerifierFee(uint256 _fee) external returns (bool) {
-        VERIFIER_FEE = _fee;
-        return true;
-    }
-
-    function setMaxSlotGasPerNode(uint256 _maxSlotGas) external returns (bool) {
-        MAX_SLOT_GAS_PER_NODE = _maxSlotGas;
-        return true;
-    }
-
-    function updateJob (bytes16 _jobId, address _owner, uint256 _status, uint256 _requestedAt, uint256 _assignedAt) external returns (bool) {
-        Job storage job = jobs[_jobId];
-        job.owner = _owner;
-        job.status = _status;
-        job.requestedAt = _requestedAt;
-        job.assignedAt = _assignedAt;
-        return true;
-    }
-
-    function updateJobDetail(bytes16 _jobId, uint256 _programId, string calldata _param, string calldata _dataset, string calldata _result) external returns (bool) {
-        JobDetail storage jobDetail = jobDetails[_jobId];
-        jobDetail.programId = _programId;
-        jobDetail.param = _param;
-        jobDetail.dataset = _dataset;
-        jobDetail.result = _result;
-        return true;
-    }
-
-    function updateJobAssign(bytes16 _jobId, address _node, uint256 _timeLimit, uint256 _gas, uint256 _gasPrice, uint256 _lockedCapacity, uint256 _retryCount) external returns (bool) {
-        JobAssign storage jobAssign = jobAssigns[_jobId];
-        jobAssign.node = _node;
-        jobAssign.timeLimit = _timeLimit;
-        jobAssign.gas = _gas;
-        jobAssign.gasPrice = _gasPrice;
-        jobAssign.lockedCapacity = _lockedCapacity;
-        jobAssign.retryCount = _retryCount;
-        return true;
-    }
-
-    function updateNode(address _node, bool _active, uint256 _totalCapacity, uint256 _lockedCapacity, uint256 _workers, uint256 _deposit) external returns (bool) {
-        Node storage node = nodes[_node];
-        node.active = _active;
-        node.totalCapacity = _totalCapacity;
-        node.lockedCapacity = _lockedCapacity;
-        node.workers = _workers;
-        node.deposit = _deposit;
-        return true;
-    }
 }

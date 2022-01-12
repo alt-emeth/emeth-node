@@ -8,6 +8,8 @@ import database, { DatabaseMiddlewareArguments } from '../middlewares/database'
 import { exit } from 'process'
 import { Knex } from 'knex'
 import { JobStatus } from '../types/tables'
+import { Wallet } from '@ethersproject/wallet'
+import axios from 'axios'
 
 let db: Knex
 
@@ -31,7 +33,7 @@ const decline: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewar
   },
   handler: async (args) => {
     const { emeth } = args.contracts
-    const wallet = args.wallet
+    const wallet = args.wallet as Wallet
 
     if(process.argv[3] != null) {
       const jobId = process.argv[3]
@@ -39,7 +41,7 @@ const decline: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewar
 
       console.log(`Current job status:${emethJob.status}`)
 
-      if(emethJob.status.eq(JobStatus.ASSIGNED) || emethJob.status.eq(JobStatus.PROCESSING)) {
+      if(emethJob.status.eq(JobStatus.PROCESSING)) {
         await emeth.decline(jobId)
         console.log(`Declined job:${jobId}`)
       }
@@ -47,19 +49,19 @@ const decline: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewar
       exit()
     }
 
-    const jobs = await db('jobs').where('assignedNode', wallet.address)
+    const jobs = (await axios.get(`${args.info_server_url}/api/v1/jobs`, {params: { status: JobStatus.PROCESSING }})).data.result
     
     for (let i=0; i< jobs.length; i++) {
       try {
         const job = jobs[i]
 
-        console.log(`Assigned job:${job.jobId}`)
+        console.log(`Processing job:${job.jobId}`)
 
         const emethJob = await emeth.jobs(job.jobId)
 
         console.log(`Current job status:${emethJob.status}`)
 
-        if(emethJob.status.eq(JobStatus.ASSIGNED) || emethJob.status.eq(JobStatus.PROCESSING)) {
+        if(emethJob.status.eq(JobStatus.PROCESSING)) {
           await emeth.decline(job.jobId)
           console.log(`Declined job:${job.jobId}`)
         }

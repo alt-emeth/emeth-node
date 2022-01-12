@@ -282,6 +282,8 @@ class Trainer:
                     # report progress
                     losses=loss
                     pbar.set_description(f"epoch {epoch+1} iter {it}: train loss {loss.item():.5f}. lr {lr:e} perplexity {math.exp(exp_average_loss)}")
+                    progress_percent = (it/len(loader))*100
+                    logging.info('{"status": "LEARNING","epoch": "%s","progress": "%s"}', epoch+1, math.floor(progress_percent*10) / 10)
             
             if not is_train:
                 #test_loss = float(np.mean(losses))
@@ -294,7 +296,7 @@ class Trainer:
                 logger.info("perplexity: %f", math.exp(exp_average_loss))
                 return exp_average_loss
             #sample = print_samples(model, enc, self.device,context_tokens=next(iter(loader)),batch_size=1, length=200, nsamples=1,temperature=1, top_k=40)
-            logging.info("done")
+            logging.info('{"status": "CHECKPOINT","epoch": "%s"}', epoch+1)
             #torch.distributed.barrier()
             #average_gradients(model)
             return losses
@@ -315,7 +317,7 @@ class Trainer:
             #if self.config.ckpt_path is not None and good_model:
                 #best_loss = test_loss
                 #self.save_checkpoint()
-        
+        logging.info('{"status": "COMPLETED"}')
         #torch.distributed.barrier()
 
 class CharDataset(Dataset):
@@ -492,7 +494,10 @@ def main():
     except BrokenPipeError as err:
         logging.info('{"status": "FAILED", "error":"%s"}', err)
     except RuntimeError as err:
-        logging.info('{"status": "FAILED", "error":"%s"}', err)
+        if "CUDA" in str(err) or "cuDNN" in str(err): 
+            logging.info('{"status": "SYSTEM_FAILED"}')
+        else:
+            logging.info('{"status": "FAILED", "error":"%s"}', err)
     except AttributeError as err:
         logging.info('{"status": "FAILED", "error":"%s"}', err)
     except TypeError as err:

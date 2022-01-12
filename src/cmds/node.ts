@@ -5,6 +5,7 @@ import { CommandModule } from 'yargs'
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts'
 import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet'
 import { exit } from 'process'
+import { Wallet } from '@ethersproject/wallet'
 
 
 const parseResult = (result:any) => {
@@ -37,7 +38,7 @@ const node: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewareAr
   },
   handler: async (args) => {
     const { emeth } = args.contracts
-    const wallet = args.wallet
+    const wallet = args.wallet as Wallet
 
     const nodeAddress = (process.argv[3])? process.argv[3] : wallet.address
     const node = await emeth.nodes(nodeAddress)

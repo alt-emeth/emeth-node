@@ -9,6 +9,7 @@ import database, { DatabaseMiddlewareArguments } from '../middlewares/database'
 import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet'
 import { exit } from 'process'
 import interval from 'interval-promise'
+import { Wallet } from '@ethersproject/wallet'
 
 let db: Knex
 
@@ -27,10 +28,10 @@ const withdraw: CommandModule<{} & DatabaseMiddlewareArguments & ContractsMiddle
       })
   },
   handler: async (args) => {
-    const lastNodeSlotIndex = await args.db('lastNodeSlotIndex').first()
-    let slotIndex = (lastNodeSlotIndex?.slotIndex)? lastNodeSlotIndex.slotIndex : 0
+    const lastNodeSlotIndex = await args.db('last_node_slot_index').first()
+    let slotIndex = (lastNodeSlotIndex)? lastNodeSlotIndex.slot_index : 0
     const { emeth } = args.contracts
-    const wallet = args.wallet
+    const wallet = args.wallet as Wallet
     const currentSlot = await emeth.currentSlot()
     console.log("Current slot number:" + currentSlot.toString())
     console.log("Start slot index:" + slotIndex)
@@ -68,11 +69,14 @@ const withdraw: CommandModule<{} & DatabaseMiddlewareArguments & ContractsMiddle
       }
     }
     console.log("End slot index:" + slotIndex)​
-    if(lastNodeSlotIndex?.id) {
-      lastNodeSlotIndex.slotIndex = slotIndex
-      await args.db('lastNodeSlotIndex').update(lastNodeSlotIndex)
+    if(lastNodeSlotIndex) {
+      await args.db('last_node_slot_index').update({
+        slot_index: slotIndex
+      })
     } else {
-      await args.db('lastNodeSlotIndex').insert({slotIndex})
+      await args.db('last_node_slot_index').insert({
+        slot_index: slotIndex
+      })
     }
     exit();
   }
