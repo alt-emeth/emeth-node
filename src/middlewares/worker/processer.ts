@@ -85,15 +85,15 @@ export class WorkerProcesser {
   }
 
   public isRunning():boolean {
-    if(this._mode == MODE.NONE ||
-      this._jobId.length == 0 ||
-      !this._child ||
-      !this._tail ||
-      !this._stop) {
-        return false
+    if(this._mode != MODE.NONE ||
+      this._jobId.length != 0 ||
+      this._child ||
+      this._tail ||
+      this._stop) {
+        return true
     }
 
-    return true
+    return false
   }
 
   public process(
