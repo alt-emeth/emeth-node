@@ -42,7 +42,6 @@ export class WorkerProcesser {
   private _jobId: string
   private _child:ChildProcess|null
   private _tail: Tail|null
-  private _stop:stop|null
 
   constructor() {
     this._mode = MODE.NONE
@@ -50,7 +49,6 @@ export class WorkerProcesser {
     this._jobId = ""
     this._child = null
     this._tail = null
-    this._stop = null
   }
 
   public get mode() {
@@ -88,8 +86,7 @@ export class WorkerProcesser {
     if(this._mode != MODE.NONE ||
       this._jobId.length != 0 ||
       this._child ||
-      this._tail ||
-      this._stop) {
+      this._tail) {
         return true
     }
 
@@ -178,10 +175,8 @@ export class WorkerProcesser {
     logger.info(`jobId:${jobId}, Monitoring WN.py state.`)
 
     interval(async(iteration, stop) => {
-      this._stop = stop
-
       if(!this.isRunning()) {
-        this.clean(processHolder)
+        stop()
       } else if(this._mode == MODE.SYSTEM_FAILED) {
         logger.info(`jobId:${this._jobId}, WN.py is a system failed, so terminate the process`)
         exit(1)
@@ -190,6 +185,7 @@ export class WorkerProcesser {
       if(this.isTimeout()) {
         logger.info(`jobId:${jobId}, Timeout WN.py process. mode:${this._mode}`)
         this.clean(processHolder)
+        stop()
       }
     }, 1000, {
       stopOnError: false
@@ -211,10 +207,6 @@ export class WorkerProcesser {
     if(this._tail) {
       this._tail.unwatch()
       this._tail = null
-    }
-    if(this._stop) {
-      this._stop()
-      this._stop = null
     }
   }
 }
