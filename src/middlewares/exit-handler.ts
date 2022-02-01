@@ -1,6 +1,6 @@
 import { JobStatus, Worker } from '../types/tables'
 import { ChildProcess } from 'child_process'
-import { killWorkers } from '../lib/workers'
+import { initWorkers } from '../lib/workers'
 import { Arguments } from 'yargs'
 import { Wallet } from '@ethersproject/wallet'
 
@@ -21,6 +21,12 @@ export class ProcessHolder {
 
   public unregister(jobId:string) {
     delete this._processes[jobId]
+  }
+
+  public deleteWorker(jobId:string, worker:Worker) {
+    if(jobId in this._processes) {
+      this._processes[jobId].usedWorkers = this._processes[jobId].usedWorkers.filter((item) => item.address != worker.address)
+    }
   }
 
   public processingJobId(workerAddress:string) {
@@ -49,7 +55,7 @@ export class ProcessHolder {
       this._processes[jobId].child.kill(9)
 
       if(this._processes[jobId].usedWorkers.length > 0) {
-        await killWorkers(this._processes[jobId].usedWorkers, wallet)
+        await initWorkers(this._processes[jobId].usedWorkers, wallet)
       }
     } catch (e) {
       console.log(e)

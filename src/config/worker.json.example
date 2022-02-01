@@ -6,8 +6,8 @@
   "privateKey": "",
   "timeout": {
     "wait_data": 300000,
-    "idle": 600000,
+    "idle": 1200000,
     "learning": 10000,
-    "checkpoint": 1200000
+    "checkpoint": 2400000
   }
 }

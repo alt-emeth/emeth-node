@@ -235,12 +235,13 @@ class Trainer:
             data = self.train_dataset if is_train else self.test_dataset
             
             loader = get_data_loader(data, enc, config.batch_size, 128, self.path)
-            #loader = DataLoader(data, shuffle=True, pin_memory=True,batch_size=config.batch_size,num_workers=config.num_workers)
+            #loader = DataLoader(data, shuffle=True,batch_size=config.batch_size,num_workers=config.num_workers)
             losses = []
             tr_loss = 0
             nb_tr_steps = 0
             exp_average_loss = None
             pbar = tqdm(enumerate(loader), total=len(loader)) if is_train else enumerate(loader)
+            #print(pbar)
             for it, batch in pbar:
                 batch = batch.to(self.device)
                 # place data on the correct device
@@ -307,16 +308,6 @@ class Trainer:
             lss = run_epoch('train')
             torch.distributed.barrier()
             average_gradients(model,epoch,lss)
-            #self.save_checkpoint()
-            #torch.distributed.barrier()
-            if self.test_dataset is not None:
-                run_epoch('test')
-            self.save_checkpoint(optimizer,epoch)
-            # supports early stopping based on the test loss, or just save always if no test set is provided
-            #good_model = self.test_dataset is None or test_loss < best_loss
-            #if self.config.ckpt_path is not None and good_model:
-                #best_loss = test_loss
-                #self.save_checkpoint()
         logging.info('{"status": "COMPLETED"}')
         #torch.distributed.barrier()
 
@@ -465,12 +456,12 @@ def main():
     #f = lambda x: x.strip().replace("\n"," ")+" #EOS"
     #test = [f(x) for x in test]
     # seperate all words and punctuation
-    test = [re.findall(r"[\w']+|[.,!?;]", x) for x in test]
+    #test = [re.findall(r"[\w']+|[.,!?;]", x) for x in test]
     # turn list of lists in to single list
-    test = [j for i in test for j in i]
-    test_str='.'.join(test)
-    with open("pt.txt", "w") as valid_file:
-        valid_file.write(test_str)
+    #test = [j for i in test for j in i]
+    #test_str='.'.join(test)
+    #with open("pt.txt", "w") as valid_file:
+    #    valid_file.write(test_str)
     #print(abstract)
     train_dataset = WordDataset(test, block_size) 
     #print(f"GPU : {devicename}")
@@ -509,7 +500,7 @@ def main():
     except :
         logging.info('{"status": "FAILED", "error":"%s"}', sys.exc_info()[0])
     print('training done')
-
+ 
 if __name__ == "__main__":
    
     main()

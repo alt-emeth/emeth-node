@@ -170,7 +170,9 @@ const worker: CommandModule<LoggerMiddlewareArguments & WalletMiddlewareArgument
       })().catch(next)
     })
 
-    router.post('/api/v1/kill', checkMasterAccess, (req, res) => {
+    router.post('/api/v1/init', checkMasterAccess, (req, res) => {
+      argv.workerProcesser.none(logger)
+
       argv.workerProcesser.clean(argv.processHolder)
 
       res.send({ result: argv.workerProcesser.mode })

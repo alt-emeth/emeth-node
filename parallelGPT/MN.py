@@ -419,13 +419,15 @@ def main():
     #f = lambda x: x.strip().replace("\n"," ")+" #EOS"
     #test = [f(x) for x in test]
     # seperate all words and punctuation
-    test = [re.findall(r"[\w']+|[.,!?;]", x) for x in test]
+    #test = [re.findall(r"[\w']+|[.,!?;]", x) for x in test]
     # turn list of lists in to single list
-    test = [j for i in test for j in i]
-    test_str='.'.join(test)
-    with open("pt.txt", "w") as valid_file:
-        valid_file.write(test_str)
+    #test = [j for i in test for j in i]
+    #test_str='.'.join(test)
+    #with open("pt.txt", "w") as valid_file:
+    #    valid_file.write(test_str)
     #print(abstract)
+    words = sorted(list(set(test)))
+    data_size, vocab_size = len(test), len(words)
     train_dataset = WordDataset(test, block_size) 
     #print(f"GPU : {devicename}")
     # initialize a trainer instance and kick off training
@@ -450,6 +452,7 @@ def main():
     
     
     print('training done')
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)

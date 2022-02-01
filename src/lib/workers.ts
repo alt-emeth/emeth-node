@@ -14,12 +14,12 @@ import { Logger } from 'log4js'
 import { sign } from './crypto'
 import { IAuth } from '../types/api'
 
-export async function killWorkers (workers: Worker[], wallet:Wallet): Promise<void> {
+export async function initWorkers (workers: Worker[], wallet:Wallet): Promise<void> {
   for (const worker of workers) {
     const timestamp = new Date().getTime()
     const sig = await sign(['uint256'], [timestamp], wallet)
   
-    await axios.post(`${worker.url}/api/v1/kill`, {
+    await axios.post(`${worker.url}/api/v1/init`, {
       auth: {
         sig,
         timestamp

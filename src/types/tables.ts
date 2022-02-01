@@ -7,6 +7,7 @@ declare module 'knex/types/tables' {
     last_node_slot_index: LastNodeSlotIndex
     health_check: HealthCheck
     last_watched_job_index: LastWacthedJobIndex
+    last_watched_block: LastWacthedBlock
   }
 }
 
@@ -31,6 +32,11 @@ export interface Contributions {
 
 export interface LastWacthedJobIndex {
   job_index: number
+}
+
+export interface LastWacthedBlock {
+  status_event: number
+  cancel_event: number
 }
 
 export interface LastNodeSlotIndex {

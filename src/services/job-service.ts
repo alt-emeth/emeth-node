@@ -7,7 +7,7 @@ import path from "path"
 import { sign } from "../lib/crypto"
 import { execSplitter, generateArgFiles, launchMasterNode, randomPort } from "../lib/parallel-gpt"
 import { getS3, putS3 } from "../lib/storage"
-import { killWorkers, processWorker } from "../lib/workers"
+import { initWorkers, processWorker } from "../lib/workers"
 import { ProcessHolder } from "../middlewares/exit-handler"
 import { IAuth } from "../types/api"
 import { Emeth, EmethToken } from "../types/contracts"
@@ -205,6 +205,14 @@ export async function process(
       }
     })
 
+    masterNode.on('workerCompleted', async(jobId:string, worker:Worker) => {
+      logger.info(`JobId:${jobId}, init worker :${worker.url}`)
+
+      await initWorkers([worker], wallet)
+
+      processHolder.deleteWorker(jobId, worker)
+    })
+
     const size = fs.statSync(trainDataFile).size  / (1024*1024)
 
     trx = await db.transaction()
@@ -252,7 +260,7 @@ export async function process(
       await trx.rollback()
     }
 
-    await killWorkers(usedWorkers, wallet)
+    await initWorkers(usedWorkers, wallet)
 
     processHolder.unregister(jobId)
   }

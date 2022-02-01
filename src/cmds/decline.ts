@@ -49,7 +49,7 @@ const decline: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewar
       exit()
     }
 
-    const jobs = (await axios.get(`${args.info_server_url}/api/v1/jobs`, {params: { status: JobStatus.PROCESSING }})).data.result
+    const jobs = (await axios.get(`${args.info_server_url}/api/v1/jobs`, {params: { status: JobStatus.PROCESSING }})).data
     
     for (let i=0; i< jobs.length; i++) {
       try {

@@ -73,8 +73,8 @@ def lazy_load(dataset_path, enc, out):
         # Set combine to a huge number so everything is 1 vector
         data = load_dataset(enc, dataset_path, combine=1e99)
         # Cache encoded data.
-        print(f'caching data to {cache_path}')
-        np.savez_compressed(cache_path, *data)
+        #print(f'caching data to {cache_path}')
+        #np.savez_compressed(cache_path, *data)
     else:
         data = load_dataset(enc, cache_path)
     assert len(data) > 0

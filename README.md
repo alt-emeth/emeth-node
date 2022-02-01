@@ -2,7 +2,30 @@
 
 ## Prerequisite
 ### OS configuration
-A swap size is recommended to be set to at least the same size of RAM.
+The guideline for the required memory is as follows.
+
+- master: About, 10GB × Number of workers. (* If a worker coexists, an additional 17GB is required)
+
+- worker: About 17GB
+
+
+The following is an example of creating a swap area of 50GB on ubuntu.
+
+```
+$ sudo fallocate -l 50G /swapfile
+$ sudo chmod 600 /swapfile
+$ sudo mkswap /swapfile
+$ sudo swapon /swapfile
+
+# Setting to be valid even after rebooting
+$ sudo vi /etc/fstab
+ # Add the following. 
+ /swapfile swap swap defaults 0 0
+
+# Check configuration
+$ sudo swapon --show
+$ sudo free -h 
+```
 
 ### node & npm version
 ```

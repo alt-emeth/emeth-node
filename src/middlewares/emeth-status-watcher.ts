@@ -7,6 +7,8 @@ import { Logger } from 'log4js'
 import interval from 'interval-promise'
 import { WalletMiddlewareArguments } from './wallet'
 import axios from 'axios'
+import { Emeth } from '../types/contracts'
+import { Knex } from 'knex'
 
 const checkAssignedJob = async(args: Arguments) => {
   const {emeth} = (args as unknown as ContractsMiddlewareArguments).contracts
@@ -79,79 +81,132 @@ const checkAssignedJob = async(args: Arguments) => {
   logger.info(`--- END --- Check AssignedJob`)
 }
 
-const checkJobStatus = async(args: Arguments) => {
-  const {emeth} = (args as unknown as ContractsMiddlewareArguments).contracts
-  const db = (args as unknown as DatabaseMiddlewareArguments).db
-  const logger = args.logger as Logger
+const scanStatusEvent = async(emeth:Emeth, trx:Knex.Transaction, logger:Logger) => {
+  const lastWatchedBlock = await trx('last_watched_block').first()
+  let status_event = (lastWatchedBlock?.status_event)? lastWatchedBlock.status_event : -1
+  const fromBlock = status_event + 1
 
-  const sqliteJobs = await db.from('jobs').whereNotIn('status', 
-  [JobStatus.VERIFIED, 
-    JobStatus.REJECTED, 
-    JobStatus.CANCELED, 
-    JobStatus.TIMEOUT, 
-    JobStatus.FAILED, 
-    JobStatus.DECLINED])
+  logger.info(`--- BEGIN --- Scan status event from ${fromBlock}`)
 
-  logger.info(`--- BEGIN --- Monitoring latest queued job status`)
+  const events = await emeth.queryFilter(emeth.filters.Status(null, null, null), fromBlock)
 
-  for(let i=0;i<sqliteJobs.length; i++) {
-    const sqliteJob = sqliteJobs[i]
-    const jobId = sqliteJob.job_id
-    const job = await emeth.jobs(jobId)
+  events.sort((a, b) => {
+    return a.blockNumber - b.blockNumber
+  })
 
-    logger.info(`JobId:${jobId}, Latest job status:${job.status.toNumber()}`)
+  for(const event of events) {
+    const sqliteJob = await trx('jobs').where('job_id', event.args.jobId).first()
 
-    logger.info(`JobId:${jobId}, Queued job status:${sqliteJob.status}`)
+    if(sqliteJob) {
 
-    const trx = await db.transaction()
-
-    try {
-      if(!job.status.eq(sqliteJob.status)) {
-        await trx('jobs').where('job_id', jobId).update({
-          status: job.status.toNumber()
-        })
+      if(!event.args.status.eq(sqliteJob.status)) {
+        await trx('jobs').update({
+          status: event.args.status.toNumber()
+        }).where('job_id', event.args.jobId)
   
-        logger.info(`Updated queued job :${jobId}`)
+        logger.info(`Updated queued job :${event.args.jobId}`)
       }
-  
-      const contributions = await trx('contributions').where('job_id', jobId).andWhere('num_attempt', sqliteJob.num_attempt)
-  
+
+      const contributions = await trx('contributions').where('job_id', event.args.jobId).andWhere('num_attempt', sqliteJob.num_attempt)
+
       for (const contribution of contributions) {
         let status:number|null = null
-  
-        logger.info(`JobId:${jobId}, num_attempt:${sqliteJob.num_attempt}, worker:${contribution.worker_address}, job status:${sqliteJob.status}, contribution status:${contribution.status}`)
-    
-        if(job.status.toNumber() == JobStatus.VERIFIED && contribution.status != ContributionStatus.VERIFIED) {
+
+        logger.info(`JobId:${event.args.jobId}, num_attempt:${sqliteJob.num_attempt}, worker:${contribution.worker_address}, job status:${sqliteJob.status}, contribution status:${contribution.status}`)
+
+        if(event.args.status.toNumber() == JobStatus.VERIFIED && contribution.status != ContributionStatus.VERIFIED) {
           status = ContributionStatus.VERIFIED
-        } else if(job.status.toNumber() == JobStatus.FAILED && contribution.status != ContributionStatus.FAILED) {
+        } else if(event.args.status.toNumber() == JobStatus.FAILED && contribution.status != ContributionStatus.FAILED) {
           status = ContributionStatus.FAILED
         }
-    
+
         if(status) {
           await trx('contributions').update({
             status
-          }).where('job_id', jobId)
+          }).where('job_id', event.args.jobId)
           .andWhere('num_attempt', sqliteJob.num_attempt)
           .andWhere('worker_address', contribution.worker_address)
-    
+
           logger.info(`Updated contribution status:${status}`)
         }
       }
-  
-      await trx.commit()
-    } catch (e) {
-      logger.error(e)
-      await trx.rollback()
     }
+
+    status_event = event.blockNumber
   }
 
-  logger.info(`--- END --- Monitoring latest queued job status`)
+  if(lastWatchedBlock) {
+    await trx('last_watched_block').update({
+      status_event
+    })
+  } else {
+    await trx('last_watched_block').insert({
+      status_event
+    })
+  }
+
+  logger.info("--- END --- Scan status event")
+}
+
+const scanCancelEvent = async(emeth:Emeth, trx:Knex.Transaction, logger:Logger) => {
+  const lastWatchedBlock = await trx('last_watched_block').first()
+  let cancel_event = (lastWatchedBlock?.cancel_event)? lastWatchedBlock.cancel_event : -1
+  const fromBlock = cancel_event + 1
+
+  logger.info("--- BEGIN --- Monitoring cancel event. fromBlock:" + fromBlock)
+
+  const events = await emeth.queryFilter(emeth.filters.Cancel(null), fromBlock)
+
+  events.sort((a, b) => {
+    return a.blockNumber - b.blockNumber
+  })
+
+  for(const event of events) {
+    const sqliteJob = await trx('jobs').where('job_id', event.args.jobId).first()
+
+    if(sqliteJob) {
+      await trx('jobs').update({
+        status: JobStatus.CANCELED
+      }).where('job_id', event.args.jobId)
+
+      logger.info(`JobId: ${event.args.jobId}, Updated queued job to cancel`)
+    }
+
+    cancel_event = event.blockNumber
+  }
+
+  if(lastWatchedBlock) {
+    await trx('last_watched_block').update({
+      cancel_event
+    })
+  } else {
+    await trx('last_watched_block').insert({
+      cancel_event
+    })
+  }
+
+  logger.info("--- END --- Monitoring cancel event")
 }
 
 export default async function emethStatusWatcher (args: Arguments): Promise<void> {
   interval(async() => {
     await checkAssignedJob(args)
-    await checkJobStatus(args)
+
+    const {emeth} = (args as unknown as ContractsMiddlewareArguments).contracts
+    const db = (args as unknown as DatabaseMiddlewareArguments).db
+    const logger = args.logger as Logger
+  
+    const trx = await db.transaction()
+
+    try {
+      await scanStatusEvent(emeth, trx, logger)
+      await scanCancelEvent(emeth, trx, logger)
+
+      await trx.commit()
+    } catch (e) {
+      await trx.rollback()
+      logger.error(e)
+    }
   }, 10000 as number, {
     stopOnError: false
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type

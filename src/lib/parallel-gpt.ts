@@ -11,6 +11,7 @@ import interval from 'interval-promise'
 import axios from 'axios'
 import { Worker } from '../types/tables'
 import { ProcessHolder } from '../middlewares/exit-handler'
+import { MODE } from './consistants'
 
 const nullLogger = {
   info: () => {},
@@ -56,13 +57,13 @@ export async function execSplitter (
 }
 
 declare interface IMasterNode {
-  addListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId: string, error: Error) => void|Promise<void>) => this)
-  emit: ((event: 'completed') => boolean) & ((event: 'error', error: Error) => boolean) & ((event: 'suspend') => boolean)
-  on: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (fileName:string, error: Error) => void|Promise<void>) => this)
-  once: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (fileName:string, error: Error) => void|Promise<void>) => this)
-  prependListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (fileName:string, error: Error) => void|Promise<void>) => this)
-  prependOnceListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (fileName:string, error: Error) => void|Promise<void>) => this)
-  removeListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (fileName:string, error: Error) => void|Promise<void>) => this)
+  addListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId: string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker:Worker) => void|Promise<void>) => this)
+  emit: ((event: 'completed') => boolean) & ((event: 'error', error: Error) => boolean) & ((event: 'suspend') => boolean) & ((event: 'workerCompleted') => boolean)
+  on: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId:string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker: Worker) => void|Promise<void>) => this)
+  once: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId:string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker: Worker) => void|Promise<void>) => this)
+  prependListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId:string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker: Worker) => void|Promise<void>) => this)
+  prependOnceListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId:string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker: Worker) => void|Promise<void>) => this)
+  removeListener: ((event: 'completed', listener: (fileName:string) => void|Promise<void>) => this) & ((event: 'error', listener: (error: Error) => void|Promise<void>) => this) & ((event: 'suspend', listener: (jobId:string, error: Error) => void|Promise<void>) => this) & ((event: 'workerCompleted', listener: (jobId:string, worker: Worker) => void|Promise<void>) => this)
 }
 
 export async function launchMasterNode (
@@ -170,10 +171,22 @@ export async function launchMasterNode (
     }
 
     try {
+      let completedWorkers:Worker[] = []
+
       for(const worker of usedWorkers) {
         const isRunning = (await axios.get(`${worker.url}/api/v1/isRunning`)).data.result
 
         if(!isRunning) {
+          if((await axios.get(`${worker.url}/api/v1/mode`)).data.result == MODE.COMPLETED) {
+            logger.info(`JobId:${jobId}, Complete Worker process :${worker.url}`)
+
+            completedWorkers.push(worker)
+
+            emitter.emitAsync('workerCompleted', jobId, worker)
+
+            continue
+          }
+
           throw new Error(`JobId:${jobId}, Suspended Worker process :${worker.url}`)
         }
 
@@ -183,6 +196,13 @@ export async function launchMasterNode (
           throw new Error(`JobId:${jobId}, Processing jobId in the worker is different. worker:${worker.url}, processingJobId: ${currentJobId}`)
         }
       }
+
+      if(completedWorkers.length > 0) {
+        usedWorkers = usedWorkers.filter((worker) => {
+          return !completedWorkers.includes(worker)
+        })
+      }
+
     } catch(e) {
       emitter.emitAsync('suspend', jobId, e)
       child.kill(9)

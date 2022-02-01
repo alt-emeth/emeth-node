@@ -60,18 +60,14 @@ export class WorkerProcesser {
   }
 
   public waitData(logger:Logger) {
-    this.setMode(MODE.WAIT_DATA, logger)
+    logger.info(`Change mode to: ${MODE.WAIT_DATA}`)
+    this._mode = MODE.WAIT_DATA
+    this._time = new Date().getTime()
   }
 
-  private setMode(mode: string, logger:Logger) {
-    if(this._mode != mode) {
-      logger.info(`Change mode to: ${mode}`)
-      this._time = new Date().getTime()
-    }
-    if(this._mode == MODE.LEARNING) {
-      this._time = new Date().getTime()
-    }
-    this._mode = mode
+  public none(logger:Logger) {
+    logger.info(`Change mode to: ${MODE.NONE}`)
+    this._mode = MODE.NONE
   }
 
   public isTimeout():boolean {
@@ -83,14 +79,23 @@ export class WorkerProcesser {
   }
 
   public isRunning():boolean {
-    if(this._mode != MODE.NONE ||
-      this._jobId.length != 0 ||
-      this._child ||
-      this._tail) {
-        return true
+    if(this._mode == MODE.NONE || 
+      this._mode == MODE.COMPLETED || 
+      this._mode == MODE.FAILED || 
+      this._mode == MODE.SYSTEM_FAILED) {
+      return false
+    }
+    if(this._jobId.length == 0) {
+      return false
+    }
+    if(!this._child) {
+      return false
+    }
+    if(!this._tail) {
+      return false
     }
 
-    return false
+    return true
   }
 
   public process(
@@ -163,14 +168,25 @@ export class WorkerProcesser {
 
       const extracted = extractMode(line)
 
-      if(extracted) this.setMode(extracted, logger)
+      if(extracted) {
+        if(this._mode != extracted) {
+          logger.info(`Change mode to: ${extracted}`)
+          this._time = new Date().getTime()
+        }
+        if(this._mode == MODE.LEARNING) {
+          this._time = new Date().getTime()
+        }
+        this._mode = extracted
+      }
     })
 
     this._tail.on('error', logger.error)
 
     this._tail.watch()
 
-    this.setMode(MODE.IDLE, logger)
+    logger.info(`Change mode to: ${MODE.IDLE}`)
+    this._mode = MODE.IDLE
+    this._time = new Date().getTime()
 
     logger.info(`jobId:${jobId}, Monitoring WN.py state.`)
 
@@ -184,6 +200,11 @@ export class WorkerProcesser {
 
       if(this.isTimeout()) {
         logger.info(`jobId:${jobId}, Timeout WN.py process. mode:${this._mode}`)
+
+        logger.info(`Change mode to: ${MODE.NONE}`)
+
+        this._mode = MODE.NONE
+
         this.clean(processHolder)
         stop()
       }
@@ -193,7 +214,6 @@ export class WorkerProcesser {
   }
 
   public clean(processHolder:ProcessHolder) {
-    this._mode = MODE.NONE
     this._time = 0
 
     if(this._jobId.length > 0) {
