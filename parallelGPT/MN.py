@@ -14,7 +14,7 @@ from tqdm import tqdm
 import numpy as np
 from typing import Dict, List, Tuple
 import torch
-import re
+import re, time
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data.dataloader import DataLoader
@@ -25,9 +25,10 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 from datetime import timedelta
 from data_loader import get_data_loader
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer, AutoModelForCausalLM, T5Tokenizer
 from pytorch_pretrained_bert import  OpenAIAdam, BertTokenizer, cached_path
 from model_sampler import print_samples
+from hashlib import sha256
 import sys
 import signal
 logger = logging.getLogger(__name__)
@@ -120,7 +121,7 @@ class ModelBuffer(object):
 
 class Trainer:
 
-    def __init__(self, model,path, train_dataset, test_dataset, config, master, port, time,device,vocab,num_workers):
+    def __init__(self, model,path, train_dataset, test_dataset, config, master, port, time,device,vocab,num_workers, data_input, key, jid):
         self.model = model
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
@@ -134,6 +135,11 @@ class Trainer:
         self.num_workers = num_workers
         self.epc = torch.from_numpy(np.array([0], dtype=np.float)).float()
         self.lss = torch.from_numpy(np.array([0], dtype=np.float)).float()
+        self.hed = torch.from_numpy(np.zeros(64, dtype=np.int32)).int()
+        self.prevhash = "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        self.data_input = data_input
+        self.jobID = jid
+        self.secret = key
         backend = 'tcp://'
         masterurl = backend+self.master+':'+self.port
         logging.info("running master %s", masterurl)
@@ -174,21 +180,24 @@ class Trainer:
         # DataParallel wrappers keep raw model object in .module attribute
         raw_model = self.model.module if hasattr(self.model, "module") else self.model
         lss = self.lss
+        ffhash = self.prevhash
         #logger.info(optimizer.param_groups)
         #torch.save(raw_model.state_dict(), self.config.ckpt_path)
+        print(epoch)
         torch.save({
             'epoch': epoch,
             'model_state_dict': raw_model.state_dict(),
             'loss': lss,
+            'hash': ffhash,
             }, self.config.ckpt_path)
         logger.info("saving %s", self.config.ckpt_path)
         logging.info('{"status": "COMPLETED", "fileName":"%s"}', self.config.ckpt_path)
-        #logging.info('{" status ":" COMPLETED "}')
+        logging.info('{" last hash ":"%s"}', ffhash)
     
 
 
     def train(self):
-        model, config, device, epc, lss  = self.model, self.config, self.device, self.epc, self.lss
+        model, config, device, epc, lss, prevhash, data_input, jobID, secret, hed  = self.model, self.config, self.device, self.epc, self.lss, self.prevhash, self.data_input, self.jobID, self.secret, self.hed
         param_optimizer = list(model.named_parameters())
         no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
@@ -207,21 +216,31 @@ class Trainer:
         logging.info("connected, train started")
         #enc = GPT2Tokenizer.from_pretrained('gpt2')
         #loader = get_data_loader(data, enc, config.batch_size, 128, self.path)
-        def resetmodel(model):
+        def resetmodel(model, prevhash):
             for param in model.parameters():
                 torch.distributed.barrier()
                 param.data = torch.zeros(param.data.size()).to(device)
-        def average_gradients(model, epc, lss):
+            #print(model)
+            '''
+            for hs in prevhash:
+                torch.distributed.barrier()
+                hs = torch.zeros(hs.size())
+                #print(hs)
+            '''
+            prevhash = torch.zeros(prevhash.size())
+            
+
+        def average_gradients(model, epc, lss, hed):
             """ Gradient averaging. """
             print("send tensor to master")
             size = float(dist.get_world_size()) - 1
             #group = dist.new_group([0])
             req = None
-
+            hlist = 0
             tlist = 0
             for param in model.parameters():
                 torch.distributed.barrier()
-                logging.info('{"param: %s"}', param)
+                
                 dist.reduce(param.data, dst=0, op=dist.reduce_op.SUM)
                 dist.reduce(epc, dst=0, op=dist.reduce_op.SUM)
                 dist.reduce(lss, dst=0, op=dist.reduce_op.SUM)
@@ -230,6 +249,7 @@ class Trainer:
                 #req.wait()
                 #dist.reduce(tensor, 0, op=dist.reduce_op.SUM, group=group)
                 #dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM, group=group)
+                #prevhash //= int(size)
                 epc /= size
                 param.data /= size
                 lss /= size
@@ -240,21 +260,43 @@ class Trainer:
                 #param.data = torch.zeros(param.data.size()).to(args.device)
             epc /= tlist
             lss /= tlist
-
+            #prevhash = prevhash
+                #print(hs)
+            #prevhash //= hlist
+            #print(prevhash)
+            #prevhash //=tlist
+            #print(prevhash)
+            #print(prevhash)
+            #np_arr = prevhash.cpu().detach().numpy()
+            #print(np_arr)
         
         best_loss = float('inf')
         self.tokens = 0 # counter used for learning rate decay
         for epoch in range(config.max_epochs):
             #print(epoch)
-            resetmodel(model)
+            #print(prevhash)
+            resetmodel(model, hed)
+            #print(prevhash)
             logging.info("waiting result")
             torch.distributed.barrier()
-            average_gradients(model, epc, lss)
+            average_gradients(model, epc, lss, hed)
             logger.info("model received from worker")
+            if epoch == 0:
+                inpt = " ".join(data_input)
+                datahash = sha256(inpt.encode('utf-8')).hexdigest()
+                has = sha256((datahash + secret).encode('utf-8')).hexdigest()
+                logging.info('{"hash":"%s","epoch": "%s"}', has, epoch+1)
+                self.prevhash = has
+            else:
+                nhash = sha256((self.prevhash + str(epoch) + secret).encode('utf-8')).hexdigest()
+                logging.info('{"previous":"%s","hash":"%s","epoch": "%s"}', self.prevhash,nhash, epoch+1)
+                self.prevhash = nhash
             #logger.info(model)
             #print(model)
             #sample = print_samples(model, enc, self.device,context_tokens=next(iter(loader)),batch_size=1, length=200, nsamples=1,temperature=1, top_k=40)
+        start = time.time()
        	self.save_checkpoint(optimizer,self.epc)
+        print(time.time() - start)
 
 class CharDataset(Dataset):
 
@@ -382,6 +424,9 @@ def main():
     parser.add_argument("--n_epochs", type=int, default=20, help="Number of training epochs")
     parser.add_argument("--num_workers", type=int, default=2, help="Number of training epochs")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
+    parser.add_argument("--language", type=str, default='en', help="language option")
+    #parser.add_argument("--key", type=str, default='en', help="language option")
+    #parser.add_argument("--jobid", type=str, default='en', help="language option")
     args = parser.parse_args()
     logging.basicConfig(filename=sys.argv[12],
                             filemode='a',
@@ -408,6 +453,7 @@ def main():
     ip_list = open(sys.argv[6], 'r').read() # don't worry we won't run out of file handles
     #train_dataset = CharDataset(text, block_size) # one line of poem is roughly 50 characters
     devicename = sys.argv[20]
+    language = sys.argv[28]
     #print(f"GPU : {devicename}")
     # initialize a trainer instance and kick off training
     #mconf = GPTConfig(train_dataset.vocab_size, train_dataset.block_size,
@@ -426,8 +472,7 @@ def main():
     #with open("pt.txt", "w") as valid_file:
     #    valid_file.write(test_str)
     #print(abstract)
-    words = sorted(list(set(test)))
-    data_size, vocab_size = len(test), len(words)
+
     train_dataset = WordDataset(test, block_size) 
     #print(f"GPU : {devicename}")
     # initialize a trainer instance and kick off training
@@ -436,23 +481,27 @@ def main():
     #model = GPT(mconf)
     logging.info('vocab size : %s',str(train_dataset.vocab_size))
     vocab_size = train_dataset.vocab_size
-    model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+    if language == 'en':
+        model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+    elif language == 'ja':
+        model = AutoModelForCausalLM.from_pretrained('rinna/japanese-gpt2-medium')
     model.apply(weights_init)
     out = sys.argv[4] + 'checkpoint.pt'
     nepoch = int(sys.argv[22])
     num_workers = int(sys.argv[26]) + 1
+    key = '4ff8f937b496feeba880834927d2b6e3110355ee6fddae6bad88124a84560911'
+    jid = 0
     try:
         tconf = TrainerConfig(max_epochs=nepoch, batch_size=int(sys.argv[18]), learning_rate=2.5e-4,
                       lr_decay=True, warmup_tokens=512*20, final_tokens=nepoch*vocab_size*block_size,
                       num_workers=16, ckpt_path = out)
-        trainer = Trainer(model,sys.argv[4], sys.argv[2], sys.argv[16], tconf, sys.argv[10], sys.argv[8],int(sys.argv[14]), devicename,train_dataset.data_size,num_workers)
+        trainer = Trainer(model,sys.argv[4], sys.argv[2], sys.argv[16], tconf, sys.argv[10], sys.argv[8],int(sys.argv[14]), devicename,train_dataset.data_size,num_workers, test, key, jid)
         trainer.train()
     except RuntimeError as err:
         logging.info('{"status": "FAILED", "error":"%s"}', err)
     
     
     print('training done')
-
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)

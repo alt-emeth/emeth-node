@@ -12,6 +12,7 @@ import axios from 'axios'
 import { Worker } from '../types/tables'
 import { ProcessHolder } from '../middlewares/exit-handler'
 import { MODE } from './consistants'
+import readline from 'readline'
 
 const nullLogger = {
   info: () => {},
@@ -20,10 +21,36 @@ const nullLogger = {
   warn: () => {}
 }
 
+export const extractCompletedJson = (log_file:string) => {
+  return new Promise((resolve, reject) => {
+    let res:any = null
+    const rs = fs.createReadStream(log_file)
+    const rl = readline.createInterface({
+      input: rs,
+      output: process.stdout,
+      terminal: false,
+    })
+    rl.on('line', (line) => {
+      line = line.replace(/\r?\n/g, '')
+      let json = null
+      try {
+        json = JSON.parse(line)
+      } catch (e) {}
+      if (json && json.status == 'COMPLETED') {
+        res = json
+      }
+    })
+    rl.on('close', () => {
+      resolve(res)
+    })
+  })
+}
+
 export async function execSplitter (
   trainDataFile: string,
   splitDataDir: string,
   numOfWorkers: number,
+  language: string,
   options: {
     logger?: Logger
     parallelGPTPath?: string
@@ -35,6 +62,7 @@ export async function execSplitter (
     'splitter.py',
     '--train_data_file', trainDataFile,
     '--output_dir', splitDataDir,
+    '--language', language,
     '--num_worker', numOfWorkers.toString()
   ]
 
@@ -79,6 +107,7 @@ export async function launchMasterNode (
   device: string,
   n_epochs: number,
   datasetCache: string,
+  language:string,
   usedWorkers: Worker[],
   logger: Logger,
   parallelGPTPath: string
@@ -100,7 +129,7 @@ export async function launchMasterNode (
 
   // launch MN.py
   const args = [
-    'MN.py',
+    'dist/MN.py',
     '--train_data_file', trainDataFile, // path.join(splitDataDir, 'train1.txt'),
     '--output_dir', outputDir,
     '--worker_ip_list', workerIpListFile,
@@ -114,6 +143,7 @@ export async function launchMasterNode (
     '--n_epochs', n_epochs.toString(),
     '--dataset_cache', datasetCache,
     '--num_workers', usedWorkers.length.toString(),
+    '--language', language
   ]
 
   logger.info(`Execute python3. command: python3 ${args.join(' ')}`)

@@ -23,11 +23,12 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 from datetime import timedelta
 from data_loader import get_data_loader
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer, AutoModelForCausalLM, T5Tokenizer
 from pytorch_pretrained_bert import OpenAIAdam, BertTokenizer, cached_path
 import sys
 import signal
 from model_sampler import print_samples
+
 logger = logging.getLogger(__name__)
 
 class DistributedDataParallel(Module):
@@ -118,7 +119,7 @@ class ModelBuffer(object):
 
 class Trainer:
 
-    def __init__(self, model,path, train_dataset, test_dataset, config, rank, master, port, time, device,vocab,num_workers):
+    def __init__(self, model,path, train_dataset, test_dataset, config, rank, master, port, time, device,vocab,num_workers, language, data_input):
         self.model = model
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
@@ -131,6 +132,10 @@ class Trainer:
         self.vocab = vocab
         self.loss = 0
         self.num_workers = num_workers
+        self.language = language
+        self.jobID = "1"
+        self.secret = "2"
+        self.data_input = data_input
         backend = 'tcp://'
         masterurl = backend+self.master+':'+self.port
         print(torch.cuda.get_device_name(0))
@@ -187,7 +192,7 @@ class Trainer:
     
 
     def train(self):
-        model, config = self.model, self.config
+        model, config, language, data_input = self.model, self.config, self.language, self.data_input
         logger.info("training started")
         param_optimizer = list(model.named_parameters())
         no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -202,7 +207,10 @@ class Trainer:
                                max_grad_norm=self.config.grad_norm_clip,
                                weight_decay=self.config.weight_decay,
                                t_total=num_train_optimization_steps)
-        enc = GPT2Tokenizer.from_pretrained('gpt2')
+        if language == 'en':
+            enc = GPT2Tokenizer.from_pretrained('gpt2-medium')
+        if language == 'ja':
+            enc = T5Tokenizer.from_pretrained('rinna/japanese-gpt2-medium')
         #optimizer = optim.AdamW(optim_groups, lr=config.learning_rate, betas=config.betas)
         def resetmodel(model):
             for param in model.parameters():
@@ -210,10 +218,9 @@ class Trainer:
             print("master model reset")
         def average_gradients(model, epoch, loss):
             """ Gradient averaging. """
+            m = []
             b = torch.from_numpy(np.array([epoch], dtype=np.float)).float()
             size = float(dist.get_world_size())
-            #group = dist.new_group([0])
-            print("send tensor to master")
             req = None
             for param in model.parameters():
                 #print(param)
@@ -221,6 +228,7 @@ class Trainer:
                 dist.reduce(param.data, dst=0, op=dist.reduce_op.SUM)
                 dist.reduce(b, dst=0, op=dist.reduce_op.SUM)
                 dist.reduce(loss, dst=0, op=dist.reduce_op.SUM)
+                
                 #gather(param.data, dst=0)
                 #req.wait()
                 #dist.reduce(tensor, 0, op=dist.reduce_op.SUM, group=group)
@@ -234,6 +242,8 @@ class Trainer:
             model.train(is_train)
             data = self.train_dataset if is_train else self.test_dataset
             
+            jobID = self.jobID
+            secret = self.secret
             loader = get_data_loader(data, enc, config.batch_size, 128, self.path)
             #loader = DataLoader(data, shuffle=True,batch_size=config.batch_size,num_workers=config.num_workers)
             losses = []
@@ -431,6 +441,7 @@ def main():
     parser.add_argument("--n_epochs", type=int, default=20, help="Number of training epochs")
     parser.add_argument("--num_workers", type=int, default=2, help="Number of training epochs")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
+    parser.add_argument("--language", type=str, default='en', help="language option")
     args = parser.parse_args()
     logging.basicConfig(filename=sys.argv[12],
                             filemode='a',
@@ -445,6 +456,7 @@ def main():
     
     devicename = sys.argv[20]
     logging.info('{"status": "READY"}')
+    language = sys.argv[28]
     #print(f"GPU : {devicename}")
     # initialize a trainer instance and kick off training
     #mconf = GPTConfig(train_dataset.vocab_size, train_dataset.block_size,
@@ -471,7 +483,10 @@ def main():
     #model = GPT(mconf)
     logging.info('vocab size : %s',str(train_dataset.vocab_size))
     vocab_size = train_dataset.vocab_size
-    model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+    if language == 'en':
+        model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
+    elif language == 'ja':
+        model = AutoModelForCausalLM.from_pretrained('rinna/japanese-gpt2-medium')
     #model.to(device)
     out = sys.argv[4] + 'checkpoint.pt'
     nepoch = int(sys.argv[22])
@@ -480,8 +495,9 @@ def main():
         tconf = TrainerConfig(max_epochs=nepoch, batch_size=int(sys.argv[18]), learning_rate=2.5e-4,
                           lr_decay=True, warmup_tokens=512*20, final_tokens=nepoch*vocab_size*block_size,
                           num_workers=16, ckpt_path = out)
-        trainer = Trainer(model, sys.argv[4], sys.argv[2], sys.argv[16], tconf,int(sys.argv[6]), sys.argv[8], sys.argv[10], int(sys.argv[14]),devicename, train_dataset.data_size,num_workers)
+        trainer = Trainer(model, sys.argv[4], sys.argv[2], sys.argv[16], tconf,int(sys.argv[6]), sys.argv[8], sys.argv[10], int(sys.argv[14]),devicename, train_dataset.data_size,num_workers, language, test)
         trainer.train()
+   
     except BrokenPipeError as err:
         logging.info('{"status": "FAILED", "error":"%s"}', err)
     except RuntimeError as err:
@@ -500,7 +516,7 @@ def main():
     except :
         logging.info('{"status": "FAILED", "error":"%s"}', sys.exc_info()[0])
     print('training done')
- 
+    
 if __name__ == "__main__":
    
     main()

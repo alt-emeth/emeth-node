@@ -36,14 +36,10 @@ $ npm -v
 6.14.6
 ```
 
-### python setup
-Install python and pip
-
-Example (Ubuntu):
+### python version
 ```
-$ sudo add-apt-repository ppa:deadsnakes/ppa
-$ sudo apt update
-$ sudo apt install python3.6 python3-pip
+$ python3 -V
+Python 3.8.10
 ```
 
 Install related packages
@@ -120,7 +116,6 @@ $ vi src/config/master.json
 | privateKey | Your Ethereum account private key |
 | storageApi | Emeth storage api endpoint |
 | batchSize | Batch size |
-| n_epochs | Epoch num |
 | device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) | Since master does not high perform calculations that require GPU, basically 'cpu' is recommended as the setting value.
 | my_url | Master node's endpoint(FQDN) for master/worker connection |
 | worker_whitelist | worker whiltelist(ip address) for master/worker connection. It can be grant permission to anywhere server by asterisk of wild card. | Default is * (anywhere).
@@ -130,6 +125,7 @@ $ vi src/config/master.json
 | board_url | board server endpoint(FQDN)
 | min_fee | minimum fee for job matching | Default is 10000000000000000000
 | max_fee | maximum fee for job matching | Default is 30000000000000000000
+| model_cached_size | Specifies the size(GB) of the storage area to store the model file.
 
 [worker node]
 ```

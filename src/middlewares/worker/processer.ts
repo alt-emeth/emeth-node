@@ -115,12 +115,13 @@ export class WorkerProcesser {
     device:string,
     n_epochs:number,
     datasetCache:string,
-    num_workers: number
+    num_workers: number,
+    language:string
   ) {
     const masterIp = new URL(master_node_url).hostname
 
     const args = [
-      'WN.py',
+      'dist/WN.py',
       '--train_data_file', trainDataFile,
       '--output_dir', outputDir,
       '--rank', rank.toString(),
@@ -133,7 +134,8 @@ export class WorkerProcesser {
       '--device', device,
       '--n_epochs', n_epochs.toString(),
       '--dataset_cache', datasetCache,
-      '--num_workers', num_workers.toString()
+      '--num_workers', num_workers.toString(),
+      '--language', language
     ]
 
     this._child = spawn('python3', args, {

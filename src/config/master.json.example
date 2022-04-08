@@ -5,7 +5,6 @@
   "privateKey": "",
   "storageApi": "",
   "batchSize": "",
-  "n_epochs": "",
   "device": "",
   "my_url": "",
   "worker_whitelist": [
@@ -24,5 +23,6 @@
   "cooperative": "nvm",
   "info_server_url":"",
   "min_fee": 10000000000000000000,
-  "max_fee": 30000000000000000000
+  "max_fee": 30000000000000000000,
+  "model_cached_size": 500
 }

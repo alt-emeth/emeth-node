@@ -135,6 +135,7 @@ const worker: CommandModule<LoggerMiddlewareArguments & WalletMiddlewareArgument
         const num_workers = req.body.num_workers as number
         const rank = req.body.rank as number
         const timeLimit = req.body.timeLimit as number
+        const language = req.body.language as string
         const logFile = path.join(argv.parallelGPTPath, 'wn_log', `${jobId}.log`)
 
         await makeDir(path.dirname(logFile))
@@ -164,7 +165,8 @@ const worker: CommandModule<LoggerMiddlewareArguments & WalletMiddlewareArgument
           argv.device,
           n_epochs,
           datasetCache,
-          num_workers
+          num_workers,
+          language
         )
         res.send({ result: argv.workerProcesser.mode })
       })().catch(next)

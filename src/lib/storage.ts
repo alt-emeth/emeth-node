@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Logger } from 'log4js'
 import {sign} from './crypto'
+import { Transform, pipeline } from 'stream'
 
 const FILE_CHUNK_SIZE = 10_000_000;
 interface Part {
@@ -12,17 +13,21 @@ interface Part {
 }
 
 const writeStreamFile = async (url: string, fileName: string): Promise<void> => {
-  return await new Promise<void>((resolve, reject) => {
-    axios.get(url, { responseType: 'stream' }).then((response: AxiosResponse) => {
-      response.data
-        .pipe(fs.createWriteStream(fileName))
-        .on('close', () => {
+  return axios.get(url, { responseType: 'stream', timeout: 1000 * 60 * 2 }).then((response: AxiosResponse) => {
+    return new Promise<void>((resolve, reject) => {
+      const transform = new Transform({transform(data, _encoding, callback) {
+        this.push(data)
+        callback()
+      }})
+
+      pipeline(response.data, transform, fs.createWriteStream(fileName), (e) => {
+        if (e) {
+          reject(e)
+        } else {
           resolve()
-        })
-        .on('error', (err: Error) => {
-          reject(err)
-        })
-    }).catch(reason => reject)
+        }
+      })
+    })
   })
 }
 
@@ -126,8 +131,6 @@ const deleteRecursive = (source:string, jobId:string, logger:Logger) => {
       logger.info(`JobId:${jobId}, File deleted successfully. ${source}`)
     }
 
-  } else {
-    logger.info(`JobId:${jobId}, It is not exist. ${source}`)
   }
 }
 

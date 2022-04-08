@@ -9,7 +9,7 @@ import { execSplitter, generateArgFiles, launchMasterNode, randomPort } from "..
 import { getS3, putS3 } from "../lib/storage"
 import { initWorkers, processWorker } from "../lib/workers"
 import { ProcessHolder } from "../middlewares/exit-handler"
-import { IAuth } from "../types/api"
+import { IAuth, JobParam } from "../types/api"
 import { Emeth, EmethToken } from "../types/contracts"
 import { ContributionStatus, JobStatus, Worker } from "../types/tables"
 import fs from 'fs'
@@ -57,6 +57,7 @@ export async function submit(
 
 export async function process(
   job:ReturnType<Emeth['jobs']> extends Promise<infer T> ? T : never,
+  jobDetail:ReturnType<Emeth['jobDetails']> extends Promise<infer T> ? T : never,
   timeLimit:number,
   logger:Logger,
   emeth:Emeth,
@@ -66,7 +67,6 @@ export async function process(
   storageApi:string,
   wallet:Wallet,
   batchSize:number,
-  n_epochs:number,
   device:string,
   my_url:string,
   processHolder: ProcessHolder,
@@ -109,14 +109,19 @@ export async function process(
     }
   
     await getS3(storageApi, wallet, jobId, trainDataFile)
-  
-    await execSplitter(trainDataFile, splitDataDir + '/', usedWorkers.length, {
+
+    const param:JobParam = JSON.parse(jobDetail.param)
+
+    const language = param.language
+    const n_epochs = param.epoch
+
+    await execSplitter(trainDataFile, splitDataDir + '/', usedWorkers.length, language, {
       logger,
       parallelGPTPath
     })
   
     const testDataFile = path.join(splitDataDir, 'valid.txt')
-  
+
     await processWorker(
       usedWorkers, 
       splitDataDir, 
@@ -126,6 +131,7 @@ export async function process(
       batchSize as number,
       n_epochs as number,
       timeLimit,
+      language,
       workerIpListFile,
       wallet
       )
@@ -143,6 +149,7 @@ export async function process(
       device as string,
       n_epochs as number,
       datasetCache as string,
+      language,
       usedWorkers,
       logger,
       parallelGPTPath)
@@ -150,12 +157,6 @@ export async function process(
     processHolder.register(jobId, child, usedWorkers, masterPort)
 
     masterNode.on('completed', async (fileName) => {
-      logger.info(`JobId:${job.jobId}, Start file upload. ${fileName}`)
-      const result = await putS3(storageApi, wallet, job.jobId, fileName, logger)
-      logger.info(`JobId:${job.jobId}, File upload completed.`)
-  
-      await submit(logger, jobId, result, emeth, db)
-
       const trx = await db.transaction()
 
       try {
@@ -176,7 +177,7 @@ export async function process(
 
       processHolder.unregister(jobId)
 
-      logger.info(`JobId:${job.jobId}, job process end. fileName:${fileName}`)
+      logger.info(`JobId:${job.jobId}, job process completed.`)
     })
   
     masterNode.on('error', async (err) => {
@@ -225,11 +226,13 @@ export async function process(
         program_id: jobDetail.programId.toNumber()
       }).where('job_id', jobId)
     } else {
+      const latestJob = await emeth.jobs(jobId)
+
       await trx('jobs').insert({
         job_id: jobId,
         num_attempt: 1,
         data_size_mb: size,
-        status: job.status.toNumber(),
+        status: latestJob.status.toNumber(),
         program_id: jobDetail.programId.toNumber()
       })
     }

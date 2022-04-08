@@ -9,6 +9,9 @@ import { WalletMiddlewareArguments } from './wallet'
 import axios from 'axios'
 import { Emeth } from '../types/contracts'
 import { Knex } from 'knex'
+import * as storage from '../lib/storage'
+import { Wallet } from '@ethersproject/wallet'
+import { sign } from '../lib/crypto'
 
 const checkAssignedJob = async(args: Arguments) => {
   const {emeth} = (args as unknown as ContractsMiddlewareArguments).contracts
@@ -188,6 +191,51 @@ const scanCancelEvent = async(emeth:Emeth, trx:Knex.Transaction, logger:Logger) 
   logger.info("--- END --- Monitoring cancel event")
 }
 
+const clean = async(args: Arguments) => {
+  const logger = args.logger as Logger
+  const parallelGPTPath = args.parallelGPTPath as string
+  const db = (args as unknown as DatabaseMiddlewareArguments).db
+  const wallet = args.wallet as Wallet
+
+  logger.info(`--- BEGIN --- file clean`)
+
+  const sqliteJobs = await db('jobs').whereIn('status', 
+   [JobStatus.VERIFIED, 
+    JobStatus.REJECTED, 
+    JobStatus.CANCELED, 
+    JobStatus.TIMEOUT, 
+    JobStatus.FAILED, 
+    JobStatus.DECLINED])
+
+  for(const job of sqliteJobs) {
+    const jobId = job.job_id
+
+    storage.clean(jobId, parallelGPTPath, logger)
+
+    try {
+      const workers = await db.from('workers')
+      for(const worker of workers) {
+        const timestamp = new Date().getTime()
+        const sig = await sign(['uint256'], [timestamp], wallet)
+      
+        await axios.post(`${worker.url}/api/v1/clean`, 
+        {
+          jobId,
+          auth: {
+            sig,
+            timestamp
+          }
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  logger.info(`--- END --- file clean`)
+
+}
+
 export default async function emethStatusWatcher (args: Arguments): Promise<void> {
   interval(async() => {
     await checkAssignedJob(args)
@@ -207,6 +255,8 @@ export default async function emethStatusWatcher (args: Arguments): Promise<void
       await trx.rollback()
       logger.error(e)
     }
+
+    await clean(args)
   }, 10000 as number, {
     stopOnError: false
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type

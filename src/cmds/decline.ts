@@ -49,21 +49,21 @@ const decline: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewar
       exit()
     }
 
-    const jobs = (await axios.get(`${args.info_server_url}/api/v1/jobs`, {params: { status: JobStatus.PROCESSING }})).data
+    const jobs = await db('jobs').where('status', JobStatus.PROCESSING)
     
     for (let i=0; i< jobs.length; i++) {
       try {
         const job = jobs[i]
 
-        console.log(`Processing job:${job.jobId}`)
+        console.log(`Processing job:${job.job_id}`)
 
-        const emethJob = await emeth.jobs(job.jobId)
+        const emethJob = await emeth.jobs(job.job_id)
 
         console.log(`Current job status:${emethJob.status}`)
 
         if(emethJob.status.eq(JobStatus.PROCESSING)) {
-          await emeth.decline(job.jobId)
-          console.log(`Declined job:${job.jobId}`)
+          await emeth.decline(job.job_id)
+          console.log(`Declined job:${job.job_id}`)
         }
       } catch (e) {
         console.log(e)

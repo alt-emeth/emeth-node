@@ -11,7 +11,6 @@ import { Logger } from 'log4js'
 import { JobStatus, Worker } from '../types/tables'
 import interval from 'interval-promise'
 import * as jobService from '../services/job-service'
-import fileCleaner from '../middlewares/file-cleaner'
 import exitHandler, { ProcessHolder } from '../middlewares/exit-handler'
 import readline from 'readline'
 import axios from 'axios'
@@ -24,102 +23,13 @@ import { collectCandidateWorkerInfo } from '../lib/workers'
 import { COOPERATIVE } from '../lib/consistants'
 import { findAvailableWorkers } from '../services/worker-service'
 import { BigNumber } from '@ethersproject/bignumber'
-import { computeRequiredPowerCapacity, estimateProcessingTime } from '../lib/emethFormula'
+import { computeRequiredPowerCapacity, estimateGas, estimateProcessingTime } from '../lib/emethFormula'
 import emethStatusWatcher from '../middlewares/emeth-status-watcher'
+import { extractCompletedJson } from '../lib/parallel-gpt'
+import submitter from '../middlewares/submitter'
+import fastFolderSizeSync from 'fast-folder-size/sync'
 
 process.env.TZ = 'UTC'
-
-const extractCompletedJson = (log_file:string) => {
-  return new Promise((resolve, reject) => {
-    let res:any = null;
-    const rs = fs.createReadStream(log_file);
-    const rl = readline.createInterface({
-      input: rs,
-      output: process.stdout,
-      terminal: false,
-    });
-    rl.on('line', (line) => {
-      line = line.replace(/\r?\n/g, '');
-      let json = null;
-      try {
-        json = JSON.parse(line);
-      } catch (e) {}
-      if (json && json.status == 'COMPLETED') {
-        res = json;
-      }
-    })
-    rl.on('close', () => {
-      resolve(res);
-    })
-  });
-}
-
-const checkRecoverJob = async(
-  emeth:Emeth, 
-  wallet:Wallet, 
-  parallelGPTPath: string, 
-  logger:Logger,
-  processHolder: ProcessHolder,
-  db:Knex
-  ):Promise<Array<{jobId:string, needProcess:boolean, needSubmit:boolean, fileName:string|null, fileSize:number|null}>> => {
-
-  const recoverJobs = [] as Array<{jobId:string, needProcess:boolean, needSubmit:boolean, fileName:string|null, fileSize:number|null}>
-
-  const sqliteJobs = await db('jobs').where('status', JobStatus.PROCESSING)
-
-  for(const sqliteJob of sqliteJobs) {
-    const jobId = sqliteJob.job_id
-
-    const job = await emeth.jobs(jobId)
-
-    logger.info(`processing job:${JSON.stringify(job)}`)
-
-    if(!job.status.eq(JobStatus.PROCESSING)) {
-      logger.info(`JobId:${job.jobId}, This is not processing status:${job.status}`)
-      continue
-    }
-
-    const jobAssign = await emeth.jobAssigns(jobId);
-    logger.info(`Assigned node:${jobAssign.node}, my address:${wallet.address}`)
-  
-    if(jobAssign.node != wallet.address) {
-      logger.info(`JobId:${job.jobId}, This is not assigned to me`)
-      continue
-    }
-
-    if(processHolder.processes[jobId]) {
-      logger.info(`JobId:${job.jobId}, This is processing now`)
-      continue
-    }
-
-    logger.info(`JobId:${job.jobId}, This is a suspended job. Need recovor`)
-  
-    const logFile = path.join(parallelGPTPath, 'mn_log', `${jobId}.log`)
-  
-    if(!fs.existsSync(logFile)) {
-      logger.info(`JobId:${job.jobId}, log file is not exist. Need retry process. ${logFile}`)
-
-      recoverJobs.push({jobId, needProcess:true, needSubmit: false, fileName:null, fileSize:sqliteJob.data_size_mb})
-
-      continue
-    }
-  
-    const json:any = await extractCompletedJson(logFile)
-  
-    if(!json) {
-      logger.info(`JobId:${job.jobId}, Learning is not completed yet. Need retry process`)
-      recoverJobs.push({jobId, needProcess:true, needSubmit: false, fileName:null, fileSize:sqliteJob.data_size_mb})
-
-      continue
-    }
-  
-    logger.info(`JobId:${job.jobId}, Learning is completed. Need retry submit.`)
-
-    recoverJobs.push({jobId, needProcess:false, needSubmit: true, fileName:json.fileName, fileSize:null})
-  }
-
-  return recoverJobs
-}
 
 const master: CommandModule<{
   port: number
@@ -140,8 +50,8 @@ const master: CommandModule<{
       .middleware(logger)
       .middleware(masterApi)
       .middleware(emethStatusWatcher)
-      .middleware(fileCleaner)
       .middleware(exitHandler)
+      .middleware(submitter)
   },
   handler: (argv) => {
     const logger = argv.logger as Logger
@@ -155,28 +65,74 @@ const master: CommandModule<{
     const cooperative = argv.cooperative as string
     const min_fee = String(argv.min_fee)
     const max_fee = String(argv.max_fee)
+    const model_cached_size = argv.model_cached_size as number
 
     interval(async () => {
       try {
+        const cachedSize = fastFolderSizeSync(path.join(parallelGPTPath, 'model'))
+        if(cachedSize) {
+          if(cachedSize / (1024 * 1024 * 1024) > model_cached_size) {
+            logger.info('Not enough storage space for model file')
+            return
+          }
+        }
+
         logger.info(`--- BEGIN --- Recover suspended job`)
 
-        const recoverJobs = await checkRecoverJob(emeth, wallet, parallelGPTPath, logger, processHolder, db)
+        const sqliteJobs = await db('jobs').where('status', JobStatus.PROCESSING)
 
-        for(const recoverJob of recoverJobs) {
+        for(const sqliteJob of sqliteJobs) {
+          let needRetry = false
 
-          const jobId = recoverJob.jobId
-          const fileName = recoverJob.fileName
-          const needSubmit = recoverJob.needSubmit
-          const needProcess = recoverJob.needProcess
-      
-          if(needProcess) {
-            logger.info(`JobId:${jobId}, Retry process.`)
-      
+          const jobId = sqliteJob.job_id
+
+          if(processHolder.processes[jobId]) {
+            logger.info(`JobId:${jobId}, This is processing now`)
+            continue
+          }
+
+          const logFile = path.join(parallelGPTPath, 'mn_log', `${jobId}.log`)
+
+          if(!fs.existsSync(logFile)) {
+            logger.info(`JobId:${jobId}, log file is not exist. Need retry process. ${logFile}`)
+
+            needRetry = true
+          } else {
+            const json:any = await extractCompletedJson(logFile)
+
+            if(!json) {
+              logger.info(`JobId:${jobId}, Learning is not completed yet. Need retry process`)
+
+              needRetry = true
+            }
+          }
+
+          if(needRetry) {
+
             const job = await emeth.jobs(jobId)
       
+            logger.info(`processing job:${JSON.stringify(job)}`)
+        
+            if(!job.status.eq(JobStatus.PROCESSING)) {
+              logger.info(`JobId:${job.jobId}, This is not processing status:${job.status}`)
+              continue
+            }
+        
+            const jobAssign = await emeth.jobAssigns(jobId);
+            logger.info(`Assigned node:${jobAssign.node}, my address:${wallet.address}`)
+          
+            if(jobAssign.node != wallet.address) {
+              logger.info(`JobId:${job.jobId}, This is not assigned to me`)
+              continue
+            }
+
+            logger.info(`JobId:${jobId}, Retry process.`)
+
+            const jobDetail = await emeth.jobDetails(jobId)
+
             const availableWorkers = await findAvailableWorkers(db, logger, cooperative)
             const havingPowerCapacity = availableWorkers.reduce((accumulator, worker) => accumulator + worker.power_capacity, 0)
-            let gas = await (await emeth.getEstimatedGas(Math.floor(recoverJob.fileSize as number), 5822)).toNumber()
+            let gas = await estimateGas(Math.floor(sqliteJob.data_size_mb as number), 5822, emeth)
             let time = job.deadline.sub(job.requestedAt).toNumber()
             gas = Math.floor(gas)
             time = Math.floor(time)
@@ -199,6 +155,7 @@ const master: CommandModule<{
 
             await jobService.process(
               job,
+              jobDetail,
               time,
               logger,
               emeth,
@@ -208,42 +165,11 @@ const master: CommandModule<{
               storageApi,
               wallet,
               argv.batchSize as number,
-              argv.n_epochs as number,
               argv.device as string,
               argv.my_url as string,
               argv.processHolder as ProcessHolder,
               candidateWorkers
             )
-      
-          } else if(needSubmit) {
-            logger.info(`JobId:${jobId}, Retry submit.`)
-      
-            const job = await emeth.jobs(jobId)
-          
-            let uploadedFile = `${jobId}-${wallet.address.toLowerCase()}${path.extname(fileName as string)}`
-            logger.info(`JobId:${job.jobId}, check uploaded:${uploadedFile}`)
-          
-            let uploadedSize = 0
-            try {
-              uploadedSize = (await axios.get(`${storageApi}/api/v1/sizeOf?key=result/${uploadedFile}`)).data.result
-            } catch (e) {
-              console.log(e)
-            }
-            const savedSize = fs.statSync(fileName as string).size
-            logger.info(`JobId:${job.jobId}, Saved file size:${savedSize}, Uploaded file size:${uploadedSize}`)
-          
-            if(savedSize !== Number(uploadedSize)) {
-              logger.info(`JobId:${job.jobId}, File upload incomplete. Try upload again:${fileName}`)
-              uploadedFile = await putS3(storageApi, wallet, jobId, fileName as string, logger)
-            } else {
-              logger.info(`JobId:${job.jobId}, File upload already completed. ${fileName}`)
-            }
-          
-            logger.info(`JobId:${job.jobId}, Retry submit: ${uploadedFile}`)
-        
-            await jobService.submit(logger, jobId, uploadedFile, emeth, db)
-        
-            logger.info(`JobId:${job.jobId}, Retry submit is completed. fileName:${fileName}`)
           }
         }
 
@@ -251,10 +177,6 @@ const master: CommandModule<{
 
         logger.info(`--- BEGIN --- Execute requested job`)
 
-        const boardJobs:BoardJob[] = (await axios.get(`${board_url}/api/v1/jobs`, {params: { status: JobStatus.REQUESTED }})).data
-
-        const candidateJobs:BoardJob[] = []
-        
         const availableWorkers = await findAvailableWorkers(db, logger, cooperative)
         const havingPowerCapacity = availableWorkers.reduce((accumulator, worker) => accumulator + worker.power_capacity, 0)
         
@@ -265,24 +187,9 @@ const master: CommandModule<{
           return
         }
 
-        for(const boardJob of boardJobs) {
-          const size = Math.floor(boardJob.datasetSize / (1024*1024))
-          logger.info(`JobId:${boardJob.id}, deadline:${boardJob.deadline}, datasize:${size}, fee:${boardJob.fee}`)
+        const boardJobs:BoardJob[] = (await axios.get(`${board_url}/api/v1/jobs`, {params: { status: JobStatus.REQUESTED }})).data
 
-          if(BigNumber.from(boardJob.fee).gte(BigNumber.from(min_fee)) && 
-            BigNumber.from(boardJob.fee).lte(BigNumber.from(max_fee))) {
-              const {gas, time} = await estimateProcessingTime(size, 5822, Math.floor(havingPowerCapacity), emeth)
-
-              const now = new Date().getTime() / 1000
-              logger.info(`Estimated completed time:${now + time}`)
-
-              if(now + time < boardJob.deadline - 3600) {
-                candidateJobs.push(boardJob)
-              }
-          }
-        }
-        
-        candidateJobs.sort((a, b) => {
+        boardJobs.sort((a, b) => {
           if(BigNumber.from(b.fee).gt(BigNumber.from(a.fee))) {
             return 1
           } else {
@@ -290,15 +197,42 @@ const master: CommandModule<{
           }
         })
 
-        if(candidateJobs.length == 0) {
+        let targetJob:BoardJob|null = null
+
+        for(const boardJob of boardJobs) {
+          logger.info(`JobId:${boardJob.id}, deadline:${boardJob.deadline}, datasize:${boardJob.datasetSize}, fee:${boardJob.fee}`)
+
+          if(boardJob.datasetSize < (1024 * 4)) {
+            logger.info(`JobId:${boardJob.id}, size is too small`)
+            continue
+          }
+
+          const size = Math.floor(boardJob.datasetSize / (1024*1024))
+
+          if(BigNumber.from(boardJob.fee).gte(BigNumber.from(min_fee)) && 
+            BigNumber.from(boardJob.fee).lte(BigNumber.from(max_fee))) {
+              const gas = await estimateGas(size, 5822, emeth)
+              const time = estimateProcessingTime(gas, Math.floor(havingPowerCapacity))
+
+              const now = new Date().getTime() / 1000
+              logger.info(`Estimated completed time:${now + time}`)
+
+              if(now + time < boardJob.deadline - 3600) {
+                targetJob = boardJob
+                break
+              }
+          }
+        }
+
+        if(!targetJob) {
           return
         }
 
-        const targetJob = candidateJobs[0]
 
         const jobId = targetJob.id
 
         const job = await emeth.jobs(jobId)
+        const jobDetail = await emeth.jobDetails(jobId)
 
         logger.info(`JobId:${jobId}, job exist:${String(job.exist)}, job status:${String(job.status)}`)
 
@@ -308,7 +242,7 @@ const master: CommandModule<{
         }
 
         const size = Math.floor(targetJob.datasetSize / (1024*1024))
-        let gas = await (await emeth.getEstimatedGas(size, 5822)).toNumber()
+        let gas = await estimateGas(size, 5822, emeth)
         let time = job.deadline.sub(job.requestedAt).toNumber()
         gas = Math.floor(gas)
         time = Math.floor(time)
@@ -331,6 +265,7 @@ const master: CommandModule<{
 
         await jobService.process(
           job,
+          jobDetail,
           time,
           logger,
           emeth,
@@ -340,7 +275,6 @@ const master: CommandModule<{
           storageApi,
           wallet,
           argv.batchSize as number,
-          argv.n_epochs as number,
           argv.device as string,
           argv.my_url as string,
           argv.processHolder as ProcessHolder,

@@ -8,5 +8,5 @@ torchaudio==0.7.2
 torchvision==0.8.2+cu110
 tqdm==4.59.0
 tensorboardX==2.1
-transformers==3.0.0
+transformers==4.5.0
 nltk

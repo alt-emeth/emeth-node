@@ -86,6 +86,7 @@ export async function processWorker(
   batchSize:number,
   n_epochs:number,
   timeLimit: number,
+  language:string,
   workerIpListFile:string,
   wallet: Wallet
   ) {
@@ -113,6 +114,7 @@ export async function processWorker(
       num_workers: usedWorkers.length,
       rank: index,
       timeLimit,
+      language,
       auth: {
         sig,
         timestamp

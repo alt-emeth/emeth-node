@@ -5,16 +5,14 @@ export const computeRequiredPowerCapacity = (gas:number, timeLimit:number): numb
   return BigNumber.from(gas).mul(BigNumber.from(1000000)).div(BigNumber.from(timeLimit)).toNumber()
 }
 
-export const estimateProcessingTime = async(datasetSizeMB: number, algorithmComplexity: number, powerCapacity: number, emeth:Emeth) => {
-    const gas = await (await emeth.getEstimatedGas(datasetSizeMB, algorithmComplexity)).toNumber()
+export const estimateGas = async(datasetSizeMB: number, algorithmComplexity: number, emeth:Emeth) => {
+  if(datasetSizeMB <= 0) {
+    datasetSizeMB = 1
+  }
 
-    /* deprecated
-    if(datasetSizeMB >= 250) {
-      powerCapacity = 50000
-    }
-    */
+  return await (await emeth.getEstimatedGas(datasetSizeMB, algorithmComplexity)).toNumber()
+}
 
-    const time = gas * 1000000 / powerCapacity
-
-    return {gas, time}
+export const estimateProcessingTime = (gas: number, powerCapacity: number) => {
+  return gas * 1000000 / powerCapacity
 }

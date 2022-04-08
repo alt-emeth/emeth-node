@@ -25,6 +25,11 @@ export type JSONRPCError = {
   id?: number
 }
 
+export type JobParam = {
+  language: string
+  epoch: number
+}
+
 export type BoardJob = {
   id: string
   owner: string

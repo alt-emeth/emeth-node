@@ -35,6 +35,7 @@
     "eventemitter2": "^6.4.4",
     "express": "4.17.1",
     "express-ip-access-control": "1.1.0",
+    "fast-folder-size": "1.6.1",
     "fastq": "^1.11.0",
     "forever": "3.0.4",
     "form-data": "3.0.0",
