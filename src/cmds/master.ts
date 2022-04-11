@@ -69,11 +69,13 @@ const master: CommandModule<{
 
     interval(async () => {
       try {
-        const cachedSize = fastFolderSizeSync(path.join(parallelGPTPath, 'model'))
-        if(cachedSize) {
-          if(cachedSize / (1024 * 1024 * 1024) > model_cached_size) {
-            logger.info('Not enough storage space for model file')
-            return
+        if(fs.existsSync(path.join(parallelGPTPath, 'model'))) {
+          const cachedSize = fastFolderSizeSync(path.join(parallelGPTPath, 'model'))
+          if(cachedSize) {
+            if(cachedSize / (1024 * 1024 * 1024) > model_cached_size) {
+              logger.info('Not enough storage space for model file')
+              return
+            }
           }
         }
 
