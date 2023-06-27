@@ -4,8 +4,6 @@
 ### OS configuration
 The guideline for the required memory is as follows.
 
-- master: About, 10GB × Number of workers. (* If a worker coexists, an additional 17GB is required)
-
 - worker: About 17GB
 
 
@@ -93,40 +91,7 @@ $ sudo apt-get install libnccl2 libnccl-dev
 $ git clone <repository path>
 ```
 
-If you setup a master node and a worker node one one machine, clone the repository to 2 different directories.
-
-Example:
-```
-$ git clone <repository path> emeth-master
-$ git clone <repository path> emeth-worker
-```
-
 ### Config file
-[master node]
-```
-$ cd emeth-master
-$ cp src/config/master.json.example src/config/master.json
-$ vi src/config/master.json
-```
-| Parameter | Description | Memo |
-| --------- | ---------------------------------------- | ---------------------------------------- |
-| emethContractAddress | Emeth contract address |
-| tokenContractAddress | Token contract address |
-| endpoint | Ethereum node endpoint(https) |
-| privateKey | Your Ethereum account private key |
-| storageApi | Emeth storage api endpoint |
-| batchSize | Batch size |
-| device | 'cuda:n' (for using gpu:n) or 'cuda' (for using all gpu) or 'cpu' (for using cpu) | Since master does not high perform calculations that require GPU, basically 'cpu' is recommended as the setting value.
-| my_url | Master node's endpoint(FQDN) for master/worker connection |
-| worker_whitelist | worker whiltelist(ip address) for master/worker connection. It can be grant permission to anywhere server by asterisk of wild card. | Default is * (anywhere).
-| jsonrpc_whitelist | You can operate commands from the outside by sending a json rpc request from the allowed whitelist here. | Default is 127.0.0.1 (local). 
-| external_db | MySql connection information (optional). | By specifying the connection information of MySql here, you can save queue that controls the execution order of jobs to an external MySql. If omitted, it will be queued as local sqlite3 data.
-| cooperative | '1v1' (Assign one worker to one job) or 'nvm' (Assign worker(s) who meets the required power capacity for one job) | Default is 'nvm'.
-| board_url | board server endpoint(FQDN)
-| min_fee | minimum fee for job matching | Default is 10000000000000000000
-| max_fee | maximum fee for job matching | Default is 30000000000000000000
-| model_cached_size | Specifies the size(GB) of the storage area to store the model file.
-
 [worker node]
 ```
 $ cd ~/emeth-worker
@@ -143,7 +108,6 @@ $ vi src/config/worker.json
 | timeout | If the process stops in the phases during learning, time out and it move to the next job. You can specify the milliseconds before timeout in here. | "wait_data" (Waiting recieve dataset). Default is 300000. "idle" (Idling python process). Default is 600000. "learning" (Learning job). Default is 10000. "checkpoint" (Waiting synchronize the intermediate results with the master and move on to the next epoch). Default is 1200000.
 
 ### Install packages
-Both for master and worker
 ```
 $ npm install
 ```
@@ -167,28 +131,15 @@ npm WARN optional SKIPPING OPTIONAL DEPENDENCY: Exit status 1
 ```
 
 ### Build
-Both for master and worker
 ```
 $ npm run build
 ```
 
 ## Run Emeth-node
-### Launch Master node
-Execute under master node directory.
-```
-node dist/cli.js master
-```
-
 ### Launch Worker node
 Execute under worker node directory.
 ```
 node dist/cli.js worker
-```
-
-### Withdraw
-Execute under master node directory.
-```
-node dist/cli.js withdraw
 ```
 
 ### Job list
@@ -196,28 +147,3 @@ Execute under master node directory.
 ```
 node dist/cli.js joblist
 ```
-
-### JSON RPC
-You can operate commands from the outside by sending a json rpc request to the master node.
-
-```
-{master_node_url}/api/json-rpc
-```
-
-```
---> {
-	"jsonrpc": "2.0",
-	"method": "disconnect",
-	"params": {"workerAddress": '0x...'},
-	"id": 1
-    }
-<-- {
-	"jsonrpc": "2.0",
-	"result": "disconnected",
-	"id": 1
-    }
-```
-
-| Method | Description | Params |
-| --------- | ---------------------------------------- | ---------------------------------------- |
-| disconnect | Disconnects the specified worker of eth address from master. eth address is the account specified in worker.json or the account randomly generated at the first startup. | {"workerAddress": worker's eth address}
