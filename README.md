@@ -34,18 +34,6 @@ $ npm -v
 6.14.6
 ```
 
-### python version
-```
-$ python3 -V
-Python 3.8.10
-```
-
-Install related packages
-```
-$ cd parallelGPT
-$ pip3 install -r requirementgpu.txt
-```
-
 ### GPU setup
 Check CUDA
 ```
