@@ -1,13 +1,3 @@
 {
-  "device": "",
-  "master_node_url": "",
-  "my_url": "",
-  "powerCapacity": "",
-  "privateKey": "",
-  "timeout": {
-    "wait_data": 300000,
-    "idle": 1200000,
-    "learning": 10000,
-    "checkpoint": 2400000
-  }
+  "cacheServerUrl": "https://emeth-cache.testnet.alt.ai/api/v1/jobs",
 }
