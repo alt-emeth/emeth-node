@@ -21,7 +21,7 @@
     "ethers": "^5.0.32",
     "interval-promise": "^1.4.0",
     "knex": "^0.95.2",
-    "log4js": "6.3.0",
+    "log4js": "6.9.1",
     "make-dir": "3.1.0",
     "mysql": "2.18.1",
     "sqlite3": "5.1.6",
