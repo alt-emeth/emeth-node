@@ -1,52 +1,54 @@
-import fs from 'fs'
-import path from 'path'
-import { CommandModule } from 'yargs'
+import fs from 'fs';
+import path from 'path';
+import { CommandModule } from 'yargs';
 
-import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts'
-import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet'
-import { exit } from 'process'
-import { Wallet } from '@ethersproject/wallet'
+import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts';
+import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet';
+import { exit } from 'process';
+import { Wallet } from '@ethersproject/wallet';
 
+const parseResult = (result: any) => {
+  const out: any = {};
 
-const parseResult = (result:any) => {
-  const out:any = {}
+  Object.keys(result).forEach((key: any) => {
+    if (isNaN(key)) {
+      const val = result[key] as any;
 
-  Object.keys(result).forEach((key:any) => {
-    if(isNaN(key)) {
-      const val = result[key] as any
-
-      if(val._isBigNumber) {
-        out[key] = val.toString()
+      if (val._isBigNumber) {
+        out[key] = val.toString();
       } else {
-        out[key] = result[key]
+        out[key] = result[key];
       }
     }
-  })
+  });
 
-  return out
-}
+  return out;
+};
 
-const node: CommandModule<{} & ContractsMiddlewareArguments & WalletMiddlewareArguments, {} & ContractsMiddlewareArguments & WalletMiddlewareArguments> = {
+const node: CommandModule<
+  {} & ContractsMiddlewareArguments & WalletMiddlewareArguments,
+  {} & ContractsMiddlewareArguments & WalletMiddlewareArguments
+> = {
   command: 'node',
   describe: 'get node info',
   builder: (yargs) => {
     return yargs
-      .config('config', configPath => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
+      .config('config', (configPath) => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
       .default('config', path.resolve(__dirname, '..', 'config', 'master.json'))
       .string(['emethContractAddress', 'tokenContractAddress', 'privateKey'])
-      .middleware([wallet, contracts])
+      .middleware([wallet, contracts]);
   },
   handler: async (args) => {
-    const { emeth } = args.contracts
-    const wallet = args.wallet as Wallet
+    const { emethCore } = args.contracts;
+    const wallet = args.wallet as Wallet;
 
-    const nodeAddress = (process.argv[3])? process.argv[3] : wallet.address
-    const node = await emeth.nodes(nodeAddress)
+    const nodeAddress = process.argv[3] ? process.argv[3] : wallet.address;
+    const node = await emethCore.nodes(nodeAddress);
 
-    console.log(parseResult(node))
+    console.log(parseResult(node));
 
-    exit()
-  }
-}
+    exit();
+  },
+};
 
-export = node
+export = node;

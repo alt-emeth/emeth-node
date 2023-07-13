@@ -1,3 +1,7 @@
 {
+  "endpoint": "https://polygon-mumbai.infura.io/v3/f13a495cc5d743048a4e3afb36ac0ffa",
   "cacheServerUrl": "https://emeth-cache.testnet.alt.ai/api/v1/jobs",
+  "emethCoreContractAddress": "0xf72B446f47A5C1517B0F7c77099B4baaE4dEe869",
+  "emethTokenContractAddress": "0xaa2b7BbEF0D8331b6bfE6ffa770c510F54AA95E5",
+  "privateKey": "0x7a496d19a6c9f95dd1bd08961787cb3d8920ad5175e0f0ef97a66e9a469d93b9"
 }

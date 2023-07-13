@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 library SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -23,27 +23,6 @@ library SafeMath {
         uint256 c = a + b;
         assert(c >= a);
         return c;
-    }
-}
-
-abstract contract AssignerRole {
-    address public assigner;
-
-    constructor () {
-        assigner = msg.sender;
-    }
-
-    modifier onlyAssigner() {
-        require(isAssigner(msg.sender), "Assignable: msg.sender does not have the Assigner role");
-        _;
-    }
-
-    function isAssigner(address _addr) public view returns (bool) {
-        return (_addr == assigner);
-    }
-
-    function setAssigner(address _addr) public onlyAssigner {
-        assigner = _addr;
     }
 }
 
@@ -83,30 +62,23 @@ contract EmethCore is VerifierRole {
     address owner;
 
     // Constants
-    uint256 constant REQUESTED = 0;
-    uint256 constant ASSIGNED = 1; // deprecated
+    uint256 constant REQUESTED = 1;
     uint256 constant PROCESSING = 2;
     uint256 constant SUBMITTED = 3;
     uint256 constant VERIFIED = 4;
-    uint256 constant REJECTED = 5;
-    uint256 constant CANCELED = 6;
-    uint256 constant TIMEOUT = 7;
-    uint256 constant FAILED = 8;
-    uint256 constant DECLINED = 9;
+    uint256 constant CANCELED = 5;
+    uint256 constant TIMEOUT = 6;
+    uint256 constant FAILED = 7;
+    uint256 constant DECLINED = 8;
 
     // Paramters
-    uint256 public TIMEOUT_PENALTY_RATE = 10000; // 10% of fee
-    uint256 public DECLINE_PENALTY_RATE = 10000; // 10% of fee
-    uint256 public FAILED_PENALTY_RATE = 100000; // 100% of fee
+    uint256 public TIMEOUT_PENALTY_RATE = 25000; // 25% of fee
+    uint256 public DECLINE_PENALTY_RATE = 25000; // 25% of fee
+    uint256 public FAILED_PENALTY_RATE = 25000; // 25% of fee
     uint256 public DEPOSIT_RATE = 100000; // 100% of fee
-    uint256 public MAX_SLOT_GAS_PER_NODE = 9000;
-    uint256 public VERIFIER_FEE = 10000000000000000000; // 10 EMT
-
-    // Paramters (deprecated)
-    //uint256 constant TIMEOUT_PENALTY = 10000000000000000000; // 10 EMT
-    //uint256 public constant MIN_DEPOSIT = 10000000000000000000000; // 10,000 * 1 EMT = 10,000 EMT
-    //uint256 public constant DEPOSIT_PER_CAPACITY = 1000000000000000000; // 1 EMT
-    //uint256 public ASSIGNER_FEE = 0; // 0 EMT
+    uint256 public MAX_SLOT_FUEL_PER_NODE = 10000000000;
+    //uint256 public VERIFIER_FEE = 10000000000000000000; // 10 EMT
+    uint256 public VERIFIER_FEE_RATE = 5000; // 5% of fee
 
     // EMT
     IERC20 immutable public emtToken;
@@ -117,49 +89,44 @@ contract EmethCore is VerifierRole {
     uint256 immutable public startSlot;
 
     // Slots
-    mapping (uint256 => uint256) private slotTotalGas; // (slotNumber => totalGas)
-    mapping (uint256 => mapping(address => uint256)) public slotGas; // (slotNumber => (nodeAddress => reward))
+    mapping (uint256 => uint256) private slotTotalFuel; // (slotNumber => totalFuel)
+    mapping (uint256 => mapping(address => uint256)) public slotFuel; // (slotNumber => (nodeAddress => reward))
     mapping (uint256 => mapping(address => uint256)) public slotBalances; // (slotNumber => (nodeAddress => reward))
     mapping (address => uint256[]) public nodeSlots; // (nodeAddress => listOfSlots) for iteration
     mapping (address => mapping(uint256 => bool)) public nodeSlotUnique; // (nodeAddress => (slot => bool)) for unique check
-
-    // Nodes
-    //mapping(address => Node) public nodes;
-    //address[] public nodeAddresses;
 
     // Jobs
     // (required)
     mapping(bytes16 => Job) public jobs;
     mapping(bytes16 => JobDetail) public jobDetails;
     mapping(bytes16 => JobAssign) public jobAssigns;
-
-    // (new)
+    mapping(address => bytes16[]) public jobAssignedHistory;
+    mapping(bytes16 => bytes16[]) public jobChildren;
     bytes16[] public jobIndexes;
 
-    // (deprecated)
-    //mapping(address => bytes16) public lastJobAssigned;
-    //mapping(address => bytes16[]) public jobAssignedHistory;
+    // Programs
+    mapping(uint256 => Program) public programs;
 
     // Events
-    event Penalty(address indexed nodeAddress, uint256 slashed);
-    event Request(address indexed owner, bytes16 indexed jobId, uint256 fee, uint256 deadline);
-    event Cancel(bytes16 indexed jobId);
-    event Status(bytes16 indexed jobId, address nodeAddress, uint256 status);
-    event Reward(address indexed nodeAddress, uint256 slot, uint256 gas);
+    event Status(bytes16 indexed jobId, address sender, uint256 status);
 
     // Structs
     struct Job {
         bool exist;
         bytes16 jobId;
+        bytes16 parentJob;
         address owner;
         uint256 deadline;
-        uint256 fee;
+        uint256 fuelLimit;
+        uint256 fuelPrice;
         uint256 status; //0: requested, 1: assigned, 2: processing, 3: completed, 4: canceled
         uint256 requestedAt;
     }
 
     struct JobDetail {
         uint256 programId;
+        uint256 numParallel;
+        uint256 numEpoch;
         string param;
         string dataset;
         string result;
@@ -168,10 +135,16 @@ contract EmethCore is VerifierRole {
     struct JobAssign {
         address node;
         uint256 deposit;
-        uint256 gas;
+        uint256 fuelUsed;
         uint256 startedAt;
         uint256 submittedAt;
         uint256 verifiedAt;
+    }
+
+    struct Program {
+        uint256 programId;
+        string programName;
+        uint256 algoComplexity;
     }
 
     modifier onlyOwner() {
@@ -200,29 +173,41 @@ contract EmethCore is VerifierRole {
     function request(
         bytes16 _jobId,
         uint256 _programId,
+        bytes16 _parentJob,
+        uint256 _numParallel,
+        uint256 _numEpoch,
         string calldata _dataset,
         string calldata _param,
-        uint256 _fee,
+        uint256 _fuelLimit,
+        uint256 _fuelPrice,
         uint256 _deadline
     ) external returns (bool) {
         require(!jobs[_jobId].exist, "Job ID already exists");
 
-        require(emtToken.balanceOf(msg.sender) >= _fee, 'EmethCore: insufficient balance for fee');
-        require(emtToken.allowance(msg.sender, address(this)) >= _fee, 'EmethCore: insufficient allowance for fee');
-        emtToken.transferFrom(msg.sender, address(this), _fee);
+        {
+          uint256 feeLimit = _fuelLimit.mul(_fuelPrice);
+          uint256 feeTotal = feeLimit.add(feeLimit.mul(VERIFIER_FEE_RATE).div(100000));
+          require(emtToken.balanceOf(msg.sender) >= feeTotal, "EmethCore: insufficient balance for feeTotal");
+          require(emtToken.allowance(msg.sender, address(this)) >= feeTotal, "EmethCore: insufficient allowance for feeTotal");
+          emtToken.transferFrom(msg.sender, address(this), feeTotal);
+        }
 
         jobs[_jobId] = Job({
             exist: true,
             jobId: _jobId,
+            parentJob: _parentJob,
             owner: msg.sender,
             deadline: _deadline,
-            fee: _fee,
+            fuelLimit: _fuelLimit,
+            fuelPrice: _fuelPrice,
             status: REQUESTED,
             requestedAt: block.timestamp
         });
 
         jobDetails[_jobId] = JobDetail({
             programId: _programId,
+            numParallel: _numParallel,
+            numEpoch: _numEpoch,
             param: _param,
             dataset: _dataset,
             result: ""
@@ -231,15 +216,16 @@ contract EmethCore is VerifierRole {
         jobAssigns[_jobId] = JobAssign({
             node: address(0),
             deposit: 0,
-            gas: 0,
+            fuelUsed: 0,
             startedAt: 0,
             submittedAt: 0,
             verifiedAt: 0
         });
 
         jobIndexes.push(_jobId);
+        if(_parentJob != bytes16(0)) jobChildren[_parentJob].push(_jobId); 
 
-        emit Request(msg.sender, _jobId, _fee, _deadline);
+        emit Status(_jobId, msg.sender, REQUESTED);
         return true;
     }
 
@@ -251,13 +237,16 @@ contract EmethCore is VerifierRole {
 
         job.status = CANCELED;
 
-        emtToken.transfer(msg.sender, job.fee);
+        uint256 feeLimit = job.fuelLimit.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 feeTotal = feeLimit.add(verifierFee);
+        emtToken.transfer(msg.sender, feeTotal);
 
-        emit Cancel(_jobId);
+        emit Status(_jobId, msg.sender, CANCELED);
         return true;
     }
 
-    // Functions for Node
+    // Functions for Node 
     function process(bytes16 _jobId) external returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
@@ -265,17 +254,20 @@ contract EmethCore is VerifierRole {
         require(job.exist, "EmethCore: job doesn't exist");
         require(job.status == REQUESTED);
 
-        uint256 deposit = job.fee * DEPOSIT_RATE / 100000;
+        uint256 feeLimit = job.fuelLimit.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 deposit = feeLimit.mul(DEPOSIT_RATE).div(100000);
         require(emtToken.balanceOf(msg.sender) >= deposit, "EmethCore: insufficient balance for deposit");
         require(emtToken.allowance(msg.sender, address(this)) >= deposit, "EmethCore: insufficient allowance for deposit");
-        emtToken.transferFrom(msg.sender, address(this), deposit);
+        emtToken.transferFrom(msg.sender, address(this), deposit.add(verifierFee));
 
         job.status = PROCESSING;
         jobAssign.node = msg.sender;
-        jobAssign.deposit = deposit;
+        jobAssign.deposit = deposit.add(verifierFee);
         jobAssign.startedAt = block.timestamp;
+        jobAssignedHistory[jobAssign.node].push(_jobId);
 
-        emit Status(_jobId, msg.sender, job.status);
+        emit Status(_jobId, msg.sender, PROCESSING);
         return true;
     }
 
@@ -289,31 +281,37 @@ contract EmethCore is VerifierRole {
         job.status = DECLINED;
 
         // Fee Refund
-        emtToken.transfer(job.owner, job.fee);
+        uint256 feeLimit = job.fuelLimit.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 feeTotal = feeLimit.add(verifierFee);
+        emtToken.transfer(job.owner, feeTotal);
 
         // Deposit Refund with Penalty
-        uint256 penalty = job.fee * DECLINE_PENALTY_RATE / 100000;
+        uint256 penalty = feeLimit.mul(DECLINE_PENALTY_RATE).div(100000);
         if(penalty < jobAssign.deposit) {
-            emtToken.transfer(msg.sender, jobAssign.deposit - penalty);
+            emtToken.transfer(msg.sender, jobAssign.deposit.sub(penalty));
+            emtToken.burn(penalty);
         }
 
-        emit Status(_jobId, jobAssign.node, job.status);
+        emit Status(_jobId, msg.sender, DECLINED);
         return true;
     }
 
-    function submit(bytes16 _jobId, string calldata _result) external onlyAssignedNode(_jobId) returns (bool) {
+    function submit(bytes16 _jobId, string calldata _result, uint256 _fuelUsed) external onlyAssignedNode(_jobId) returns (bool) {
         Job storage job = jobs[_jobId];
         JobDetail storage jobDetail = jobDetails[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
 
         require(job.exist, "EmethCore: job doesn't exist");
         require(job.status == PROCESSING, "EmethCore: job is not being processed");
+        require(job.fuelLimit >= _fuelUsed, "EmethCore: fuelUsed exceeds fuelLimit");
 
         job.status = SUBMITTED;
         jobDetail.result = _result;
+        jobAssign.fuelUsed = _fuelUsed;
         jobAssign.submittedAt = block.timestamp;
 
-        emit Status(_jobId, msg.sender, job.status);
+        emit Status(_jobId, msg.sender, SUBMITTED);
         return true;
     }
 
@@ -321,7 +319,7 @@ contract EmethCore is VerifierRole {
         require(_slot < block.timestamp.div(SLOT_INTERVAL), "The slot has not been closed");
         require(slotBalances[_slot][msg.sender] > 0, "The slot reward is empty");
 
-        uint256 reward = slotReward(_slot).mul(slotBalances[_slot][msg.sender]).div(slotTotalGas[_slot]);
+        uint256 reward = slotReward(_slot).mul(slotBalances[_slot][msg.sender]).div(slotTotalFuel[_slot]);
         emtToken.mint(msg.sender, reward);
 
         slotBalances[_slot][msg.sender] = 0;
@@ -330,7 +328,7 @@ contract EmethCore is VerifierRole {
     }
 
     // Functions for Verifier
-    function verify(bytes16 _jobId, uint256 _gas) external onlyVerifier returns (bool) {
+    function verify(bytes16 _jobId) external onlyVerifier returns (bool) {
         Job storage job = jobs[_jobId];
         JobAssign storage jobAssign = jobAssigns[_jobId];
 
@@ -338,18 +336,25 @@ contract EmethCore is VerifierRole {
         require(job.status == SUBMITTED, "EmethCore: job result is not submitted");
 
         job.status = VERIFIED;
-        jobAssign.gas = _gas;
 
         // Put in Reward Slot
-        uint256 slot = _putSlotReward(_jobId);
+        _putSlotReward(_jobId);
 
-        // Tx Fee
-        emtToken.transfer(verifier, VERIFIER_FEE);
-        emtToken.transfer(jobAssign.node, job.fee - VERIFIER_FEE);
+        // Return Deposit
+        emtToken.transfer(jobAssign.node, jobAssign.deposit);
 
-        emit Status(_jobId, jobAssign.node, job.status);
-        emit Reward(jobAssign.node, slot, jobAssign.gas);
+        // Distribute Fee
+        uint256 feeLimit = job.fuelLimit.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 feeUsed = jobAssign.fuelUsed.mul(job.fuelPrice);
+        uint256 refund = feeLimit.sub(feeUsed);
+        emtToken.transfer(jobAssign.node, feeUsed);
+        emtToken.transfer(job.owner, refund);
 
+        // Verifier Fee
+        emtToken.transfer(verifier, verifierFee);
+
+        emit Status(_jobId, msg.sender, VERIFIED);
         return true;
     }
 
@@ -358,20 +363,27 @@ contract EmethCore is VerifierRole {
         JobAssign storage jobAssign = jobAssigns[_jobId];
 
         require(job.exist, "EmethCore: job doesn't exist");
-        require(job.status == PROCESSING, "EmethCore: job is not being processed");
-
+        require(job.status == PROCESSING || job.status == REQUESTED, "EmethCore: job is not in requested or processing status");
+        require(job.deadline <= block.timestamp, "EmethCore: still earlier than the deadline");
+       
         job.status = TIMEOUT;
 
         // Tx Fee Refund
-        emtToken.transfer(job.owner, job.fee);
+        uint256 feeLimit = jobAssign.fuelUsed.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 feeTotal = feeLimit.add(verifierFee);
+        emtToken.transfer(job.owner, feeTotal);
 
         // Deposit Refund with Penalty
-        uint256 penalty = job.fee * TIMEOUT_PENALTY_RATE / 100000;
-        if(penalty < jobAssign.deposit) {
-            emtToken.transfer(jobAssign.node, jobAssign.deposit - penalty);
+        if(job.status == PROCESSING) {
+            uint256 penalty = feeLimit.mul(TIMEOUT_PENALTY_RATE).div(100000);
+            if(penalty < jobAssign.deposit) {
+                emtToken.transfer(jobAssign.node, jobAssign.deposit.sub(penalty));
+                emtToken.burn(penalty);
+            }
         }
 
-        emit Status(_jobId, jobAssign.node, job.status);
+        emit Status(_jobId, msg.sender, TIMEOUT);
         return true;
     }
 
@@ -385,21 +397,38 @@ contract EmethCore is VerifierRole {
         job.status = FAILED;
 
         // Tx Fee Refund
-        emtToken.transfer(job.owner, job.fee);
+        uint256 feeLimit = jobAssign.fuelUsed.mul(job.fuelPrice);
+        uint256 verifierFee = feeLimit.mul(VERIFIER_FEE_RATE).div(100000);
+        uint256 feeTotal = feeLimit.add(verifierFee);
+        emtToken.transfer(job.owner, feeTotal);
 
         // Deposit Refund with Penalty
-        uint256 penalty = job.fee * FAILED_PENALTY_RATE / 100000 + VERIFIER_FEE;
+        uint256 penalty = feeLimit.mul(FAILED_PENALTY_RATE).div(100000);
         if(penalty < jobAssign.deposit) {
-            emtToken.transfer(jobAssign.node, jobAssign.deposit - penalty);
+            emtToken.transfer(jobAssign.node, jobAssign.deposit.sub(verifierFee).sub(penalty));
+            emtToken.burn(penalty);
         }
 
-        emit Status(_jobId, jobAssign.node, job.status);
+        // Verifier Fee
+        emtToken.transfer(verifier, verifierFee);
+
+        emit Status(_jobId, msg.sender, FAILED);
+        return true;
+    }
+
+    // Admin
+    function setProgram(uint256 _programId, string memory _programName, uint256 _algoComplexity) external onlyOwner returns (bool) {
+        programs[_programId] = Program(_programId, _programName, _algoComplexity);
         return true;
     }
 
     // Utilities
     // Public
-    function getEstimatedGas(uint256 _datasetSizeMB, uint256 _algoComplexity) external pure returns (uint256) {
+    function jobAssignedCount(address _node) external view returns (uint256) {
+        return jobAssignedHistory[_node].length;
+    }
+
+    function getEstimatedFuel(uint256 _datasetSizeMB, uint256 _algoComplexity) external pure returns (uint256) {
         return _datasetSizeMB.mul(_algoComplexity).div(1000);
     }
 
@@ -415,8 +444,8 @@ contract EmethCore is VerifierRole {
         return nodeSlots[_node].length;
     }
 
-    function slots(uint256 _slot) external view returns (uint256 _totalGas, uint256 _totalReward) {
-        return (slotTotalGas[_slot], slotReward(_slot));
+    function slots(uint256 _slot) external view returns (uint256 _totalFuel, uint256 _totalReward) {
+        return (slotTotalFuel[_slot], slotReward(_slot));
     }
 
     // Private
@@ -425,14 +454,14 @@ contract EmethCore is VerifierRole {
         address node = jobAssigns[_jobId].node;
         uint256 slot = block.timestamp.div(SLOT_INTERVAL);
 
-        uint256 gasCounted = jobAssign.gas;
-        if(slotGas[slot][node].add(jobAssign.gas) >= MAX_SLOT_GAS_PER_NODE) {
-            gasCounted = MAX_SLOT_GAS_PER_NODE - slotGas[slot][node];
+        uint256 fuelCounted = jobAssign.fuelUsed;
+        if(slotFuel[slot][node].add(jobAssign.fuelUsed) >= MAX_SLOT_FUEL_PER_NODE) {
+            fuelCounted = MAX_SLOT_FUEL_PER_NODE - slotFuel[slot][node];
         }
 
-        slotTotalGas[slot] = slotTotalGas[slot].add(gasCounted);
-        slotGas[slot][node] = slotGas[slot][node].add(gasCounted);
-        slotBalances[slot][node] = slotBalances[slot][node].add(gasCounted);
+        slotTotalFuel[slot] = slotTotalFuel[slot].add(fuelCounted);
+        slotFuel[slot][node] = slotFuel[slot][node].add(fuelCounted);
+        slotBalances[slot][node] = slotBalances[slot][node].add(fuelCounted);
         if(!nodeSlotUnique[node][slot]) {
             nodeSlots[node].push(slot);
             nodeSlotUnique[node][slot] = true;

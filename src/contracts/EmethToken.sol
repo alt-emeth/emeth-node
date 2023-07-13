@@ -10,7 +10,7 @@ contract EmethToken {
   string public name = "Emeth";
   string public symbol = "EMT";
   uint256 public decimals = 18;
-  uint256 public totalSupply = 0;
+  uint256 public totalSupply = 10000000000000000000000;
   
   address public owner;
   address public minter;

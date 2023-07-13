@@ -1,102 +1,164 @@
-import axios from 'axios'
-import AxiosMockAdapter from 'axios-mock-adapter'
-import Express from 'express'
-import fs, { mkdtempSync } from 'fs'
-import { tmpdir } from 'os'
-import path from 'path'
-import request from 'supertest'
+import axios from 'axios';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import * as crypto from 'crypto';
+import { BigNumber, Contract, Wallet, constants, ethers } from 'ethers';
+import * as fs from 'fs';
+import * as path from 'path';
 
-import worker from '../worker'
+import walletMiddleware from '../../middlewares/wallet';
+import contractsMiddleware from '../../middlewares/contracts';
+import worker from '../worker';
 
-const axiosMock = new AxiosMockAdapter(axios)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const solc = require('solc');
 
-let app: Express.Application
+const provider = new ethers.providers.WebSocketProvider('ws://ethereum:8546');
+
+let wallet: Wallet;
+let emethCoreContract: Contract, emethTokenContract: Contract;
 
 beforeAll(async () => {
-  axiosMock.onPost('http://127.0.0.1:5000/api/v1/connect').reply(200, {
-  })
+  const networkOwner = provider.getUncheckedSigner();
+  const deployerWallet = ethers.Wallet.createRandom().connect(provider);
 
-  Express.application.listen = jest.fn().mockImplementation(function (this: Express.Application) {
-    app = this
+  wallet = ethers.Wallet.createRandom().connect(provider);
 
-    return {}
-  })
+  await Promise.all([
+    (
+      await networkOwner.sendTransaction({
+        to: deployerWallet.address,
+        value: BigNumber.from('1000000000000000000'),
+      })
+    ).wait(),
+    (
+      await networkOwner.sendTransaction({
+        to: wallet.address,
+        value: BigNumber.from('1000000000000000000'),
+      })
+    ).wait(),
+  ]);
 
-  const fakeParallelGPTPath = mkdtempSync(path.join(tmpdir(), 'emeth-node-test-'))
+  const output = JSON.parse(
+    solc.compile(
+      JSON.stringify({
+        language: 'Solidity',
+        sources: {
+          'EmethToken.sol': {
+            content: fs.readFileSync(
+              path.join(__dirname, '/../../contracts/EmethToken.sol'),
+              'utf8',
+            ),
+          },
+          'EmethCore.sol': {
+            content: fs.readFileSync(
+              path.join(__dirname, '/../../contracts/EmethCore.sol'),
+              'utf8',
+            ),
+          },
+        },
+        settings: {
+          evmVersion: 'paris',
+          optimizer: {
+            enabled: true,
+          },
+          outputSelection: {
+            '*': {
+              '*': ['*'],
+            },
+          },
+        },
+      }),
+    ),
+  );
 
-  fs.writeFileSync(path.join(fakeParallelGPTPath, 'WN.py'), `
-import argparse
-import time
+  emethTokenContract = await new ethers.ContractFactory(
+    output.contracts['EmethToken.sol'].EmethToken.abi,
+    '0x' + output.contracts['EmethToken.sol'].EmethToken.evm.bytecode.object,
+    deployerWallet,
+  ).deploy();
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--train_data_file')
-parser.add_argument('--output_dir')
-parser.add_argument('--rank')
-parser.add_argument('--master_ip')
-parser.add_argument('--master_port')
-parser.add_argument('--log_file')
-parser.add_argument('--timeout')
-parser.add_argument('--test_data')
-parser.add_argument('--train_batch_size')
-parser.add_argument('--device')
+  emethCoreContract = await new ethers.ContractFactory(
+    output.contracts['EmethCore.sol'].EmethCore.abi,
+    '0x' + output.contracts['EmethCore.sol'].EmethCore.evm.bytecode.object,
+    deployerWallet,
+  ).deploy(emethTokenContract.address);
 
-args = parser.parse_args()
+  await (
+    await emethTokenContract.transfer(wallet.address, BigNumber.from('1000000000000000000'))
+  ).wait();
+}, 30000);
 
-with open(args.log_file, mode='w') as f:
-  time.sleep(5)
-  f.write('{"status": "READY"}\\n')
-  f.close()
+const axiosMock = new AxiosMockAdapter(axios);
 
-time.sleep(5)
-`)
+afterAll(() => {
+  provider._websocket.close();
+});
+
+afterEach(() => {
+  axiosMock.reset();
+});
+
+test('Worker', async () => {
+  await (await emethTokenContract.approve(emethCoreContract.address, constants.MaxUint256)).wait();
+
+  const jobId = '0x' + crypto.randomBytes(16).toString('hex');
+
+  await (
+    await emethCoreContract.request(
+      jobId,
+      999,
+      '0x00000000000000000000000000000000',
+      1,
+      1,
+      'test-dataset-programid-999.zip',
+      JSON.stringify({ param1: Math.random(), param2: Math.random(), param3: Math.random() }),
+      20000,
+      1000000000,
+      Math.floor(new Date().getTime() / 1000) + 60,
+    )
+  ).wait();
+
+  axiosMock.onGet('https://emeth-cache.testnet.alt.ai/api/v1/jobs?status=1').replyOnce(200, [
+    {
+      id: jobId,
+      parentId: '0x00000000000000000000000000000000',
+      programId: 999,
+      param: '{"param1":0.5498437231321065,"param2":0.974225145828256,"param3":0.8518194778383965}',
+      numParallel: 1,
+      numEpoch: 1,
+      dataset: 'dataset-sample-0x2511c4f21e9f45b89a9e9164a3b4b4e7',
+      deadline: 1690668493,
+      fuelLimit: '20000',
+      fuelPrice: '1000000000',
+      fuelUsed: '0',
+      result: null,
+      requester: '0x408E40781B760f8f9d51CE9DCF980DCF4be4FEe9',
+      assignedNode: null,
+      status: 1,
+      created: '2023-06-29T22:08:22.000Z',
+      updated: '2023-06-29T22:08:22.000Z',
+    },
+  ]);
+
+  axiosMock.onGet('https://emeth-cache.testnet.alt.ai/api/v1/jobs?status=1').reply(200, []);
 
   const args = {
     _: [],
     $0: 'worker',
-    device: 'cpu',
-    logger: console as any,
-    masterIp: '127.0.0.1',
-    parallelGPTPath: fakeParallelGPTPath,
-    powerCapacity: 25000
-  }
-  //await worker.handler(args)
-})
+    cacheServerUrl: 'https://emeth-cache.testnet.alt.ai/api/v1/jobs',
+    emethCoreContractAddress: emethCoreContract.address,
+    emethTokenContractAddress: emethTokenContract.address,
+    endpoint: 'ws://ethereum:8546/',
+    interval: 10000,
+    iterations: 1,
+    privateKey: wallet.privateKey,
+    logger: console,
+  } as any;
 
-test('Worker has "None" status', async () => {
-  await request(app).get('/api/v1/mode').expect(200, { result: 'None' })
-})
+  await walletMiddleware(args);
+  await contractsMiddleware(args);
 
-test('Worker can be made to have "WaitData" status', async () => {
-  await request(app).post('/api/v1/waitData')
-  await request(app).get('/api/v1/mode').expect(200, { result: 'WaitData' })
-})
+  await worker.handler(args);
 
-test('Worker can spawn WN.py', async () => {
-  await request(app).post('/api/v1/ready').type('json').send({
-    train_data_file: 'train_data_file',
-    test_data_file: 'test_data_file',
-    output_dir: 'output_dir',
-    master_port: 5000,
-    jobId: 'jobId'
-  })
-
-  await request(app).get('/api/v1/mode').expect(200, { result: 'Ready' })
-
-  for (let i = 0; i < 10; i++) {
-    if ((await request(app).get('/api/v1/mode')).body.result === 'Idle') {
-      break
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 1000))
-  }
-
-  for (let i = 0; i < 10; i++) {
-    if ((await request(app).get('/api/v1/mode')).body.result === 'None') {
-      break
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 1000))
-  }
-
-  await new Promise(resolve => setTimeout(resolve, 3000))
-}, 30000)
+  args.wallet.provider._websocket.close();
+}, 60000);

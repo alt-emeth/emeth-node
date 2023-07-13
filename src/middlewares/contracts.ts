@@ -1,23 +1,31 @@
-import { ethers } from 'ethers'
-import { Arguments } from 'yargs'
+import { Contract, Wallet } from 'ethers';
+import { Arguments } from 'yargs';
 
-import { Emeth, EmethToken } from '../types/contracts'
+import { EmethCore, EmethToken } from '../types/contracts';
 
 export interface ContractsMiddlewareArguments {
   contracts: {
-    emeth: Emeth
-    emethToken: EmethToken
-  }
+    emethCore: EmethCore;
+    emethToken: EmethToken;
+  };
 }
 
-export default function contracts (args: Arguments): void {
+export default function contracts(args: Arguments): void {
   const abis = {
-    emeth: require('../contracts/emeth.json'),
-    emethToken: require('../contracts/emeth-token.json')
-  }
+    emethCore: require('../contracts/emeth-core.json'),
+    emethToken: require('../contracts/emeth-token.json'),
+  };
 
   args.contracts = {
-    emeth: new ethers.Contract(args.emethContractAddress as string, abis.emeth, args.wallet as ethers.Wallet),
-    emethToken: new ethers.Contract(args.tokenContractAddress as string, abis.emethToken, args.wallet as ethers.Wallet)
-  }
+    emethCore: new Contract(
+      args.emethCoreContractAddress as string,
+      abis.emethCore,
+      args.wallet as Wallet,
+    ),
+    emethToken: new Contract(
+      args.emethTokenContractAddress as string,
+      abis.emethToken,
+      args.wallet as Wallet,
+    ),
+  };
 }
