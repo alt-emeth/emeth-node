@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { constants } from 'ethers';
 import fs from 'fs';
+import { writeFile } from 'fs/promises';
 import interval from 'interval-promise';
 import path from 'path';
+import { setTimeout } from 'timers/promises';
+import tmp from 'tmp-promise';
 import { CommandModule } from 'yargs';
 
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts';
@@ -17,6 +20,7 @@ const worker: CommandModule<
       interval: number;
       iterations?: number;
       emethCoreContractAddress: string;
+      storageApiUrl: string;
     },
   LoggerMiddlewareArguments &
     ContractsMiddlewareArguments &
@@ -25,6 +29,7 @@ const worker: CommandModule<
       interval: number;
       iterations?: number;
       emethCoreContractAddress: string;
+      storageApiUrl: string;
     }
 > = {
   command: 'worker',
@@ -79,7 +84,7 @@ const worker: CommandModule<
             return job2.fuelLimit * job2.fuelPrice - job1.fuelLimit * job1.fuelPrice;
           });
 
-          const job = jobs[0];
+          let job = jobs[0];
 
           logger.info(`[Job ID:${job.id}] Starting to process...`);
 
@@ -91,6 +96,45 @@ const worker: CommandModule<
           ).wait();
 
           await (await argv.contracts.emethCore.process(job.id)).wait();
+
+          logger.info(`[Job ID:${job.id}] Waiting cache server to update...`);
+
+          while (true) {
+            const cacheServerUrl = new URL(argv.cacheServerUrl);
+            cacheServerUrl.searchParams.append('id', job.id);
+
+            const response = await axios(cacheServerUrl.toString(), {
+              responseType: 'json',
+            });
+
+            const json = response.data;
+
+            if (json.id == job.id && json.status == 2) {
+              job = json;
+
+              break;
+            }
+
+            await setTimeout(10000);
+          }
+
+          logger.info(`[Job ID:${job.id}] Downloading dataset from storage...`);
+
+          const signature = await argv.wallet.signMessage(job.id);
+
+          const downloadUrl = new URL('download', argv.storageApiUrl);
+          downloadUrl.searchParams.append('type', 'input');
+          downloadUrl.searchParams.append('jobId', job.id);
+          downloadUrl.searchParams.append('signature', signature);
+
+          const downloadResponse = await axios(downloadUrl.toString());
+
+          if (!downloadResponse.data) {
+            return;
+          }
+
+          const tmpName = await tmp.tmpName();
+          await writeFile(tmpName, downloadResponse.data);
 
           logger.info(`[Job ID:${job.id}] Submitting the result...`);
 

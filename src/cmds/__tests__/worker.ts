@@ -9,6 +9,9 @@ import walletMiddleware from '../../middlewares/wallet';
 import contractsMiddleware from '../../middlewares/contracts';
 import worker from '../worker';
 
+const jobs: any[] = [];
+const axiosMock = new AxiosMockAdapter(axios);
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require('solc');
 
@@ -83,22 +86,24 @@ beforeAll(async () => {
     deployerWallet,
   ).deploy(emethTokenContract.address);
 
+  emethCoreContract.on(emethCoreContract.filters['Status'](), (jobId, sender, status) => {
+    const job = jobs.filter((job) => job.id == jobId)[0];
+
+    if (!job) {
+      return;
+    }
+
+    job.status = status.toNumber();
+
+    if (job.status == 2) {
+      job.assignedNode = sender;
+    }
+  });
+
   await (
     await emethTokenContract.transfer(wallet.address, BigNumber.from('1000000000000000000'))
   ).wait();
-}, 30000);
 
-const axiosMock = new AxiosMockAdapter(axios);
-
-afterAll(() => {
-  provider._websocket.close();
-});
-
-afterEach(() => {
-  axiosMock.reset();
-});
-
-test('Worker', async () => {
   await (await emethTokenContract.approve(emethCoreContract.address, constants.MaxUint256)).wait();
 
   const jobId = '0x' + crypto.randomBytes(16).toString('hex');
@@ -118,34 +123,58 @@ test('Worker', async () => {
     )
   ).wait();
 
-  axiosMock.onGet('https://emeth-cache.testnet.alt.ai/api/v1/jobs?status=1').replyOnce(200, [
-    {
-      id: jobId,
-      parentId: '0x00000000000000000000000000000000',
-      programId: 999,
-      param: '{"param1":0.5498437231321065,"param2":0.974225145828256,"param3":0.8518194778383965}',
-      numParallel: 1,
-      numEpoch: 1,
-      dataset: 'dataset-sample-0x2511c4f21e9f45b89a9e9164a3b4b4e7',
-      deadline: 1690668493,
-      fuelLimit: '20000',
-      fuelPrice: '1000000000',
-      fuelUsed: '0',
-      result: null,
-      requester: '0x408E40781B760f8f9d51CE9DCF980DCF4be4FEe9',
-      assignedNode: null,
-      status: 1,
-      created: '2023-06-29T22:08:22.000Z',
-      updated: '2023-06-29T22:08:22.000Z',
-    },
-  ]);
+  jobs.push({
+    id: jobId,
+    parentId: '0x00000000000000000000000000000000',
+    programId: 999,
+    param: '{"param1":0.5498437231321065,"param2":0.974225145828256,"param3":0.8518194778383965}',
+    numParallel: 1,
+    numEpoch: 1,
+    dataset: 'dataset-sample-0x2511c4f21e9f45b89a9e9164a3b4b4e7',
+    deadline: 1690668493,
+    fuelLimit: '20000',
+    fuelPrice: '1000000000',
+    fuelUsed: '0',
+    result: null,
+    requester: '0x408E40781B760f8f9d51CE9DCF980DCF4be4FEe9',
+    assignedNode: null,
+    status: 1,
+    created: '2023-06-29T22:08:22.000Z',
+    updated: '2023-06-29T22:08:22.000Z',
+  });
 
-  axiosMock.onGet('https://emeth-cache.testnet.alt.ai/api/v1/jobs?status=1').reply(200, []);
+  axiosMock.onGet(/https:\/\/emeth-cache\.testnet\.alt\.ai\/api\/v1\/jobs\?.*/).reply((config) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const url = new URL(config.url!);
 
+    if (url.searchParams.get('id')) {
+      return [200, jobs.filter((job) => job.id == url.searchParams.get('id'))[0]];
+    } else if (url.searchParams.get('status')) {
+      return [200, jobs.filter((job) => job.status == url.searchParams.get('status'))];
+    }
+
+    return [200, jobs];
+  });
+
+  axiosMock
+    .onGet(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/download(\?.*)?/)
+    .reply(200, 'TEST');
+}, 30000);
+
+afterAll(() => {
+  provider._websocket.close();
+});
+
+afterEach(() => {
+  axiosMock.reset();
+});
+
+test('Worker', async () => {
   const args = {
     _: [],
     $0: 'worker',
     cacheServerUrl: 'https://emeth-cache.testnet.alt.ai/api/v1/jobs',
+    storageApiUrl: 'https://emeth-storage.testnet.alt.ai/api/v1/',
     emethCoreContractAddress: emethCoreContract.address,
     emethTokenContractAddress: emethTokenContract.address,
     endpoint: 'ws://ethereum:8546/',
