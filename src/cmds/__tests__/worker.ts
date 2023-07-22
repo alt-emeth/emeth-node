@@ -159,6 +159,8 @@ beforeAll(async () => {
   axiosMock
     .onGet(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/download(\?.*)?/)
     .reply(200, 'TEST');
+
+  axiosMock.onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload(\?.*)?/).reply(200);
 }, 30000);
 
 afterAll(() => {

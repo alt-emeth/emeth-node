@@ -19,6 +19,7 @@
   "dependencies": {
     "axios": "^1.4.0",
     "ethers": "^5.0.32",
+    "form-data": "^4.0.0",
     "interval-promise": "^1.4.0",
     "knex": "^0.95.2",
     "log4js": "6.9.1",

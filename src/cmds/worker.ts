@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { constants } from 'ethers';
+import FormData from 'form-data';
 import fs from 'fs';
 import { writeFile } from 'fs/promises';
 import interval from 'interval-promise';
@@ -135,6 +136,23 @@ const worker: CommandModule<
 
           const tmpName = await tmp.tmpName();
           await writeFile(tmpName, downloadResponse.data);
+
+          logger.info(`[Job ID:${job.id}] Uploading the result to storage...`);
+
+          const uploadUrl = new URL('upload', argv.storageApiUrl);
+
+          const uploadFormData = new FormData();
+          uploadFormData.append('type', 'input');
+          uploadFormData.append('jobId', job.id);
+          uploadFormData.append('file', fs.createReadStream(tmpName), {
+            filename: 'test.zip',
+            contentType: 'application/zip',
+          });
+
+          await axios(uploadUrl.toString(), {
+            method: 'POST',
+            data: uploadFormData,
+          });
 
           logger.info(`[Job ID:${job.id}] Submitting the result...`);
 
