@@ -4,6 +4,8 @@ import * as crypto from 'crypto';
 import { BigNumber, Contract, Wallet, constants, ethers } from 'ethers';
 import * as fs from 'fs';
 import * as path from 'path';
+import tmp from 'tmp-promise';
+import { zip } from 'zip-a-folder';
 
 import walletMiddleware from '../../middlewares/wallet';
 import contractsMiddleware from '../../middlewares/contracts';
@@ -156,9 +158,16 @@ beforeAll(async () => {
     return [200, jobs];
   });
 
+  const zipFilePath = await tmp.tmpName();
+  const srcFolder = await tmp.dir();
+
+  await fs.promises.writeFile(path.join(srcFolder.path, `input-${jobId}.dat`), '2\r\n1\r\n');
+
+  await zip(srcFolder.path, zipFilePath);
+
   axiosMock
     .onGet(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/download(\?.*)?/)
-    .reply(200, 'TEST');
+    .reply(200, fs.createReadStream(zipFilePath));
 
   axiosMock.onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload(\?.*)?/).reply(200);
 }, 30000);

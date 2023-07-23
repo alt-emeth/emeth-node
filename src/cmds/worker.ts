@@ -2,12 +2,13 @@ import axios from 'axios';
 import { constants } from 'ethers';
 import FormData from 'form-data';
 import fs from 'fs';
-import { writeFile } from 'fs/promises';
 import interval from 'interval-promise';
 import path from 'path';
 import { setTimeout } from 'timers/promises';
 import tmp from 'tmp-promise';
+import unzipper from 'unzipper';
 import { CommandModule } from 'yargs';
+import { zip } from 'zip-a-folder';
 
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts';
 import logger, { LoggerMiddlewareArguments } from '../middlewares/logger';
@@ -128,31 +129,58 @@ const worker: CommandModule<
           downloadUrl.searchParams.append('jobId', job.id);
           downloadUrl.searchParams.append('signature', signature);
 
-          const downloadResponse = await axios(downloadUrl.toString());
+          const downloadResponse = await axios(downloadUrl.toString(), {
+            responseType: 'stream',
+          });
 
           if (!downloadResponse.data) {
             return;
           }
 
-          const tmpName = await tmp.tmpName();
-          await writeFile(tmpName, downloadResponse.data);
+          const data = downloadResponse.data;
 
-          logger.info(`[Job ID:${job.id}] Uploading the result to storage...`);
+          await tmp.withDir(
+            async (inputDir) => {
+              logger.info(`[Job ID:${job.id}] Unzipping dataset...`);
 
-          const uploadUrl = new URL('upload', argv.storageApiUrl);
+              const unzip = unzipper.Extract({ path: inputDir.path });
 
-          const uploadFormData = new FormData();
-          uploadFormData.append('type', 'input');
-          uploadFormData.append('jobId', job.id);
-          uploadFormData.append('file', fs.createReadStream(tmpName), {
-            filename: 'test.zip',
-            contentType: 'application/zip',
-          });
+              data.pipe(unzip);
 
-          await axios(uploadUrl.toString(), {
-            method: 'POST',
-            data: uploadFormData,
-          });
+              await unzip.promise();
+
+              await tmp.withDir(
+                async (outputDir) => {
+                  fs.writeFileSync(outputDir.path + '/test', 'TEST');
+
+                  await tmp.withFile(async (outputFile) => {
+                    logger.info(`[Job ID:${job.id}] Zipping output...`);
+
+                    await zip(outputDir.path, outputFile.path);
+
+                    logger.info(`[Job ID:${job.id}] Uploading output to storage...`);
+
+                    const uploadUrl = new URL('upload', argv.storageApiUrl);
+
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('type', 'output');
+                    uploadFormData.append('jobId', job.id);
+                    uploadFormData.append('file', fs.createReadStream(outputFile.path), {
+                      filename: `output-${job.id}.zip`,
+                      contentType: 'application/zip',
+                    });
+
+                    await axios(uploadUrl.toString(), {
+                      method: 'POST',
+                      data: uploadFormData,
+                    });
+                  });
+                },
+                { unsafeCleanup: true },
+              );
+            },
+            { unsafeCleanup: true },
+          );
 
           logger.info(`[Job ID:${job.id}] Submitting the result...`);
 

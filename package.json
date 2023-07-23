@@ -27,13 +27,16 @@
     "mysql": "2.18.1",
     "sqlite3": "5.1.6",
     "tmp-promise": "^3.0.3",
-    "yargs": "^16.2.0"
+    "unzipper": "^0.10.14",
+    "yargs": "^16.2.0",
+    "zip-a-folder": "^2.0.0"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^6.0.5",
     "@types/express": "4.17.7",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.16.19",
+    "@types/unzipper": "^0.10.6",
     "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
