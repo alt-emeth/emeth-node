@@ -151,7 +151,20 @@ const worker: CommandModule<
 
               await tmp.withDir(
                 async (outputDir) => {
-                  fs.writeFileSync(outputDir.path + '/test', 'TEST');
+                  logger.info(
+                    `[Job ID:${job.id}] Executing processor for program ID: ${job.programId}...`,
+                  );
+
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  const processor = require(path.join(
+                    __dirname,
+                    '..',
+                    '..',
+                    'emeth_modules',
+                    `${job.programId}.js`,
+                  )) as (job: unknown, inputDir: string, outputDir: string) => Promise<void>;
+
+                  await processor(job, inputDir.path, outputDir.path);
 
                   await tmp.withFile(async (outputFile) => {
                     logger.info(`[Job ID:${job.id}] Zipping output...`);
