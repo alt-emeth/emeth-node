@@ -120,16 +120,20 @@ const worker: CommandModule<
             await setTimeout(10000);
           }
 
-          logger.info(`[Job ID:${job.id}] Downloading dataset from storage...`);
+          logger.info(`[Job ID:${job.id}] Getting presigned download URL...`);
 
           const signature = await argv.wallet.signMessage(job.id);
 
-          const downloadUrl = new URL('download', argv.storageApiUrl);
-          downloadUrl.searchParams.append('type', 'input');
-          downloadUrl.searchParams.append('jobId', job.id);
-          downloadUrl.searchParams.append('signature', signature);
+          const downloadApiUrl = new URL('download', argv.storageApiUrl);
+          downloadApiUrl.searchParams.append('jobId', job.id);
+          downloadApiUrl.searchParams.append('type', 'input');
+          downloadApiUrl.searchParams.append('signature', signature);
 
-          const downloadResponse = await axios(downloadUrl.toString(), {
+          const downloadApiResponse = await axios(downloadApiUrl.toString());
+
+          logger.info(`[Job ID:${job.id}] Downloading dataset from storage...`);
+
+          const downloadResponse = await axios(downloadApiResponse.data.downloadUrl, {
             responseType: 'stream',
           });
 

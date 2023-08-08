@@ -167,7 +167,11 @@ beforeAll(async () => {
 
   axiosMock
     .onGet(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/download(\?.*)?/)
-    .reply(200, fs.createReadStream(zipFilePath));
+    .reply(200, {
+      downloadUrl: 'http://s3/',
+    });
+
+  axiosMock.onGet(/http:\/\/s3/).reply(200, fs.createReadStream(zipFilePath));
 
   axiosMock.onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload(\?.*)?/).reply(200);
 }, 30000);
