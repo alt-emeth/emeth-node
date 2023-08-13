@@ -173,7 +173,25 @@ beforeAll(async () => {
 
   axiosMock.onGet(/http:\/\/s3/).reply(200, fs.createReadStream(zipFilePath));
 
-  axiosMock.onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload(\?.*)?/).reply(200);
+  axiosMock
+    .onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload\/presigned-url/)
+    .reply(200, {
+      fileName: `output/output-${jobId}.zip`,
+      uploadId: jobId,
+      preSignedUrls: [{ part: 1, url: 'http://s3/' }],
+    });
+
+  axiosMock.onPut(/http:\/\/s3/).reply(
+    200,
+    {},
+    {
+      etag: crypto.createHash('sha256').update(jobId).digest('hex'),
+    },
+  );
+
+  axiosMock
+    .onPost(/https:\/\/emeth-storage\.testnet\.alt\.ai\/api\/v1\/upload\/complete/)
+    .reply(200);
 }, 30000);
 
 afterAll(() => {

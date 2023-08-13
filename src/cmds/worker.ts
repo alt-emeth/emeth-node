@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { constants } from 'ethers';
-import FormData from 'form-data';
 import fs from 'fs';
 import interval from 'interval-promise';
 import path from 'path';
@@ -177,20 +176,85 @@ const worker: CommandModule<
 
                     logger.info(`[Job ID:${job.id}] Uploading output to storage...`);
 
-                    const uploadUrl = new URL('upload', argv.storageApiUrl);
+                    let outputFileHandle: fs.promises.FileHandle | null = null;
+                    try {
+                      // each part is 5MiB
+                      const partSize = 5 * 1024 * 1024;
 
-                    const uploadFormData = new FormData();
-                    uploadFormData.append('type', 'output');
-                    uploadFormData.append('jobId', job.id);
-                    uploadFormData.append('file', fs.createReadStream(outputFile.path), {
-                      filename: `output-${job.id}.zip`,
-                      contentType: 'application/zip',
-                    });
+                      logger.info(`[Job ID:${job.id}] Getting presigned upload URLs...`);
 
-                    await axios(uploadUrl.toString(), {
-                      method: 'POST',
-                      data: uploadFormData,
-                    });
+                      const uploadPresignedUrlApiUrl = new URL(
+                        'upload/presigned-url',
+                        argv.storageApiUrl,
+                      );
+
+                      const uploadPresignedUrlApiResponse = await axios(
+                        uploadPresignedUrlApiUrl.toString(),
+                        {
+                          method: 'POST',
+                          data: {
+                            type: 'output',
+                            jobId: job.id,
+                            parts: Math.ceil(fs.statSync(outputFile.path).size / partSize),
+                          },
+                        },
+                      );
+
+                      const {
+                        fileName,
+                        uploadId,
+                        preSignedUrls,
+                      }: {
+                        fileName: string;
+                        uploadId: string;
+                        preSignedUrls: { part: number; url: string }[];
+                      } = uploadPresignedUrlApiResponse.data;
+
+                      outputFileHandle = await fs.promises.open(outputFile.path);
+
+                      const parts = [];
+                      const buffer = Buffer.alloc(partSize);
+
+                      for (const preSignedUrl of preSignedUrls) {
+                        logger.info(`[Job ID:${job.id}] Uploading part #${preSignedUrl.part}...`);
+
+                        const { bytesRead } = await outputFileHandle.read(
+                          buffer,
+                          0,
+                          partSize,
+                          (preSignedUrl.part - 1) * partSize,
+                        );
+
+                        const uploadPartResponse = await axios(preSignedUrl.url, {
+                          method: 'PUT',
+                          data: buffer,
+                          headers: {
+                            'Content-Type': 'application/octet-stream',
+                            'Content-Length': bytesRead,
+                          },
+                        });
+
+                        parts.push({
+                          ETag: uploadPartResponse.headers['etag'].replaceAll('"', ''),
+                          PartNumber: preSignedUrl.part,
+                        });
+                      }
+
+                      logger.info(`[Job ID:${job.id}] Completing upload...`);
+
+                      const uploadCompleteApiUrl = new URL('upload/complete', argv.storageApiUrl);
+
+                      await axios(uploadCompleteApiUrl.toString(), {
+                        method: 'POST',
+                        data: {
+                          fileName: fileName,
+                          uploadId: uploadId,
+                          parts: parts,
+                        },
+                      });
+                    } finally {
+                      await outputFileHandle?.close();
+                    }
                   });
                 },
                 { unsafeCleanup: true },
