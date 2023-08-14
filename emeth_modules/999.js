@@ -1,21 +1,38 @@
 'use strict';
 
-const { readFile, writeFile } = require('fs/promises');
+const fs = require('fs');
 const path = require('path');
 
 module.exports = async function (job, inputDir, outputDir) {
-  const dataset = await readFile(path.join(inputDir, `input-${job.id}.dat`), 'utf-8').then(
-    (file) => {
-      return file.split(/\r\n|\n/).map((line) => Number(line));
-    },
-  );
+  let count = 0;
+  let sum = 0;
 
-  const count = dataset.length + 1;
-  const sum = dataset.reduce((previousValue, currentValue) => previousValue + currentValue);
+  let filehandle;
+  try {
+    filehandle = await fs.promises.open(path.join(inputDir, `input-${job.id}.dat`));
 
-  await writeFile(
+    let lineNumber = 1;
+    for await (const line of filehandle.readLines({ encoding: 'utf-8' })) {
+      const number = Number(line.trim());
+
+      if (!Number.isNaN(number)) {
+        count++;
+        sum += number;
+      } else {
+        console.error(
+          `input-${job.id}.dat#L${lineNumber}: "${line}" can't be converted to a number.`,
+        );
+      }
+
+      lineNumber++;
+    }
+  } finally {
+    await filehandle?.close();
+  }
+
+  await fs.promises.writeFile(
     path.join(outputDir, `output-${job.id}.dat`),
-    `${count},${sum / count}\r\n`,
+    (count > 0 ? `${count},${sum / count}` : '') + '\r\n',
     'utf-8',
   );
 };
