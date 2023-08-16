@@ -1,11 +1,12 @@
+import AdmZip from 'adm-zip';
 import axios from 'axios';
 import { constants } from 'ethers';
 import fs from 'fs';
 import interval from 'interval-promise';
 import path from 'path';
 import { setTimeout } from 'timers/promises';
+import stream from 'stream';
 import tmp from 'tmp-promise';
-import unzipper from 'unzipper';
 import { CommandModule } from 'yargs';
 import { zip } from 'zip-a-folder';
 
@@ -132,130 +133,146 @@ const worker: CommandModule<
 
           logger.info(`[Job ID:${job.id}] Downloading dataset from storage...`);
 
-          const downloadResponse = await axios(downloadApiResponse.data.downloadUrl, {
-            responseType: 'stream',
-          });
+          await tmp.withFile(
+            async (inputFile) => {
+              const writer = fs.createWriteStream(inputFile.path);
 
-          if (!downloadResponse.data) {
-            return;
-          }
+              await axios(downloadApiResponse.data.downloadUrl, {
+                responseType: 'stream',
+              }).then((response) => {
+                response.data.pipe(writer);
 
-          const data = downloadResponse.data;
-
-          await tmp.withDir(
-            async (inputDir) => {
-              logger.info(`[Job ID:${job.id}] Unzipping dataset...`);
-
-              const unzip = unzipper.Extract({ path: inputDir.path });
-
-              data.pipe(unzip);
-
-              await unzip.promise();
+                return stream.promises.finished(writer);
+              });
 
               await tmp.withDir(
-                async (outputDir) => {
-                  logger.info(
-                    `[Job ID:${job.id}] Executing processor for program ID: ${job.programId}...`,
-                  );
+                async (inputDir) => {
+                  logger.info(`[Job ID:${job.id}] Unzipping dataset...`);
 
-                  // eslint-disable-next-line @typescript-eslint/no-var-requires
-                  const processor = require(path.join(
-                    __dirname,
-                    '..',
-                    '..',
-                    'emeth_modules',
-                    `${job.programId}.js`,
-                  )) as (job: unknown, inputDir: string, outputDir: string) => Promise<void>;
+                  const admZip = new AdmZip(inputFile.path);
 
-                  await processor(job, inputDir.path, outputDir.path);
-
-                  await tmp.withFile(async (outputFile) => {
-                    logger.info(`[Job ID:${job.id}] Zipping output...`);
-
-                    await zip(outputDir.path, outputFile.path);
-
-                    logger.info(`[Job ID:${job.id}] Uploading output to storage...`);
-
-                    let outputFileHandle: fs.promises.FileHandle | null = null;
-                    try {
-                      // each part is 5MiB
-                      const partSize = 5 * 1024 * 1024;
-
-                      logger.info(`[Job ID:${job.id}] Getting presigned upload URLs...`);
-
-                      const uploadPresignedUrlApiUrl = new URL(
-                        'upload/presigned-url',
-                        argv.storageApiUrl,
-                      );
-
-                      const uploadPresignedUrlApiResponse = await axios(
-                        uploadPresignedUrlApiUrl.toString(),
-                        {
-                          method: 'POST',
-                          data: {
-                            type: 'output',
-                            jobId: job.id,
-                            parts: Math.ceil(fs.statSync(outputFile.path).size / partSize),
-                          },
-                        },
-                      );
-
-                      const {
-                        fileName,
-                        uploadId,
-                        preSignedUrls,
-                      }: {
-                        fileName: string;
-                        uploadId: string;
-                        preSignedUrls: { part: number; url: string }[];
-                      } = uploadPresignedUrlApiResponse.data;
-
-                      outputFileHandle = await fs.promises.open(outputFile.path);
-
-                      const parts = [];
-                      const buffer = Buffer.alloc(partSize);
-
-                      for (const preSignedUrl of preSignedUrls) {
-                        logger.info(`[Job ID:${job.id}] Uploading part #${preSignedUrl.part}...`);
-
-                        const { bytesRead } = await outputFileHandle.read(
-                          buffer,
-                          0,
-                          partSize,
-                          (preSignedUrl.part - 1) * partSize,
-                        );
-
-                        const uploadPartResponse = await axios(preSignedUrl.url, {
-                          method: 'PUT',
-                          data: buffer,
-                          headers: {
-                            'Content-Type': 'application/octet-stream',
-                            'Content-Length': bytesRead,
-                          },
-                        });
-
-                        parts.push({
-                          ETag: uploadPartResponse.headers['etag'].replaceAll('"', ''),
-                          PartNumber: preSignedUrl.part,
-                        });
+                  await new Promise<void>((resolve, reject) => {
+                    admZip.extractAllToAsync(inputDir.path, false, false, (error) => {
+                      if (error) {
+                        reject(error);
+                      } else {
+                        resolve();
                       }
-
-                      logger.info(`[Job ID:${job.id}] Completing upload...`);
-
-                      const uploadCompleteApiUrl = new URL('upload/complete', argv.storageApiUrl);
-
-                      await axios(uploadCompleteApiUrl.toString(), {
-                        method: 'POST',
-                        data: {
-                          fileName: fileName,
-                          uploadId: uploadId,
-                          parts: parts,
-                        },
-                      });
-                    } finally {
-                      await outputFileHandle?.close();
-                    }
+                    });
                   });
+
+                  await tmp.withDir(
+                    async (outputDir) => {
+                      logger.info(
+                        `[Job ID:${job.id}] Executing processor for program ID: ${job.programId}...`,
+                      );
+
+                      // eslint-disable-next-line @typescript-eslint/no-var-requires
+                      const processor = require(path.join(
+                        __dirname,
+                        '..',
+                        '..',
+                        'emeth_modules',
+                        `${job.programId}.js`,
+                      )) as (job: unknown, inputDir: string, outputDir: string) => Promise<void>;
+
+                      await processor(job, inputDir.path, outputDir.path);
+
+                      await tmp.withFile(async (outputFile) => {
+                        logger.info(`[Job ID:${job.id}] Zipping output...`);
+
+                        await zip(outputDir.path, outputFile.path);
+
+                        logger.info(`[Job ID:${job.id}] Uploading output to storage...`);
+
+                        let outputFileHandle: fs.promises.FileHandle | null = null;
+                        try {
+                          // each part is 5MiB
+                          const partSize = 5 * 1024 * 1024;
+
+                          logger.info(`[Job ID:${job.id}] Getting presigned upload URLs...`);
+
+                          const uploadPresignedUrlApiUrl = new URL(
+                            'upload/presigned-url',
+                            argv.storageApiUrl,
+                          );
+
+                          const uploadPresignedUrlApiResponse = await axios(
+                            uploadPresignedUrlApiUrl.toString(),
+                            {
+                              method: 'POST',
+                              data: {
+                                type: 'output',
+                                jobId: job.id,
+                                parts: Math.ceil(fs.statSync(outputFile.path).size / partSize),
+                              },
+                            },
+                          );
+
+                          const {
+                            fileName,
+                            uploadId,
+                            preSignedUrls,
+                          }: {
+                            fileName: string;
+                            uploadId: string;
+                            preSignedUrls: { part: number; url: string }[];
+                          } = uploadPresignedUrlApiResponse.data;
+
+                          outputFileHandle = await fs.promises.open(outputFile.path);
+
+                          const parts = [];
+                          const buffer = Buffer.alloc(partSize);
+
+                          for (const preSignedUrl of preSignedUrls) {
+                            logger.info(
+                              `[Job ID:${job.id}] Uploading part #${preSignedUrl.part}...`,
+                            );
+
+                            const { bytesRead } = await outputFileHandle.read(
+                              buffer,
+                              0,
+                              partSize,
+                              (preSignedUrl.part - 1) * partSize,
+                            );
+
+                            const uploadPartResponse = await axios(preSignedUrl.url, {
+                              method: 'PUT',
+                              data: buffer,
+                              headers: {
+                                'Content-Type': 'application/octet-stream',
+                                'Content-Length': bytesRead,
+                              },
+                            });
+
+                            parts.push({
+                              ETag: uploadPartResponse.headers['etag'].replaceAll('"', ''),
+                              PartNumber: preSignedUrl.part,
+                            });
+                          }
+
+                          logger.info(`[Job ID:${job.id}] Completing upload...`);
+
+                          const uploadCompleteApiUrl = new URL(
+                            'upload/complete',
+                            argv.storageApiUrl,
+                          );
+
+                          await axios(uploadCompleteApiUrl.toString(), {
+                            method: 'POST',
+                            data: {
+                              fileName: fileName,
+                              uploadId: uploadId,
+                              parts: parts,
+                            },
+                          });
+                        } finally {
+                          await outputFileHandle?.close();
+                        }
+                      });
+                    },
+                    { unsafeCleanup: true },
+                  );
                 },
                 { unsafeCleanup: true },
               );
