@@ -12,24 +12,29 @@ import { zip } from 'zip-a-folder';
 
 import contracts, { ContractsMiddlewareArguments } from '../middlewares/contracts';
 import logger, { LoggerMiddlewareArguments } from '../middlewares/logger';
+import processors, { ProcessorsMiddlewareArguments } from '../middlewares/processors';
 import wallet, { WalletMiddlewareArguments } from '../middlewares/wallet';
 
 const worker: CommandModule<
   LoggerMiddlewareArguments &
     ContractsMiddlewareArguments &
-    WalletMiddlewareArguments & {
+    WalletMiddlewareArguments &
+    ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
       interval: number;
       iterations?: number;
+      emethModulesDir: string;
       emethCoreContractAddress: string;
       storageApiUrl: string;
     },
   LoggerMiddlewareArguments &
     ContractsMiddlewareArguments &
-    WalletMiddlewareArguments & {
+    WalletMiddlewareArguments &
+    ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
       interval: number;
       iterations?: number;
+      emethModulesDir: string;
       emethCoreContractAddress: string;
       storageApiUrl: string;
     }
@@ -38,21 +43,61 @@ const worker: CommandModule<
   describe: 'Serve as worker',
   builder: (yargs) => {
     return yargs
+      .env('EMETH_NODE')
       .config('config', (configPath) => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
       .default('config', path.resolve(__dirname, '..', 'config', 'worker.json'))
+      .string(['privateKey', 'emethCoreContractAddress', 'emethTokenContractAddress'])
       .default(
         'generatedUIDPath',
         path.resolve(__dirname, '..', '..', 'generated-uid', 'account.json'),
       )
       .default('interval', 10000)
       .number(['interval', 'iterations'])
-      .string(['privateKey', 'emethCoreContractAddress', 'emethTokenContractAddress'])
+      .option('emethModulesDir', {
+        alias: 'emeth-modules-dir',
+        default: path.resolve(__dirname, '..', '..', 'emeth_modules'),
+        normalize: true,
+        string: true,
+      })
+      .option('excludeProcessor', {
+        alias: 'exclude-processor',
+        array: true,
+        conflicts: 'includeProcessor',
+        describe: 'exclude processor with specified program ID(s)',
+        string: true,
+      })
+      .option('includeProcessor', {
+        alias: 'include-processor',
+        array: true,
+        conflicts: 'excludeProcessor',
+        describe: 'include processor with specified program ID(s)',
+        string: true,
+      })
+      .coerce(['excludeProcessor', 'includeProcessor'], (arg) => {
+        return arg
+          .map((prgoramIds: string) => {
+            return prgoramIds.split(/,/);
+          })
+          .flat()
+          .map((prgoramId: string) => {
+            if (prgoramId.match(/^[0-9]+$/)) {
+              return Number(prgoramId);
+            } else {
+              throw new Error(`Specified program ID: '${prgoramId}' is invalid.`);
+            }
+          });
+      })
       .middleware(wallet)
       .middleware(contracts)
+      .middleware(processors)
       .middleware(logger);
   },
   handler: async (argv) => {
     const logger = argv.logger;
+
+    logger.info(
+      `Going to process program ID(s): ${Array.from(argv.processors.keys()).join(', ')}...`,
+    );
 
     logger.info(`Monitoring cache server at ${argv.interval / 1000}s intervals...`);
 
@@ -75,7 +120,7 @@ const worker: CommandModule<
           }
 
           const jobs = json.filter((job) => {
-            return job.numParallel == 1 && job.programId == 999;
+            return job.numParallel == 1 && argv.processors.has(job.programId);
           });
 
           if (jobs.length == 0) {
@@ -167,13 +212,10 @@ const worker: CommandModule<
                         `[Job ID:${job.id}] Executing processor for program ID: ${job.programId}...`,
                       );
 
-                      // eslint-disable-next-line @typescript-eslint/no-var-requires
+                      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-non-null-assertion
                       const processor = require(path.join(
-                        __dirname,
-                        '..',
-                        '..',
-                        'emeth_modules',
-                        `${job.programId}.js`,
+                        argv.emethModulesDir,
+                        argv.processors.get(job.programId)!,
                       )) as (job: unknown, inputDir: string, outputDir: string) => Promise<void>;
 
                       await processor(job, inputDir.path, outputDir.path);
