@@ -21,9 +21,10 @@ const worker: CommandModule<
     WalletMiddlewareArguments &
     ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
+      excludeProcessor?: number[];
       interval: number;
+      includeProcessor?: number[];
       iterations?: number;
-      emethModulesDir: string;
       emethCoreContractAddress: string;
       storageApiUrl: string;
     },
@@ -32,9 +33,10 @@ const worker: CommandModule<
     WalletMiddlewareArguments &
     ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
+      excludeProcessor?: number[];
       interval: number;
+      includeProcessor?: number[];
       iterations?: number;
-      emethModulesDir: string;
       emethCoreContractAddress: string;
       storageApiUrl: string;
     }
@@ -53,12 +55,6 @@ const worker: CommandModule<
       )
       .default('interval', 10000)
       .number(['interval', 'iterations'])
-      .option('emethModulesDir', {
-        alias: 'emeth-modules-dir',
-        default: path.resolve(__dirname, '..', '..', 'emeth_modules'),
-        normalize: true,
-        string: true,
-      })
       .option('excludeProcessor', {
         alias: 'exclude-processor',
         array: true,
@@ -95,10 +91,6 @@ const worker: CommandModule<
   handler: async (argv) => {
     const logger = argv.logger;
 
-    logger.info(
-      `Going to process program ID(s): ${Array.from(argv.processors.keys()).join(', ')}...`,
-    );
-
     logger.info(`Monitoring cache server at ${argv.interval / 1000}s intervals...`);
 
     await interval(
@@ -120,7 +112,19 @@ const worker: CommandModule<
           }
 
           const jobs = json.filter((job) => {
-            return job.numParallel == 1 && argv.processors.has(job.programId);
+            if (job.numParallel != 1) {
+              return false;
+            } else if (argv.includeProcessor) {
+              if (!argv.includeProcessor.includes(job.programId)) {
+                return false;
+              }
+            } else if (argv.excludeProcessor) {
+              if (argv.excludeProcessor.includes(job.programId)) {
+                return false;
+              }
+            }
+
+            return true;
           });
 
           if (jobs.length == 0) {
@@ -209,16 +213,23 @@ const worker: CommandModule<
                   await tmp.withDir(
                     async (outputDir) => {
                       logger.info(
-                        `[Job ID:${job.id}] Executing processor for program ID: ${job.programId}...`,
+                        `[Job ID:${job.id}] Running processor container for program ID: ${job.programId}...`,
                       );
 
-                      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-non-null-assertion
-                      const processor = require(path.join(
-                        argv.emethModulesDir,
-                        argv.processors.get(job.programId)!,
-                      )) as (job: unknown, inputDir: string, outputDir: string) => Promise<void>;
+                      const exitCode = await argv.processors.run(
+                        job,
+                        inputDir.path,
+                        outputDir.path,
+                        { logger: logger },
+                      );
 
-                      await processor(job, inputDir.path, outputDir.path);
+                      if (exitCode != 0) {
+                        logger.error(
+                          `[Job ID:${job.id}] Container returned exit code ${exitCode}.`,
+                        );
+
+                        return;
+                      }
 
                       await tmp.withFile(async (outputFile) => {
                         logger.info(`[Job ID:${job.id}] Zipping output...`);

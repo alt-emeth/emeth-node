@@ -209,13 +209,16 @@ test('Worker', async () => {
     cacheServerUrl: 'https://emeth-cache.testnet.alt.ai/api/v1/jobs',
     storageApiUrl: 'https://emeth-storage.testnet.alt.ai/api/v1/',
     emethCoreContractAddress: emethCoreContract.address,
-    emethModulesDir: __dirname + '/../../../emeth_modules',
     emethTokenContractAddress: emethTokenContract.address,
     endpoint: 'ws://ethereum:8546/',
     interval: 10000,
     iterations: 1,
     privateKey: wallet.privateKey,
-    processors: new Map([[999, '999.js']]),
+    processors: {
+      run: () => {
+        return;
+      },
+    },
     logger: console,
   } as any;
 
