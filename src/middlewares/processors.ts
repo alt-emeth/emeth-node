@@ -21,13 +21,33 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
 
   args.processors = {
     async run(job, inputDir, outputDir, { logger }) {
-      const imageName = `emeth-module-${job.programId.toString().padStart(4, '0')}:latest`;
+      const imageName = `ghcr.io/alt-emeth/emeth-module-${job.programId
+        .toString()
+        .padStart(4, '0')}:latest`;
 
-      const image = docker.getImage(imageName);
-      if (!image) {
+      const hasImage =
+        (await docker.listImages()).filter((imageInfo) => {
+          return imageInfo.RepoTags?.includes(imageName);
+        }).length > 0;
+
+      if (!hasImage) {
         logger.info(`Pulling from ${imageName}...`);
 
-        await docker.pull(imageName);
+        await new Promise<void>((resolve, reject) => {
+          docker.pull(imageName, {}, (err, stream) => {
+            if (err) {
+              reject(err);
+            } else {
+              docker.modem.followProgress(stream, (err) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve();
+                }
+              });
+            }
+          });
+        });
       }
 
       const stdoutStream = byline.createStream().on('data', (data) => {
