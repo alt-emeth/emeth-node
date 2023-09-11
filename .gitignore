@@ -2,7 +2,6 @@ node_modules
 /dist
 **/.DS_Store
 !.gitkeep
-src/config/master.json
-src/config/worker.json
+src/config/emeth-node.json
 emeth-node.sqlite3
 generated-uid

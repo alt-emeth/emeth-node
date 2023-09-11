@@ -1,6 +1,6 @@
-import yargs from 'yargs'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const yargs = require('yargs');
 
-yargs
-  .help()
-  .commandDir('cmds', { extensions: ['js', 'ts'] })
-  .parse(process.argv.slice(2))
+import worker from './cmds/worker';
+
+yargs.help().command(worker).parse(process.argv.slice(2));

@@ -41,13 +41,13 @@ const worker: CommandModule<
       storageApiUrl: string;
     }
 > = {
-  command: 'worker',
+  command: ['worker', '$0'],
   describe: 'Serve as worker',
   builder: (yargs) => {
     return yargs
       .env('EMETH_NODE')
       .config('config', (configPath) => JSON.parse(fs.readFileSync(configPath, 'utf-8')))
-      .default('config', path.resolve(__dirname, '..', 'config', 'worker.json'))
+      .default('config', path.join(path.dirname(process.argv[1]), 'config', 'emeth-node.json'))
       .string(['privateKey', 'emethCoreContractAddress', 'emethTokenContractAddress'])
       .default(
         'generatedUIDPath',
