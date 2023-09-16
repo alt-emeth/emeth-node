@@ -322,6 +322,12 @@ const worker: CommandModule<
                         } finally {
                           await outputFileHandle?.close();
                         }
+
+                        logger.info(`[Job ID:${job.id}] Submitting the result...`);
+
+                        await (
+                          await argv.contracts.emethCore.submit(job.id, 'test', job.fuelLimit)
+                        ).wait();
                       });
                     },
                     { unsafeCleanup: true },
@@ -332,10 +338,6 @@ const worker: CommandModule<
             },
             { unsafeCleanup: true },
           );
-
-          logger.info(`[Job ID:${job.id}] Submitting the result...`);
-
-          await (await argv.contracts.emethCore.submit(job.id, 'test', job.fuelLimit)).wait();
         } catch (e) {
           logger.error(e);
         }

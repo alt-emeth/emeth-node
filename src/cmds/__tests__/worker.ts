@@ -216,7 +216,7 @@ test('Worker', async () => {
     privateKey: wallet.privateKey,
     processors: {
       run: () => {
-        return;
+        return 0;
       },
     },
     logger: console,
