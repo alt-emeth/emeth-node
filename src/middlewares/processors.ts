@@ -1,6 +1,7 @@
 import * as byline from 'byline';
 import Dockerode from 'dockerode';
 import { Logger } from 'log4js';
+import * as os from 'os';
 import { Arguments } from 'yargs';
 
 export interface ProcessorsMiddlewareArguments {
@@ -58,16 +59,24 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
         logger.error(data.toString('utf-8'));
       });
 
+      const createOptions: Dockerode.ContainerCreateOptions = {
+        Tty: false,
+        HostConfig: {
+          Binds: [`${inputDir}:/input:rw`, `${outputDir}:/output:rw`],
+        },
+      };
+
+      if (process.platform == 'linux') {
+        const userInfo = os.userInfo();
+
+        createOptions['User'] = `${userInfo.uid}:${userInfo.gid}`;
+      }
+
       const [result, container] = await docker.run(
         imageName,
         [job.id, '/input', '/output'],
         [stdoutStream, stderrStream],
-        {
-          Tty: false,
-          HostConfig: {
-            Binds: [`${inputDir}:/input:rw`, `${outputDir}:/output:rw`],
-          },
-        },
+        createOptions,
       );
 
       await container.remove();
