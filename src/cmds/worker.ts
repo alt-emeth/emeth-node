@@ -319,15 +319,19 @@ const worker: CommandModule<
                               parts: parts,
                             },
                           });
+
+                          logger.info(`[Job ID:${job.id}] Submitting the result...`);
+
+                          await (
+                            await argv.contracts.emethCore.submit(
+                              job.id,
+                              path.basename(fileName),
+                              job.fuelLimit,
+                            )
+                          ).wait();
                         } finally {
                           await outputFileHandle?.close();
                         }
-
-                        logger.info(`[Job ID:${job.id}] Submitting the result...`);
-
-                        await (
-                          await argv.contracts.emethCore.submit(job.id, 'test', job.fuelLimit)
-                        ).wait();
                       });
                     },
                     { unsafeCleanup: true },
