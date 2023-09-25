@@ -139,12 +139,25 @@ const worker: CommandModule<
 
           logger.info(`[Job ID:${job.id}] Starting to process...`);
 
-          await (
-            await argv.contracts.emethToken.approve(
-              argv.emethCoreContractAddress,
-              constants.MaxUint256,
-            )
-          ).wait();
+          const allowance = await argv.contracts.emethToken.allowance(
+            argv.wallet.address,
+            argv.emethCoreContractAddress,
+          );
+
+          if (allowance.lt(job.fuelLimit * job.fuelPrice)) {
+            logger.info(
+              `[Job ID:${job.id}] Approving spending ${
+                job.fuelLimit * job.fuelPrice
+              } Emeth Token to Emeth Core...`,
+            );
+
+            await (
+              await argv.contracts.emethToken.approve(
+                argv.emethCoreContractAddress,
+                job.fuelLimit * job.fuelPrice,
+              )
+            ).wait();
+          }
 
           await (await argv.contracts.emethCore.process(job.id)).wait();
 
