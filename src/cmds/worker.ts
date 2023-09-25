@@ -21,6 +21,7 @@ const worker: CommandModule<
     WalletMiddlewareArguments &
     ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
+      enableGpu: boolean;
       excludeProcessor?: number[];
       interval: number;
       includeProcessor?: number[];
@@ -33,6 +34,7 @@ const worker: CommandModule<
     WalletMiddlewareArguments &
     ProcessorsMiddlewareArguments & {
       cacheServerUrl: string;
+      enableGpu: boolean;
       excludeProcessor?: number[];
       interval: number;
       includeProcessor?: number[];
@@ -233,7 +235,7 @@ const worker: CommandModule<
                         job,
                         inputDir.path,
                         outputDir.path,
-                        { logger: logger },
+                        argv,
                       );
 
                       if (exitCode != 0) {

@@ -10,7 +10,7 @@ export interface ProcessorsMiddlewareArguments {
       job: { id: string; programId: number },
       inputDir: string,
       outputDir: string,
-      { logger }: { logger: Logger },
+      { enableGpu, logger }: { enableGpu: boolean; logger: Logger },
     ) => Promise<number>;
   };
 }
@@ -21,7 +21,7 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
   });
 
   args.processors = {
-    async run(job, inputDir, outputDir, { logger }) {
+    async run(job, inputDir, outputDir, { enableGpu, logger }) {
       const imageName = `ghcr.io/alt-emeth/emeth-module-${job.programId
         .toString()
         .padStart(4, '0')}:latest`;
@@ -63,6 +63,15 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
         Tty: false,
         HostConfig: {
           Binds: [`${inputDir}:/input:rw`, `${outputDir}:/output:rw`],
+          DeviceRequests: enableGpu
+            ? [
+                {
+                  Driver: 'nvidia',
+                  Count: -1,
+                  Capabilities: [['gpu']],
+                },
+              ]
+            : undefined,
         },
       };
 

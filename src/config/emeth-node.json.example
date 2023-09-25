@@ -4,5 +4,6 @@
   "storageApiUrl": "https://emeth-storage.testnet.alt.ai/api/v1/",
   "emethCoreContractAddress": "0x6F68e7971A0Ea8c4b3FAf4e8F379Cb0BeAF7c922",
   "emethTokenContractAddress": "0xaa2b7BbEF0D8331b6bfE6ffa770c510F54AA95E5",
-  "privateKey": "<YOUR SECRET>"
+  "privateKey": "<YOUR SECRET>",
+  "enableGpu": true
 }
