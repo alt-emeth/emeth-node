@@ -135,7 +135,7 @@ const worker: CommandModule<
             return job2.fuelLimit * job2.fuelPrice - job1.fuelLimit * job1.fuelPrice;
           });
 
-          let job = jobs[0];
+          let job = jobs[Math.floor(Math.random() * jobs.length)];
 
           logger.info(`[Job ID:${job.id}] Starting to process...`);
 
