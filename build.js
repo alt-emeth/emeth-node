@@ -1,5 +1,4 @@
 const esbuild = require('esbuild');
-const path = require('path');
 
 let ignoreNodePlugin = {
   name: 'ignore-node',
@@ -12,8 +11,16 @@ let ignoreNodePlugin = {
 
 esbuild.build({
   bundle: true,
-  entryPoints: ['src/cli.ts'],
-  external: ['cpu-features'],
+  entryPoints: ['dist/main.js'],
+  external: [
+    '@nestjs/microservices',
+    '@nestjs/platform-express',
+    '@nestjs/websockets/socket-module',
+    'class-transformer',
+    'class-validator',
+    'cpu-features',
+  ],
+  keepNames: true,
   minify: true,
   outfile: 'dist/bundle.js',
   platform: 'node',
