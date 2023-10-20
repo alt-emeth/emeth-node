@@ -1,8 +1,8 @@
 {
-  "endpoint": "https://polygon-mumbai.infura.io/v3/f13a495cc5d743048a4e3afb36ac0ffa",
+  "endpoint": "https://polygon-rpc.com",
   "cacheServerUrl": "https://emeth-cache.testnet.alt.ai/api/v1/jobs",
   "storageApiUrl": "https://emeth-storage.testnet.alt.ai/api/v1/",
-  "emethCoreContractAddress": "0x6F68e7971A0Ea8c4b3FAf4e8F379Cb0BeAF7c922",
+  "emethCoreContractAddress": "0x55bd956f55A44FA862A5EA033B0478Ecb344a665",
   "emethTokenContractAddress": "0xaa2b7BbEF0D8331b6bfE6ffa770c510F54AA95E5",
   "privateKey": "<YOUR SECRET>",
   "enableGpu": true
