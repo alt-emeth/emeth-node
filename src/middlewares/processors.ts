@@ -1,4 +1,5 @@
 import * as byline from 'byline';
+import decamelize from 'decamelize';
 import Dockerode from 'dockerode';
 import { Logger } from 'log4js';
 import * as os from 'os';
@@ -7,9 +8,9 @@ import { Arguments } from 'yargs';
 export interface ProcessorsMiddlewareArguments {
   processors: {
     run: (
-      job: { id: string; programId: number },
-      inputDir: string,
-      outputDir: string,
+      job: { id: string; param: string; programId: number },
+      inputDirOrFile: string,
+      outputDirOrFile: string,
       { enableGpu, logger }: { enableGpu: boolean; logger: Logger },
     ) => Promise<number>;
   };
@@ -22,6 +23,17 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
 
   args.processors = {
     async run(job, inputDir, outputDir, { enableGpu, logger }) {
+      const params: string[] = [];
+
+      if (job.param) {
+        const json = JSON.parse(job.param);
+
+        Object.keys(json).forEach((key: string) => {
+          params.push('--' + decamelize(key).replace('_', '-'));
+          params.push(json[key]);
+        });
+      }
+
       const imageName = `ghcr.io/alt-emeth/emeth-module-${job.programId
         .toString()
         .padStart(4, '0')}:latest`;
@@ -83,7 +95,7 @@ export default function processors(args: Arguments & ProcessorsMiddlewareArgumen
 
       const [result, container] = await docker.run(
         imageName,
-        [job.id, '/input', '/output'],
+        [...params, job.id, '/input', '/output'],
         [stdoutStream, stderrStream],
         createOptions,
       );
