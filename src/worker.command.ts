@@ -6,11 +6,13 @@ import {
   clearIntervalAsync,
   setIntervalAsync as setIntervalAsyncDynamic,
 } from 'set-interval-async/dynamic';
+import { setTimeout } from 'timers/promises';
 import * as tmp from 'tmp-promise';
 
 import {
   EmethCacheService,
   EmethContractsService,
+  EmethStorageService,
   EmethWalletService,
 } from './emeth';
 
@@ -36,6 +38,8 @@ export class WorkerCommand extends CommandRunner {
     private emethCacheService: EmethCacheService,
     @Inject(EmethContractsService)
     private emethContractsService: EmethContractsService,
+    @Inject(EmethStorageService)
+    private emethStorageService: EmethStorageService,
     @Inject(EmethWalletService)
     private emethWalletService: EmethWalletService,
     @Inject(ProcessorService)
@@ -62,7 +66,7 @@ export class WorkerCommand extends CommandRunner {
 
     const timer = setIntervalAsyncDynamic(async () => {
       try {
-        const job = await this.chooseJobToProcess(
+        let job = await this.chooseJobToProcess(
           options.includeProcessor,
           options.excludeProcessor,
         );
@@ -70,6 +74,10 @@ export class WorkerCommand extends CommandRunner {
         if (!job) {
           return;
         }
+
+        const param = job.param ? JSON.parse(job.param) : {};
+
+        const isDirect = param.datasetType && param.datasetType == 'direct';
 
         this.logger.log(`[Job ID:${job.id}] Starting to process...`);
 
@@ -97,15 +105,41 @@ export class WorkerCommand extends CommandRunner {
           ).wait();
         }
 
+        if (!isDirect) {
+          await (
+            await this.emethContractsService
+              .getEmethCoreContract()
+              .process(job.id)
+          ).wait();
+
+          this.logger.log(
+            `[Job ID:${job.id}] Waiting cache server to update...`,
+          );
+
+          job = await this.waitJobForProcessingStatus(job.id);
+        }
+
         await tmp.withFile(
           async (inputFile) => {
             await tmp.withDir(
               async (inputDir) => {
-                await fs.promises.writeFile(
-                  inputFile.path,
-                  job.dataset,
-                  'utf-8',
-                );
+                if (!isDirect) {
+                  this.logger.log(
+                    `[Job ID:${job.id}] Downloading dataset from storage...`,
+                  );
+
+                  await this.emethStorageService.download(
+                    job.id,
+                    'input',
+                    inputDir.path,
+                  );
+                } else {
+                  await fs.promises.writeFile(
+                    inputFile.path,
+                    job.dataset,
+                    'utf-8',
+                  );
+                }
 
                 await tmp.withDir(
                   async (outputDir) => {
@@ -118,8 +152,8 @@ export class WorkerCommand extends CommandRunner {
                         const exitCode =
                           await this.processorService.runProcessor(
                             job,
-                            inputFile.path,
-                            outputFile.path,
+                            !isDirect ? inputDir.path : inputFile.path,
+                            !isDirect ? outputDir.path : outputFile.path,
                             { enableGpu: this.configService.get('enableGpu') },
                           );
 
@@ -131,9 +165,23 @@ export class WorkerCommand extends CommandRunner {
                           return;
                         }
 
-                        const result = (
-                          await fs.promises.readFile(outputFile.path, 'utf-8')
-                        ).replace(/[\r\n]+$/, '');
+                        let result;
+
+                        if (!isDirect) {
+                          this.logger.log(
+                            `[Job ID:${job.id}] Uploading output to storage...`,
+                          );
+
+                          result = await this.emethStorageService.upload(
+                            job.id,
+                            'output',
+                            outputDir.path,
+                          );
+                        } else {
+                          result = (
+                            await fs.promises.readFile(outputFile.path, 'utf-8')
+                          ).replace(/[\r\n]+$/, '');
+                        }
 
                         this.logger.log(
                           `[Job ID:${job.id}] Submitting the result...`,
@@ -233,9 +281,7 @@ export class WorkerCommand extends CommandRunner {
         }
       }
 
-      const param = job.param ? JSON.parse(job.param) : {};
-
-      return param.datasetType && param.datasetType == 'direct';
+      return true;
     });
 
     if (processableJobs.length == 0) {
@@ -247,5 +293,17 @@ export class WorkerCommand extends CommandRunner {
     });
 
     return processableJobs[Math.floor(Math.random() * processableJobs.length)];
+  }
+
+  private async waitJobForProcessingStatus(jobId: string) {
+    while (true) {
+      const job = await this.emethCacheService.getJob(jobId);
+
+      if (job.id == jobId && job.status == 2 /* PROCESSING */) {
+        return job;
+      }
+
+      await setTimeout(10000);
+    }
   }
 }
