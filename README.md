@@ -124,14 +124,7 @@ $ npm run build
 ```
 
 ## Run Emeth-node
-### Launch Worker node
-Execute under worker node directory.
-```
-node dist/cli.js worker
-```
 
-### Job list
-Execute under master node directory.
 ```
-node dist/cli.js joblist
+node dist/bundle.js
 ```

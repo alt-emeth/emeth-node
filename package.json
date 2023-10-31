@@ -2,43 +2,51 @@
   "name": "emeth-node",
   "version": "1.0.0",
   "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "mkdirp dist && node build.js",
-    "postbuild": "copyfiles -u 1 src/config/emeth-node.json.example dist",
-    "start": "ts-node src/cli.ts",
-    "start:prod": "node dist/bundle.js",
+    "build": "nest build && node build.js",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/bundle",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
     "typechain": "typechain --target ethers-v5 --outDir src/types/contracts \"src/contracts/*.json\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alt-ai/emeth-node.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/alt-ai/emeth-node/issues"
   },
   "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.1.1",
+    "@nestjs/core": "^10.0.0",
     "adm-zip": "^0.5.10",
-    "axios": "^1.4.0",
     "byline": "^5.0.0",
     "decamelize": "^5.0.1",
     "dockerode": "^3.3.5",
     "ethers": "^5.0.32",
-    "form-data": "^4.0.0",
-    "interval-promise": "^1.4.0",
-    "knex": "^0.95.2",
-    "log4js": "6.9.1",
-    "make-dir": "3.1.0",
-    "mysql": "2.18.1",
-    "sqlite3": "5.1.6",
+    "nest-commander": "^3.12.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1",
+    "set-interval-async": "^3.0.3",
     "tmp-promise": "^3.0.3",
-    "yargs": "^16.2.0",
     "zip-a-folder": "^2.0.0"
   },
   "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
     "@typechain/ethers-v5": "^6.0.5",
     "@types/adm-zip": "^0.5.0",
     "@types/byline": "^4.2.33",
@@ -46,24 +54,41 @@
     "@types/express": "4.17.7",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.16.19",
+    "@types/set-interval-async": "^1.0.2",
     "@types/unzipper": "^0.10.6",
-    "@types/yargs": "^16.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "axios-mock-adapter": "^1.21.5",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "copyfiles": "^2.4.1",
     "esbuild": "^0.19.2",
-    "eslint": "^8.0.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "jest": "^29.6.1",
-    "mkdirp": "^3.0.1",
-    "rimraf": "^5.0.1",
+    "prettier": "^3.0.0",
     "solc": "^0.8.18",
+    "source-map-support": "^0.5.21",
     "ts-jest": "^29.1.1",
+    "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "typechain": "^4.0.3",
-    "typescript": "^4.2.3"
+    "typescript": "^5.1.3"
   },
-  "homepage": "https://github.com/alt-ai/emeth-node#readme"
+  "homepage": "https://github.com/alt-ai/emeth-node#readme",
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
 }
