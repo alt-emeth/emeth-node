@@ -18,7 +18,8 @@ const JSON_CONFIG_FILENAME = 'emeth-node.json';
         () => {
           return JSON.parse(
             fs.readFileSync(
-              path.join(__dirname, 'config', JSON_CONFIG_FILENAME),
+              process.env['EMETH_NODE_CONFIG'] ||
+                path.join(__dirname, 'config', JSON_CONFIG_FILENAME),
               'utf-8',
             ),
           );
