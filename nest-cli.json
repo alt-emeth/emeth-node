@@ -4,7 +4,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": [
-      "./config/*.json",
+      "./config/*",
       "./contracts/*.json"
     ],
     "deleteOutDir": true
