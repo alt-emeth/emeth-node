@@ -85,6 +85,7 @@ export class ProcessorService {
     if (process.platform == 'linux') {
       const userInfo = os.userInfo();
 
+      createOptions['Env'] = ['HOME=/tmp'];
       createOptions['User'] = `${userInfo.uid}:${userInfo.gid}`;
     }
 
