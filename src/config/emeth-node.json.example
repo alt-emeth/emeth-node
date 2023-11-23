@@ -2,8 +2,8 @@
   "endpoint": "https://polygon-mainnet.g.alchemy.com/v2/{YourAlchemyApiKey}",
   "cacheServerUrl": "https://cache-nova.emeth.ai/api/v1/jobs",
   "storageApiUrl": "https://storage-nova.emeth.ai/api/v1/",
-  "emethCoreContractAddress": "0x774624AF637A0Cf4344d618ecB6DD8eC5a9cF72E",
-  "emethTokenContractAddress": "0x2d2fcF93EE102D1700839Ee4ca491aF2E829b72A",
+  "emethCoreContractAddress": "0x5aF9c255D6C965aAa8DB3e9C82276e59345186C8",
+  "emethTokenContractAddress": "0xCB746131b75f30942de7C59a5Be1393Fca5Be05D",
   "privateKey": "{YourWalletPrivateKey}",
   "enableGpu": true
 }
